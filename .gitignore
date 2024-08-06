@@ -30,8 +30,8 @@
 **/Thumbs.db
 
 # Docker
-**/Dockerfile
-**/docker-compose.yml
+# **/Dockerfile
+# **/docker-compose.yml
 
 # Local development settings
 **/*.local

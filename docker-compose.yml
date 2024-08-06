@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  service1:
+    build:
+      context: ./user-service
+    ports:
+      - "3001:3000"
+    depends_on:
+      - mongodb
+    networks:
+      - mynetwork
+
+  service2:
+    build:
+      context: ./account-service
+    ports:
+      - "3002:3000"
+    depends_on:
+      - mongodb
+    networks:
+      - mynetwork
+
+  service3:
+    build:
+      context: ./transaction-service
+    ports:
+      - "3003:3000"
+    depends_on:
+      - mongodb
+    networks:
+      - mynetwork
+
+  service4:
+    build:
+      context: ./payment-service
+    ports:
+      - "3004:3000"
+    depends_on:
+      - mongodb
+    networks:
+      - mynetwork
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - mynetwork
+
+networks:
+ mynetwork:
+
+volumes:
+ mongo-data:
