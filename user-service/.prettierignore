@@ -1,3 +1,6 @@
-node_modules
-dist
-*.min.js
+node_modules/
+dist/
+build/
+tests/
+__tests__/
+*.mjs

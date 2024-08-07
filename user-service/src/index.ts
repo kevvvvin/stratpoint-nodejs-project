@@ -4,18 +4,17 @@ import mongoose, { ConnectOptions } from 'mongoose';
 
 import config from './config';
 import router from './routes';
+import logger from './utils/logger';
 import errorHandler from './middlewares/error.middleware';
 
-const connectToDatabase = async () => {
-    try {
-        console.log(`Connecting to MongoDB at ${config.mongoURI}`)
-        await mongoose.connect(config.mongoURI, {
-            
-        } as ConnectOptions);
-        console.log("Connected to MongoDB");
-    } catch (err) {
-        console.error("MongoDB Connection Error:, ", err);
-    }
+const connectToDatabase = async (): Promise<void> => {
+  try {
+    logger.info(`Connecting to MongoDB at ${config.mongoURI}`);
+    await mongoose.connect(config.mongoURI, {} as ConnectOptions);
+    logger.info('Connected to MongoDB');
+  } catch (err) {
+    logger.info('MongoDB Connection Error:, ', err);
+  }
 };
 connectToDatabase();
 
@@ -29,7 +28,6 @@ app.use('/api', router);
 app.use(errorHandler);
 
 const PORT = config.port;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => logger.info(`Server running on port ${PORT}`));
 
 export default app;
-

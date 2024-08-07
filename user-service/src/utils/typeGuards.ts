@@ -2,10 +2,7 @@ import { CustomError, MongooseError, JwtError } from '../types/error.types';
 
 // Type guard for MongooseError
 export function isMongooseError(err: CustomError): err is MongooseError {
-  return (
-    (err as MongooseError).code !== undefined || 
-    (err as MongooseError).errors !== undefined
-  );
+  return (err as MongooseError).code !== undefined || (err as MongooseError).errors !== undefined;
 }
 
 // Type guard for JwtError
@@ -22,5 +19,3 @@ export function isJwtError(err: CustomError): err is JwtError {
 // export function isLoginError(err: CustomError): err is LoginError {
 //     return err.name === 'LoginError';
 // }
-  
-

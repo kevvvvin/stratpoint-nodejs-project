@@ -1,13 +1,13 @@
 export interface MongooseError extends Error {
-    errors: {
-        [key: string]: {
-            message: string;
-        };
+  errors: {
+    [key: string]: {
+      message: string;
     };
-    code?: number;
-    keyValue?: {
-        [key: string]: any;
-    };
+  };
+  code?: number;
+  keyValue?: {
+    [key: string]: any;
+  };
 }
 
 export interface JwtError extends Error {
