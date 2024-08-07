@@ -4,7 +4,7 @@ import mongoose, { ConnectOptions } from 'mongoose';
 
 import config from './config';
 import router from './routes';
-// import errorMiddleware from './middlewares/error.middleware';
+import errorHandler from './middlewares/error.middleware';
 
 const connectToDatabase = async () => {
     try {
@@ -24,8 +24,9 @@ const app: Application = express();
 app.use(cors());
 app.use(express.json());
 
- app.use('/api', router);
-// app.use(errorMiddleWare);
+app.use('/api', router);
+
+app.use(errorHandler);
 
 const PORT = config.port;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

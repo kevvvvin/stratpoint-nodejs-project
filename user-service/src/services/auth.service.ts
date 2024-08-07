@@ -6,11 +6,7 @@ import { RegisterRequestBody, LoginRequestBody } from "../types/auth.types";
 const register = async (data: RegisterRequestBody) => {
     const { email, password, firstName, lastName } = data;
 
-    let user = await User.findOne({ email });
-    if (user)
-        throw new Error("Email is already being used by another user");
-
-    user = new User({email, password, firstName, lastName});
+    const user = new User({email, password, firstName, lastName});
     await user.save();
 
     const token = jwt.sign({ id: user._id }, config.jwtSecret, { expiresIn: '1d' });

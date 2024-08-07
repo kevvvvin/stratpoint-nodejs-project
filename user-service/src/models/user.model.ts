@@ -1,13 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
+import { IUser } from '../types/models.types';
 
-interface IUser extends Document {
-    email: string,
-    password: string,
-    firstName: string,
-    lastName: string,
-    checkPassword(candidatePassword: string): Promise<boolean>;
-}
 
 const userSchema = new Schema<IUser>({
     email: {
