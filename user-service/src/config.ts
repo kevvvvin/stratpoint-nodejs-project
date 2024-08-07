@@ -1,20 +1,17 @@
 import * as dotenv from "dotenv";
 import path from "path";
+import { Config } from "./types/config.types";
 
 dotenv.config({ path: path.resolve(__dirname, '../.env')});
 
-console.log("Environment Variables: ", process.env);
-
-interface Config {
-    port: number,
-    mongoURI: string,
-    jwtSecret: string
-}
+// console.log("Environment Variables: ", process.env);
 
 const config: Config = {
     port: parseInt(process.env.PORT || "3001", 10),
     mongoURI: process.env.MONGO_URI || "",
-    jwtSecret: process.env.JWT_SECRET || ""
+    jwtSecret: process.env.JWT_SECRET || "",
+    logLevel: process.env.LOG_LEVEL || "",
+    nodeENV: process.env.NODE_ENV || ""
 };
 
 if (!config.mongoURI) {

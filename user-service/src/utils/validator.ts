@@ -1,18 +1,7 @@
 import Joi from 'joi';
+import { RegisterRequestBody, LoginRequestBody } from '../types/auth.types';
 
-interface RegisterUser {
-    email: string,
-    password: string,
-    firstName: string,
-    lastName: string
-}
-
-interface LoginData {
-    email: string,
-    password: string
-}
-
-const validateUser = (user: RegisterUser) => {
+const validateUser = (user: RegisterRequestBody) => {
     const schema = Joi.object({
         email: Joi.string().email().required(),
         password: Joi.string().min(8).required(),
@@ -22,7 +11,7 @@ const validateUser = (user: RegisterUser) => {
     return schema.validate(user);
 }
 
-const validateLogin = (data: LoginData) => {
+const validateLogin = (data: LoginRequestBody) => {
     const schema = Joi.object({
         email: Joi.string().email().required(),
         password: Joi.string().required()
