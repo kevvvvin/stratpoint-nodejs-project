@@ -6,7 +6,7 @@ import config from './config';
 import router from './routes';
 import logger from './utils/logger';
 import errorHandler from './middlewares/error.middleware';
-import initializeRoles from './utils/initializer';
+import { initializeRoles, initializeAdmin } from './utils/initializer';
 
 const connectToDatabase = async (): Promise<void> => {
   try {
@@ -15,6 +15,7 @@ const connectToDatabase = async (): Promise<void> => {
     logger.info('Connected to MongoDB');
 
     await initializeRoles();
+    await initializeAdmin();
   } catch (err) {
     logger.info('MongoDB Connection Error:, ', err);
   }
