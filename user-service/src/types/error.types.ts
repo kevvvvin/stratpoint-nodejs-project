@@ -6,7 +6,7 @@ export interface MongooseError extends Error {
   };
   code?: number;
   keyValue?: {
-    [key: string]: any;
+    [key: string]: Record<string, string | number | boolean>;
   };
 }
 

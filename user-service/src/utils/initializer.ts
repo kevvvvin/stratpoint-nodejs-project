@@ -15,7 +15,9 @@ export async function initializeRoles(): Promise<void> {
       const existingRole = await Role.findOne({ name: role.name });
       if (!existingRole) {
         await Role.create(role);
-        logger.info(`Role ${role.name} initialized with description: ${role.description}.`);
+        logger.info(
+          `Role ${role.name} initialized with description: ${role.description}.`,
+        );
       } else {
         logger.info(`Role ${role.name} already exists.`);
       }

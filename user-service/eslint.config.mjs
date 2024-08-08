@@ -49,7 +49,7 @@ export default [
           trailingComma: "all",
           arrowParens: "always",
           tabWidth: 2,
-          printWidth: 100,
+          printWidth: 90,
         },
       ],
 
@@ -73,7 +73,7 @@ export default [
             trailingComma: "all",
             arrowParens: "always",
             tabWidth: 2,
-            printWidth: 100,
+            printWidth: 90,
           },
         ]
     },

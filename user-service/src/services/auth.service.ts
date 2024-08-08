@@ -2,7 +2,8 @@ import User from '../models/user.model';
 import Role from '../models/role.model';
 import jwt from 'jsonwebtoken';
 import config from '../config';
-import { RegisterRequestBody, LoginRequestBody, AuthResponseBody } from '../types/auth.types';
+import { RegisterRequestBody, LoginRequestBody } from '../types/request.types';
+import { AuthResponseBody } from '../types/response.types';
 import { RoleEnum } from '../enums/role.enum';
 
 const register = async (data: RegisterRequestBody): Promise<AuthResponseBody> => {
@@ -18,7 +19,7 @@ const register = async (data: RegisterRequestBody): Promise<AuthResponseBody> =>
     expiresIn: '1d',
   });
 
-  return {
+  const registerResponse: AuthResponseBody = {
     token,
     user: {
       id: user._id,
@@ -28,6 +29,8 @@ const register = async (data: RegisterRequestBody): Promise<AuthResponseBody> =>
       roles: user.roles.map((role) => role.name),
     },
   };
+
+  return registerResponse;
 };
 
 const login = async (data: LoginRequestBody): Promise<AuthResponseBody> => {
@@ -44,7 +47,7 @@ const login = async (data: LoginRequestBody): Promise<AuthResponseBody> => {
     expiresIn: '1d',
   });
 
-  return {
+  const loginResponse: AuthResponseBody = {
     token,
     user: {
       id: user._id,
@@ -54,6 +57,8 @@ const login = async (data: LoginRequestBody): Promise<AuthResponseBody> => {
       roles: user.roles.map((role) => role.name),
     },
   };
+
+  return loginResponse;
 };
 
 const logout = async (): Promise<void> => {

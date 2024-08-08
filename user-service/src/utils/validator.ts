@@ -1,7 +1,9 @@
 import Joi, { ValidationResult } from 'joi';
-import { RegisterRequestBody, LoginRequestBody } from '../types/auth.types';
+import { RegisterRequestBody, LoginRequestBody } from '../types/request.types';
 
-const validateUser = (user: RegisterRequestBody): ValidationResult<RegisterRequestBody> => {
+const validateUser = (
+  user: RegisterRequestBody,
+): ValidationResult<RegisterRequestBody> => {
   const schema = Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().min(8).required(),

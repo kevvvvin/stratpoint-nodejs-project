@@ -20,7 +20,9 @@ const errorHandler = (
   // Mongoose duplicate key error
   if (isMongooseError(err) && err.code === 11000) {
     const field = Object.keys(err.keyValue || {})[0];
-    return res.status(400).json({ error: `${field} already exists.`, message: err.message });
+    return res
+      .status(400)
+      .json({ error: `${field} already exists.`, message: err.message });
   }
 
   // JWT authentication error

@@ -1,6 +1,8 @@
+import { Types } from 'mongoose';
 import { RoleEnum } from '../enums/role.enum';
 
 export interface IUser extends Document {
+  _id: Types.ObjectId;
   email: string;
   password: string;
   firstName: string;
