@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { IUser } from '../types/models.types';
+import { IUser } from '../types/schema.types';
 
 const userSchema = new Schema<IUser>({
   email: {
@@ -24,6 +24,13 @@ const userSchema = new Schema<IUser>({
     required: true,
     trim: true,
   },
+  roles: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Role',
+      required: true,
+    },
+  ],
 });
 
 userSchema.pre('save', async function (next) {

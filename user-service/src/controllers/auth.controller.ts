@@ -40,9 +40,28 @@ const login = async (
   }
 };
 
+const logout = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<Response | void> => {
+  // const { error } = validator.validateLogin(req.body);
+  // if (error) return res.status(400).json({ error: error.details[0].message });
+
+  try {
+    const result = await AuthService.logout();
+
+    logger.info('User logged out successfully', result);
+    return res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
 const AuthController = {
   register,
   login,
+  logout,
 };
 
 export default AuthController;

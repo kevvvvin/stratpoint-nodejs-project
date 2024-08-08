@@ -19,5 +19,6 @@ export interface AuthResponseBody {
     email: string;
     firstName: string;
     lastName: string;
+    roles: string[];
   };
 }

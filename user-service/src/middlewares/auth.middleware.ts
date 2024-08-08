@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/user.model';
 import logger from '../utils/logger';
 import { JwtPayload } from '../types/utils.types';
-import { IUser } from '../types/models.types';
+import { IUser } from '../types/schema.types';
 import config from '../config';
 
 declare global {
