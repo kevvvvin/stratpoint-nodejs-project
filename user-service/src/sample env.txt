@@ -1,3 +1,0 @@
-PORT=3001
-MONGO_URI=mongodb+srv://ikevinabelgas:stratpoint@cluster0.kfjqo1t.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
-JWT_SECRET=jwt_secret_here
