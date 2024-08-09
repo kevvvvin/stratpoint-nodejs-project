@@ -1,78 +1,84 @@
-import User from '../models/user.model';
-import Role from '../models/role.model';
 import jwt from 'jsonwebtoken';
 import config from '../config';
 import { RegisterRequestBody, LoginRequestBody } from '../types/request.types';
 import { AuthResponseBody } from '../types/response.types';
 import { RoleEnum } from '../enums/role.enum';
+import { UserRepository } from '../repositories/user.repository';
+import { RoleRepository } from '../repositories/role.repository';
 
-const register = async (data: RegisterRequestBody): Promise<AuthResponseBody> => {
-  const { email, password, firstName, lastName } = data;
+export class AuthService {
+  constructor(
+    private userRepository: UserRepository,
+    private roleRepository: RoleRepository,
+  ) {}
 
-  const userRole = await Role.findOne({ name: RoleEnum.USER });
-  if (!userRole) throw new Error('User role not found. Roles are not initialized');
+  async register(data: RegisterRequestBody): Promise<AuthResponseBody> {
+    const { email, password, firstName, lastName } = data;
 
-  const user = new User({ email, password, firstName, lastName, roles: [userRole] });
-  await user.save();
+    const userRole = await this.roleRepository.findByName(RoleEnum.USER);
+    if (!userRole) throw new Error('User role not found. Roles are not initialized');
 
-  const token = jwt.sign({ id: user._id }, config.jwtSecret, {
-    expiresIn: '1d',
-  });
+    const user = await this.userRepository.create({
+      email,
+      password,
+      firstName,
+      lastName,
+      roles: [userRole],
+    });
 
-  const registerResponse: AuthResponseBody = {
-    token,
-    user: {
-      id: user._id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      roles: user.roles.map((role) => role.name),
-    },
-  };
+    const token = jwt.sign({ id: user._id }, config.jwtSecret, {
+      expiresIn: '1d',
+    });
 
-  return registerResponse;
-};
+    const registerResponse: AuthResponseBody = {
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        roles: user.roles.map((role) => role.name),
+      },
+    };
 
-const login = async (data: LoginRequestBody): Promise<AuthResponseBody> => {
-  const { email, password } = data;
+    return registerResponse;
+  }
 
-  const user = await User.findOne({ email }).populate('roles', 'name');
-  if (!user) throw new Error('Invalid email or password');
+  async login(data: LoginRequestBody): Promise<AuthResponseBody> {
+    const { email, password } = data;
 
-  const isMatch = await user.checkPassword(password);
-  if (!isMatch) throw new Error('Invalid email or password');
+    const user = await this.userRepository.findByEmail(email);
+    if (!user) throw new Error('Invalid email or password');
 
-  // Generate a JWT token
-  const token = jwt.sign({ id: user._id }, config.jwtSecret, {
-    expiresIn: '1d',
-  });
+    const isMatch = await user.checkPassword(password);
+    if (!isMatch) throw new Error('Invalid email or password');
 
-  const loginResponse: AuthResponseBody = {
-    token,
-    user: {
-      id: user._id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      roles: user.roles.map((role) => role.name),
-    },
-  };
+    // Generate a JWT token
+    const token = jwt.sign({ id: user._id }, config.jwtSecret, {
+      expiresIn: '1d',
+    });
 
-  return loginResponse;
-};
+    const loginResponse: AuthResponseBody = {
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        roles: user.roles.map((role) => role.name),
+      },
+    };
 
-const logout = async (): Promise<void> => {
-  // get jwt token
-  // get email or user id from jwt token
-  // validate user
-  // logout
-  // blacklist the token
-  // return json
-  return;
-};
+    return loginResponse;
+  }
 
-export const AuthService = {
-  register,
-  login,
-  logout,
-};
+  async logout(): Promise<void> {
+    // get jwt token
+    // get email or user id from jwt token
+    // validate user
+    // logout
+    // blacklist the token
+    // return json
+    return;
+  }
+}

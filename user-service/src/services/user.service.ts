@@ -1,51 +1,50 @@
 import { RoleEnum } from '../enums/role.enum';
-import User from '../models/user.model';
+import { UserRepository } from '../repositories/user.repository';
 import { UserResponseBody } from '../types/response.types';
 import { IRole, IUser } from '../types/schema.types';
 
-const getAllUsers = async (): Promise<UserResponseBody[]> => {
-  const users = await User.find({}).populate('roles', 'name');
+export class UserService {
+  constructor(private userRepository: UserRepository) {}
 
-  const usersResponse: UserResponseBody[] = users.map((user) => ({
-    user: {
-      id: user._id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      roles: user.roles.map((role) => role.name),
-    },
-  }));
+  async getAllUsers(): Promise<UserResponseBody[]> {
+    const users = await this.userRepository.findAll();
 
-  return usersResponse;
-};
+    const usersResponse: UserResponseBody[] = users.map((user) => ({
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        roles: user.roles.map((role) => role.name),
+      },
+    }));
 
-const getUserById = async (
-  id: string,
-  loggedInUser: IUser,
-): Promise<UserResponseBody> => {
-  const isSameUser = loggedInUser._id.toString() === id;
-  const isAdmin = loggedInUser.roles.some((role: IRole) => role.name === RoleEnum.ADMIN);
+    return usersResponse;
+  }
 
-  if (!isSameUser && !isAdmin)
-    throw new Error('Access denied. You are not authorized to view this user.');
+  async getUserById(id: string, loggedInUser: IUser): Promise<UserResponseBody> {
+    const isSameUser = loggedInUser._id.toString() === id;
+    const isAdmin = loggedInUser.roles.some(
+      (role: IRole) => role.name === RoleEnum.ADMIN,
+    );
 
-  const user = await User.findById(id).populate('roles', 'name');
-  if (!user) throw new Error('User does not exist.');
+    if (!isSameUser && !isAdmin)
+      throw new Error('Access denied. You are not authorized to view this user.');
 
-  const userResponse: UserResponseBody = {
-    user: {
-      id: user._id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      roles: user.roles.map((role) => role.name),
-    },
-  };
+    // const user = await User.findById(id).populate('roles', 'name');
+    const user = await this.userRepository.findById(id);
+    if (!user) throw new Error('User does not exist.');
 
-  return userResponse;
-};
+    const userResponse: UserResponseBody = {
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        roles: user.roles.map((role) => role.name),
+      },
+    };
 
-export const UserService = {
-  getAllUsers,
-  getUserById,
-};
+    return userResponse;
+  }
+}
