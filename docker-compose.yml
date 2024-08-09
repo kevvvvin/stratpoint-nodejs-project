@@ -5,10 +5,12 @@ services:
     build:
       context: ./user-service
       dockerfile: Dockerfile
+    volumes:
+      - ./user-service:/usr/src/app  # Volume mount
     env_file:
       - ./user-service/.env
     ports:
-      - "3001:3000"
+      - "3001:3001"
     depends_on:
       - mongodb
     networks:
@@ -21,7 +23,7 @@ services:
     env_file:
       - ./account-service/.env
     ports:
-      - "3002:3000"
+      - "3002:3002"
     depends_on:
       - mongodb
     networks:
@@ -34,7 +36,7 @@ services:
     env_file:
       - ./transaction-service/.env
     ports:
-      - "3003:3000"
+      - "3003:3003"
     depends_on:
       - mongodb
     networks:
@@ -47,7 +49,7 @@ services:
     env_file:
       - ./payment-service/.env
     ports:
-      - "3004:3000"
+      - "3004:3004"
     depends_on:
       - mongodb
     networks:
