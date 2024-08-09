@@ -1,9 +1,12 @@
 version: '3.8'
 
 services:
-  service1:
+  user-service:
     build:
       context: ./user-service
+      dockerfile: Dockerfile
+    env_file:
+      - ./user-service/.env
     ports:
       - "3001:3000"
     depends_on:
@@ -11,9 +14,12 @@ services:
     networks:
       - mynetwork
 
-  service2:
+  account-service:
     build:
       context: ./account-service
+      dockerfile: Dockerfile
+    env_file:
+      - ./account-service/.env
     ports:
       - "3002:3000"
     depends_on:
@@ -21,9 +27,12 @@ services:
     networks:
       - mynetwork
 
-  service3:
+  transaction-service:
     build:
       context: ./transaction-service
+      dockerfile: Dockerfile
+    env_file:
+      - ./transaction-service/.env
     ports:
       - "3003:3000"
     depends_on:
@@ -31,9 +40,12 @@ services:
     networks:
       - mynetwork
 
-  service4:
+  payment-service:
     build:
       context: ./payment-service
+      dockerfile: Dockerfile
+    env_file:
+      - ./payment-service/.env
     ports:
       - "3004:3000"
     depends_on:

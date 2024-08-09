@@ -2,8 +2,11 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
 {
 	"name": "Stratpoint Node.js & TypeScript Project",
+  "dockerComposeFile": ["../docker-compose.yml"],
+  "service": "user-service",
+  "workspaceFolder": "/usr/src/app",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+	// "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
 	"features": {
 		"ghcr.io/devcontainers-contrib/features/ts-node:1": {}
 	},
@@ -17,13 +20,11 @@
 				"VisualStudioExptTeam.vscodeintellicode",
 				"mikestead.dotenv",
 				"christian-kohler.npm-intellisense",
-				"mongodb.mongodb-vscode"
+				"mongodb.mongodb-vscode",
+				"Postman.postman-for-vscode"
 			]
 		}
 	},
-
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	"forwardPorts": [3001, 3002, 3003, 3004, 27017]
