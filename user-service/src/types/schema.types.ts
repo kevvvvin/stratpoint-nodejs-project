@@ -1,5 +1,7 @@
 import { Types } from 'mongoose';
 import { RoleEnum } from '../enums/role.enum';
+import { StatusEnum } from '../enums/status.enum';
+import { KycIdEnum, KycSubmissionStatusEnum, KycUserStatusEnum } from '../enums/kyc.enum';
 
 export interface IUser extends Document {
   _id: Types.ObjectId;
@@ -7,6 +9,8 @@ export interface IUser extends Document {
   password: string;
   firstName: string;
   lastName: string;
+  status: StatusEnum;
+  kycStatus: KycUserStatusEnum;
   roles: IRole[];
   checkPassword(candidatePassword: string): Promise<boolean>;
 }
@@ -14,4 +18,13 @@ export interface IUser extends Document {
 export interface IRole extends Document {
   name: RoleEnum;
   description: string;
+}
+
+export interface IKyc extends Document {
+  _id: Types.ObjectId;
+  userId: Types.ObjectId;
+  idType: KycIdEnum;
+  idNumber: string;
+  idExpiration: Date;
+  submissionStatus: KycSubmissionStatusEnum;
 }

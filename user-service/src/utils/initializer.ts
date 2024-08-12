@@ -3,6 +3,8 @@ import { RoleType } from '../types/role.types';
 import { RoleEnum } from '../enums/role.enum';
 import logger from './logger';
 import User from '../models/user.model';
+import { StatusEnum } from '../enums/status.enum';
+import { KycUserStatusEnum } from '../enums/kyc.enum';
 
 const roles: RoleType[] = [
   { name: RoleEnum.ADMIN, description: 'Administrator with full privileges' },
@@ -49,6 +51,8 @@ export async function initializeAdmin(): Promise<void> {
       password: adminPassword,
       firstName: 'John',
       lastName: 'Doe',
+      status: StatusEnum.ACTIVE,
+      kycStatus: KycUserStatusEnum.VERIFIED,
       roles: [adminRole],
     });
 

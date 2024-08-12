@@ -1,6 +1,8 @@
 import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import { IUser } from '../types/schema.types';
+import { StatusEnum } from '../enums/status.enum';
+import { KycUserStatusEnum } from '../enums/kyc.enum';
 
 const userSchema = new Schema<IUser>({
   email: {
@@ -23,6 +25,14 @@ const userSchema = new Schema<IUser>({
     type: String,
     required: true,
     trim: true,
+  },
+  status: {
+    type: String,
+    enum: Object.values(StatusEnum),
+  },
+  kycStatus: {
+    type: String,
+    enum: Object.values(KycUserStatusEnum),
   },
   roles: [
     {

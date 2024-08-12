@@ -1,3 +1,5 @@
+import { KycIdEnum } from '../enums/kyc.enum';
+
 export interface RegisterRequestBody {
   email: string;
   password: string;
@@ -8,4 +10,10 @@ export interface RegisterRequestBody {
 export interface LoginRequestBody {
   email: string;
   password: string;
+}
+
+export interface KycSubmissionBody {
+  idType: KycIdEnum;
+  idNumber: string;
+  idExpiration: string;
 }
