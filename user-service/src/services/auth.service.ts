@@ -1,10 +1,13 @@
 import jwt from 'jsonwebtoken';
 import config from '../config';
-import { RegisterRequestBody, LoginRequestBody } from '../types/request.types';
-import { AuthResponseBody } from '../types/response.types';
 import { RoleEnum } from '../enums/role.enum';
 import { UserRepository } from '../repositories/user.repository';
 import { RoleRepository } from '../repositories/role.repository';
+import {
+  AuthResponseBody,
+  LoginRequestBody,
+  RegisterRequestBody,
+} from '../types/user.types';
 
 export class AuthService {
   constructor(

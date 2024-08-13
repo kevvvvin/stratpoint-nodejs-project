@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import logger from '../utils/logger';
 import { CustomError } from '../types/error.types';
-import { isMongooseError, isJwtError } from '../utils/typeGuards';
+import { isMongooseError, isJwtError, isNotFoundError } from '../utils/typeGuards';
 
 const errorHandler = (
   err: CustomError,
@@ -10,6 +10,10 @@ const errorHandler = (
   _next: NextFunction,
 ): Response | void => {
   logger.error(err);
+
+  if (isNotFoundError(err) && err.name === 'NotFoundError') {
+    return res.status(404).json({ error: 'Not Found', message: err.message });
+  }
 
   // Mongoose validation error
   if (isMongooseError(err) && err.name === 'ValidationError') {

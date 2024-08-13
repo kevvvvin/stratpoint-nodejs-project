@@ -1,7 +1,8 @@
 import Joi, { ValidationResult } from 'joi';
-import { RegisterRequestBody, LoginRequestBody } from '../types/request.types';
+import { LoginRequestBody, RegisterRequestBody } from '../types/user.types';
+import { KycSubmissionBody } from '../types/kyc.types';
 
-const validateUser = (
+export const validateUser = (
   user: RegisterRequestBody,
 ): ValidationResult<RegisterRequestBody> => {
   const schema = Joi.object({
@@ -13,7 +14,9 @@ const validateUser = (
   return schema.validate(user);
 };
 
-const validateLogin = (data: LoginRequestBody): ValidationResult<LoginRequestBody> => {
+export const validateLogin = (
+  data: LoginRequestBody,
+): ValidationResult<LoginRequestBody> => {
   const schema = Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().required(),
@@ -21,19 +24,21 @@ const validateLogin = (data: LoginRequestBody): ValidationResult<LoginRequestBod
   return schema.validate(data);
 };
 
-const validateId = (id: string): ValidationResult => {
+export const validateKyc = (
+  data: KycSubmissionBody,
+): ValidationResult<KycSubmissionBody> => {
+  const schema = Joi.object({
+    idType: Joi.string().required(),
+    idNumber: Joi.string().required(),
+    idExpiration: Joi.date().required(),
+  });
+  return schema.validate(data);
+};
+
+export const validateId = (id: string): ValidationResult => {
   return Joi.string().required().validate(id);
 };
 
-const validateEmail = (email: string): ValidationResult => {
+export const validateEmail = (email: string): ValidationResult => {
   return Joi.string().email().required().validate(email);
 };
-
-const validator = {
-  validateUser,
-  validateLogin,
-  validateId,
-  validateEmail,
-};
-
-export default validator;

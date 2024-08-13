@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserService } from '../services/user.service';
-import { UserResponseBody } from '../types/response.types';
 import logger from '../utils/logger';
 import { IUser } from '../types/schema.types';
+import { UserResponseBody } from '../types/user.types';
 
 export class UserController {
   constructor(private userService: UserService) {}

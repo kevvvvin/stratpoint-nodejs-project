@@ -14,12 +14,8 @@ export interface JwtError extends Error {
   name: string;
 }
 
-// export interface RegistrationError extends Error {
-//     name: string;
-// }
+export interface NotFoundError extends Error {
+  name: string;
+}
 
-// export interface LoginError extends Error {
-//     name: string;
-// }
-
-export type CustomError = MongooseError | JwtError;
+export type CustomError = MongooseError | JwtError | NotFoundError;

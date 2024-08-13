@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
 
-interface UserDetails {
+export interface UserDetails {
   id: Types.ObjectId;
   email: string;
   firstName: string;
@@ -8,24 +8,23 @@ interface UserDetails {
   roles: string[];
 }
 
-interface KycDetails {
-  id: Types.ObjectId;
-  userId: Types.ObjectId;
-  idType: string;
-  idNumber: string;
-  idExpiration: Date;
-  submissionStatus: string;
-}
-
 export interface UserResponseBody {
   user: UserDetails;
+}
+
+export interface RegisterRequestBody {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface LoginRequestBody {
+  email: string;
+  password: string;
 }
 
 export interface AuthResponseBody {
   token: string;
   user: UserDetails;
-}
-
-export interface KycResponseBody {
-  kyc: KycDetails;
 }

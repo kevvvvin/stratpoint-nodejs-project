@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt, { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { JwtPayload } from '../types/utils.types';
 import { IRole, IUser } from '../types/schema.types';
 import User from '../models/user.model';
-import logger from '../utils/logger';
 import config from '../config';
 import { RoleEnum } from '../enums/role.enum';
+import { JwtError } from '../types/error.types';
 
 declare global {
   namespace Express {
@@ -17,18 +17,22 @@ declare global {
 
 const authenticateJWT = async (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction,
 ): Promise<Response | void> => {
   try {
     const authHeader = req.header('Authorization');
     if (!authHeader) {
-      return res.status(401).json({ error: 'Access denied. No token provided.' });
+      const error: JwtError = new Error('Access denied. No token provided.');
+      error.name = 'UnauthorizedError';
+      return next(error);
     }
 
     const token = authHeader.split(' ')[1];
     if (!token) {
-      return res.status(401).json({ error: 'Access denied. Invalid token format.' });
+      const error: JwtError = new Error('Access denied. Invalid token format.');
+      error.name = 'UnauthorizedError';
+      return next(error);
     }
 
     const decoded = jwt.verify(token, config.jwtSecret) as JwtPayload;
@@ -38,20 +42,15 @@ const authenticateJWT = async (
       .populate('roles', 'name');
 
     if (!user) {
-      return res.status(401).json({ error: 'Invalid token. User not found.' });
+      const error: JwtError = new Error('Invalid token. User not found.');
+      error.name = 'UnauthorizedError';
+      return next(error);
     }
 
     req.user = user;
     next();
   } catch (error) {
-    logger.error('Authentication error:', error);
-    if (error instanceof JsonWebTokenError) {
-      return res.status(401).json({ error: 'Invalid token.' });
-    }
-    if (error instanceof TokenExpiredError) {
-      return res.status(401).json({ error: 'Token expired.' });
-    }
-    return res.status(500).json({ error: 'Internal server error.' });
+    next(error);
   }
 };
 

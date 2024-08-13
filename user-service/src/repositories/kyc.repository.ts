@@ -15,16 +15,14 @@ export class KycRepository {
     return Kyc.find().populate('userId', 'email');
   }
 
-  async initiate(userId: string): Promise<IKyc> {
-    const kyc = new Kyc({ userId, submission_status: KycSubmissionStatusEnum.INITIATED });
-    await kyc.save();
-    return kyc;
+  async create(userId: string, submissionStatus: KycSubmissionStatusEnum): Promise<IKyc> {
+    return Kyc.create({ userId, submissionStatus });
   }
 
   async update(id: string, updateData: Partial<IKyc>): Promise<IKyc | null> {
-    return Kyc.findByIdAndUpdate(id, updateData, {
-      submission_status: KycSubmissionStatusEnum.FOR_REVIEW,
+    return Kyc.findOneAndUpdate({ userId: id }, updateData, {
       new: true,
-    });
+      runValidators: true,
+    }).populate('userId', 'email');
   }
 }

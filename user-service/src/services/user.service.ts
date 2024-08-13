@@ -1,7 +1,7 @@
 import { RoleEnum } from '../enums/role.enum';
 import { UserRepository } from '../repositories/user.repository';
-import { UserResponseBody } from '../types/response.types';
 import { IRole, IUser } from '../types/schema.types';
+import { UserResponseBody } from '../types/user.types';
 
 export class UserService {
   constructor(private userRepository: UserRepository) {}
@@ -31,7 +31,6 @@ export class UserService {
     if (!isSameUser && !isAdmin)
       throw new Error('Access denied. You are not authorized to view this user.');
 
-    // const user = await User.findById(id).populate('roles', 'name');
     const user = await this.userRepository.findById(id);
     if (!user) throw new Error('User does not exist.');
 

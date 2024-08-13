@@ -12,7 +12,7 @@ router.post(
   (req, res, next) => kycController.initiate(req, res, next),
 );
 
-router.post(
+router.put(
   '/submit/:id',
   authenticateJWT,
   authorizeRoles([RoleEnum.USER, RoleEnum.ADMIN]),
