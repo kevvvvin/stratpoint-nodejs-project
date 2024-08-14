@@ -18,40 +18,41 @@ export class AuthController {
     try {
       const result: AuthResponseBody = await this.authService.register(req.body);
 
-      logger.info('User registered successfully', result);
-      return res.status(201).json(result);
+      const message = 'User registered successfully';
+      logger.info(message, result);
+      return res.status(200).json({ message: message, result });
     } catch (err) {
       next(err);
     }
   }
 
   async login(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
-    const { error } = validateLogin(req.body);
-    if (error) return res.status(400).json({ error: error.details[0].message });
-
     try {
+      const { error } = validateLogin(req.body);
+      if (error) return res.status(400).json({ error: error.details[0].message });
+
       const result: AuthResponseBody = await this.authService.login(req.body);
 
-      logger.info('User logged in successfully', result);
-      return res.status(200).json(result);
+      const message = 'User logged in successfully';
+      logger.info(message, result);
+      return res.status(200).json({ message: message, result });
     } catch (err) {
       next(err);
     }
   }
 
   async logout(
-    _req: Request,
+    req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<Response | void> {
-    // const { error } = validator.validateLogin(req.body);
-    // if (error) return res.status(400).json({ error: error.details[0].message });
-
     try {
-      const result = await this.authService.logout();
+      const token = req.token as string;
+      const result = await this.authService.logout(token);
 
-      logger.info('User logged out successfully', result);
-      return res.status(200).json(result);
+      const message = 'User logged out successfully';
+      logger.info(message, result);
+      return res.status(200).json({ message: message, result });
     } catch (err) {
       next(err);
     }

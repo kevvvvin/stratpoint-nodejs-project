@@ -19,8 +19,9 @@ export class KycController {
         loggedInUser._id.toString(),
       );
 
-      logger.info('Initiated KYC successfully', kyc);
-      return res.status(200).json(kyc);
+      const message = 'Initiated KYC successfully';
+      logger.info(message, kyc);
+      return res.status(200).json({ message: message, kyc });
     } catch (err) {
       next(err);
     }
@@ -41,8 +42,9 @@ export class KycController {
         req.body,
       );
 
-      logger.info('Submitted KYC successfully', kyc);
-      return res.status(200).json(kyc);
+      const message = 'Submitted KYC successfully';
+      logger.info(message, kyc);
+      return res.status(200).json({ message: message, kyc });
     } catch (err) {
       next(err);
     }
@@ -57,8 +59,9 @@ export class KycController {
       const userId: string = req.params.id;
       const kyc: KycResponseBody = await this.kycService.approve(userId);
 
-      logger.info('Approved KYC successfully', kyc);
-      return res.status(200).json(kyc);
+      const message = 'Approved KYC successfully';
+      logger.info(message, kyc);
+      return res.status(200).json({ message: message, kyc });
     } catch (err) {
       next(err);
     }
@@ -73,8 +76,9 @@ export class KycController {
       const userId: string = req.params.id;
       const kyc: KycResponseBody = await this.kycService.reject(userId);
 
-      logger.info('Rejected KYC successfully', kyc);
-      return res.status(200).json(kyc);
+      const message = 'Rejected KYC successfully';
+      logger.info(message, kyc);
+      return res.status(200).json({ message: message, kyc });
     } catch (err) {
       next(err);
     }
@@ -88,8 +92,9 @@ export class KycController {
     try {
       const result: KycResponseBody[] = await this.kycService.getAllKyc();
 
-      logger.info('Retrieved all KYC successfully', result);
-      return res.status(200).json(result);
+      const message = 'Retrieved all KYCs successfully';
+      logger.info(message, result);
+      return res.status(200).json({ message: message, result });
     } catch (err) {
       next(err);
     }
@@ -109,8 +114,9 @@ export class KycController {
         loggedInUser,
       );
 
-      logger.info('Retrieved KYC successfully', result);
-      return res.status(200).json(result);
+      const message = 'Retrieved KYC successfully';
+      logger.info(message, result);
+      return res.status(200).json({ message: message, result });
     } catch (err) {
       next(err);
     }

@@ -10,11 +10,14 @@ import {
 } from '../types/user.types';
 import { StatusEnum } from '../enums/status.enum';
 import { KycUserStatusEnum } from '../enums/kyc.enum';
+import { JwtPayload } from '../types/utils.types';
+import { BlacklistedTokenRepository } from '../repositories/blacklistedToken.repository';
 
 export class AuthService {
   constructor(
     private userRepository: UserRepository,
     private roleRepository: RoleRepository,
+    private blacklistedTokenRepository: BlacklistedTokenRepository,
   ) {}
 
   async register(data: RegisterRequestBody): Promise<AuthResponseBody> {
@@ -83,13 +86,27 @@ export class AuthService {
     return loginResponse;
   }
 
-  async logout(): Promise<void> {
-    // get jwt token
-    // get email or user id from jwt token
-    // validate user
-    // logout
-    // blacklist the token
-    // return json
-    return;
+  async logout(token: string): Promise<AuthResponseBody> {
+    const decodedToken = jwt.decode(token) as JwtPayload;
+    const expiresAt = new Date(decodedToken.exp * 1000);
+    const user = await this.userRepository.findById(decodedToken.id);
+    if (!user) throw new Error('Invalid token. User not found.');
+
+    await this.blacklistedTokenRepository.create({ token, expiresAt });
+
+    const logoutResponse: AuthResponseBody = {
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        status: user.status,
+        kycStatus: user.kycStatus,
+        roles: user.roles.map((role) => role.name),
+      },
+    };
+
+    return logoutResponse;
   }
 }

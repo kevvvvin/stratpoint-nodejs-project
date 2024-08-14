@@ -6,11 +6,13 @@ import User from '../models/user.model';
 import config from '../config';
 import { RoleEnum } from '../enums/role.enum';
 import { JwtError } from '../types/error.types';
+import BlacklistedToken from '../models/blacklistedToken';
 
 declare global {
   namespace Express {
     interface Request {
       user?: IUser;
+      token?: string;
     }
   }
 }
@@ -35,6 +37,13 @@ const authenticateJWT = async (
       return next(error);
     }
 
+    const blackListed = await BlacklistedToken.findOne({ token });
+    if (blackListed) {
+      const error: JwtError = new Error('Access denied. Token has been blacklisted.');
+      error.name = 'UnauthorizedError';
+      return next(error);
+    }
+
     const decoded = jwt.verify(token, config.jwtSecret) as JwtPayload;
 
     const user = await User.findById(decoded.id)
@@ -48,6 +57,7 @@ const authenticateJWT = async (
     }
 
     req.user = user;
+    req.token = token;
     next();
   } catch (error) {
     next(error);

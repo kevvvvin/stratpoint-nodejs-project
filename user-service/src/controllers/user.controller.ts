@@ -15,8 +15,9 @@ export class UserController {
     try {
       const result: UserResponseBody[] = await this.userService.getAllUsers();
 
-      logger.info('Retrieved all users successfully', result);
-      return res.status(200).json(result);
+      const message = 'Retrieved all users successfully';
+      logger.info(message, result);
+      return res.status(200).json({ message: message, result });
     } catch (err) {
       next(err);
     }
@@ -36,8 +37,9 @@ export class UserController {
         loggedInUser,
       );
 
-      logger.info('Retrieved user successfully', result);
-      return res.status(200).json(result);
+      const message = 'Retrieved user successfully';
+      logger.info(message, result);
+      return res.status(200).json({ message: message, result });
     } catch (err) {
       next(err);
     }
