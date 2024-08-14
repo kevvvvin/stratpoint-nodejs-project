@@ -29,10 +29,12 @@ const userSchema = new Schema<IUser>({
   status: {
     type: String,
     enum: Object.values(StatusEnum),
+    required: true,
   },
   kycStatus: {
     type: String,
     enum: Object.values(KycUserStatusEnum),
+    required: true,
   },
   roles: [
     {

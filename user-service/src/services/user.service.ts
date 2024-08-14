@@ -15,6 +15,8 @@ export class UserService {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
+        status: user.status,
+        kycStatus: user.kycStatus,
         roles: user.roles.map((role) => role.name),
       },
     }));
@@ -40,6 +42,8 @@ export class UserService {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
+        status: user.status,
+        kycStatus: user.kycStatus,
         roles: user.roles.map((role) => role.name),
       },
     };

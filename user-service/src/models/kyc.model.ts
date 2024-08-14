@@ -3,7 +3,7 @@ import { KycIdEnum, KycSubmissionStatusEnum } from '../enums/kyc.enum';
 import { IKyc } from '../types/schema.types';
 
 const kycSchema = new Schema<IKyc>({
-  userId: {
+  user: {
     type: Schema.Types.ObjectId,
     unique: true,
     ref: 'User',

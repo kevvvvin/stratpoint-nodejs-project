@@ -6,17 +6,42 @@ import { RoleEnum } from '../enums/role.enum';
 const router = express.Router();
 
 router.post(
-  '/initiate/:id',
+  '/initiate',
   authenticateJWT,
   authorizeRoles([RoleEnum.USER, RoleEnum.ADMIN]),
   (req, res, next) => kycController.initiate(req, res, next),
 );
 
 router.put(
-  '/submit/:id',
+  '/submit',
   authenticateJWT,
   authorizeRoles([RoleEnum.USER, RoleEnum.ADMIN]),
   (req, res, next) => kycController.submit(req, res, next),
+);
+
+router.post(
+  '/approve/:id',
+  authenticateJWT,
+  authorizeRoles([RoleEnum.ADMIN]),
+  (req, res, next) => kycController.approve(req, res, next),
+);
+
+router.post(
+  '/reject/:id',
+  authenticateJWT,
+  authorizeRoles([RoleEnum.ADMIN]),
+  (req, res, next) => kycController.reject(req, res, next),
+);
+
+router.get('/', authenticateJWT, authorizeRoles([RoleEnum.ADMIN]), (req, res, next) =>
+  kycController.getAllKyc(req, res, next),
+);
+
+router.get(
+  '/:id',
+  authenticateJWT,
+  authorizeRoles([RoleEnum.USER, RoleEnum.ADMIN]),
+  (req, res, next) => kycController.getKycByUserId(req, res, next),
 );
 
 export default router;

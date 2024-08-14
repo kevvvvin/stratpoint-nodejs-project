@@ -3,7 +3,7 @@ import { KycIdEnum } from '../enums/kyc.enum';
 
 interface KycDetails {
   id: Types.ObjectId;
-  userId: Types.ObjectId;
+  user: Types.ObjectId;
   idType: string;
   idNumber: string;
   idExpiration: Date;

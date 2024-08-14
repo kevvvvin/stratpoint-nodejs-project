@@ -13,7 +13,6 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"GitHub.vscode-pull-request-github",
 				"christian-kohler.path-intellisense",
 				"rvest.vs-code-prettier-eslint",
 				"VisualStudioExptTeam.intellicode-api-usage-examples",

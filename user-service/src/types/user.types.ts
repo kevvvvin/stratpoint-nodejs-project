@@ -1,10 +1,14 @@
 import { Types } from 'mongoose';
+import { StatusEnum } from '../enums/status.enum';
+import { KycUserStatusEnum } from '../enums/kyc.enum';
 
 export interface UserDetails {
   id: Types.ObjectId;
   email: string;
   firstName: string;
   lastName: string;
+  status: StatusEnum;
+  kycStatus: KycUserStatusEnum;
   roles: string[];
 }
 

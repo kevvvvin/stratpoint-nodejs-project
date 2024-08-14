@@ -14,7 +14,7 @@ const kycRepository: KycRepository = new KycRepository();
 
 const authService: AuthService = new AuthService(userRepository, roleRepository);
 const userService: UserService = new UserService(userRepository);
-const kycService: KycService = new KycService(kycRepository);
+const kycService: KycService = new KycService(kycRepository, userRepository);
 
 const authController: AuthController = new AuthController(authService);
 const userController: UserController = new UserController(userService);

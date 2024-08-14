@@ -8,6 +8,8 @@ import {
   LoginRequestBody,
   RegisterRequestBody,
 } from '../types/user.types';
+import { StatusEnum } from '../enums/status.enum';
+import { KycUserStatusEnum } from '../enums/kyc.enum';
 
 export class AuthService {
   constructor(
@@ -26,6 +28,8 @@ export class AuthService {
       password,
       firstName,
       lastName,
+      status: StatusEnum.ACTIVE,
+      kycStatus: KycUserStatusEnum.UNVERIFIED,
       roles: [userRole],
     });
 
@@ -40,6 +44,8 @@ export class AuthService {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
+        status: user.status,
+        kycStatus: user.kycStatus,
         roles: user.roles.map((role) => role.name),
       },
     };
@@ -68,6 +74,8 @@ export class AuthService {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
+        status: user.status,
+        kycStatus: user.kycStatus,
         roles: user.roles.map((role) => role.name),
       },
     };

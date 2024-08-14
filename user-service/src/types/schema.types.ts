@@ -22,7 +22,7 @@ export interface IRole extends Document {
 
 export interface IKyc extends Document {
   _id: Types.ObjectId;
-  userId: Types.ObjectId;
+  user: Types.ObjectId;
   idType: KycIdEnum;
   idNumber: string;
   idExpiration: Date;
