@@ -11,6 +11,13 @@ export class KycService {
   ) {}
 
   async initiate(userId: string): Promise<KycResponseBody> {
+    const user = await this.userRepository.findById(userId);
+    if (!user) throw new Error('Could not initiate KYC. User not found');
+
+    if (user.kycStatus === KycUserStatusEnum.VERIFIED) {
+      throw new Error('Could not initiate KYC. User already approved');
+    }
+
     const kyc = await this.kycRepository.create(
       userId,
       KycSubmissionStatusEnum.INITIATED,

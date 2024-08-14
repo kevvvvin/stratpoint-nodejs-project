@@ -28,3 +28,8 @@ export interface IKyc extends Document {
   idExpiration: Date;
   submissionStatus: KycSubmissionStatusEnum;
 }
+
+export interface ITokenBlacklist extends Document {
+  token: string;
+  expiresAt: Date;
+}
