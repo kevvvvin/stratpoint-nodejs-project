@@ -1,12 +1,10 @@
-import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { JwtPayload } from '../types/utils.types';
-import { IRole, IUser } from '../types/schema.types';
-import User from '../models/user.model';
 import config from '../config';
-import { RoleEnum } from '../enums/role.enum';
-import { JwtError } from '../types/error.types';
-import BlacklistedToken from '../models/blacklistedToken';
+import { Request, Response, NextFunction } from 'express';
+import { RoleEnum } from '../enums';
+import { JwtPayload, IRole, IUser } from '../types';
+import { User, BlacklistedToken } from '../models';
+import { JwtError, UnauthorizedError } from '../utils';
 
 declare global {
   namespace Express {
@@ -25,22 +23,19 @@ const authenticateJWT = async (
   try {
     const authHeader = req.header('Authorization');
     if (!authHeader) {
-      const error: JwtError = new Error('Access denied. No token provided.');
-      error.name = 'UnauthorizedError';
+      const error = new JwtError('Access denied. No token provided');
       return next(error);
     }
 
     const token = authHeader.split(' ')[1];
     if (!token) {
-      const error: JwtError = new Error('Access denied. Invalid token format.');
-      error.name = 'UnauthorizedError';
+      const error = new JwtError('Access denied. Invalid token format');
       return next(error);
     }
 
     const blackListed = await BlacklistedToken.findOne({ token });
     if (blackListed) {
-      const error: JwtError = new Error('Access denied. Token has been blacklisted.');
-      error.name = 'UnauthorizedError';
+      const error = new JwtError('Access denied. Token has been blacklisted');
       return next(error);
     }
 
@@ -51,8 +46,7 @@ const authenticateJWT = async (
       .populate('roles', 'name');
 
     if (!user) {
-      const error: JwtError = new Error('Invalid token. User not found.');
-      error.name = 'UnauthorizedError';
+      const error = new JwtError('Invalid token. User not found');
       return next(error);
     }
 
@@ -67,20 +61,25 @@ const authenticateJWT = async (
 const authorizeRoles = (allowedRoles: RoleEnum[]) => {
   return async (
     req: Request,
-    res: Response,
+    _res: Response,
     next: NextFunction,
   ): Promise<Response | void> => {
     try {
       const user = req.user as IUser;
-      if (!user) return res.status(403).json({ error: 'Access denied. No user found. ' });
+      if (!user) {
+        const error = new JwtError('Access denied. User not found');
+        return next(error);
+      }
 
       const userRoles = user.roles.map((role: IRole) => role.name);
 
       const hasRole = allowedRoles.some((role) => userRoles.includes(role));
-      if (!hasRole)
-        return res
-          .status(403)
-          .json({ error: 'Access denied. You are not authorized to do this action. ' });
+      if (!hasRole) {
+        const error = new UnauthorizedError(
+          'Access denied. You are not authorized to do this action',
+        );
+        return next(error);
+      }
 
       next();
     } catch (err) {

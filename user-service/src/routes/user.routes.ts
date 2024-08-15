@@ -1,7 +1,7 @@
 import express from 'express';
+import { RoleEnum } from '../enums';
 import { userController } from '../container';
-import { authenticateJWT, authorizeRoles } from '../middlewares/auth.middleware';
-import { RoleEnum } from '../enums/role.enum';
+import { authenticateJWT, authorizeRoles } from '../middlewares';
 
 const router = express.Router();
 

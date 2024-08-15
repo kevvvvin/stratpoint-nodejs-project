@@ -1,5 +1,5 @@
-import User from '../models/user.model';
-import { IUser } from '../types/schema.types';
+import { IUser } from '../types';
+import { User } from '../models';
 
 export class UserRepository {
   async findById(id: string): Promise<IUser | null> {

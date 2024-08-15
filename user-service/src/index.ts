@@ -1,12 +1,10 @@
 import express, { Application } from 'express';
 import cors from 'cors';
 import mongoose, { ConnectOptions } from 'mongoose';
-
 import config from './config';
 import router from './routes';
-import logger from './utils/logger';
-import errorHandler from './middlewares/error.middleware';
-import { initializeRoles, initializeAdmin } from './utils/initializer';
+import { errorHandler } from './middlewares';
+import { initializeRoles, initializeAdmin, logger } from './utils';
 
 const connectToDatabase = async (): Promise<void> => {
   try {

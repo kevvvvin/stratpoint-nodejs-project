@@ -1,6 +1,6 @@
 import express from 'express';
 import { authController } from '../container';
-import { authenticateJWT } from '../middlewares/auth.middleware';
+import { authenticateJWT } from '../middlewares';
 
 const router = express.Router();
 

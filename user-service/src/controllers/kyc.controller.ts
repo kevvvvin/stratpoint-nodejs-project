@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import logger from '../utils/logger';
-import { KycService } from '../services/kyc.service';
-import { IUser } from '../types/schema.types';
-import { KycResponseBody } from '../types/kyc.types';
-import { validateKyc } from '../utils/validator';
+import { IUser, KycResult } from '../types';
+import { KycService } from '../services';
+import { KycResponseDto } from '../dtos';
+import { validateKyc, handleValidationError, logger } from '../utils';
 
 export class KycController {
   constructor(private kycService: KycService) {}
@@ -15,13 +14,13 @@ export class KycController {
   ): Promise<Response | void> {
     try {
       const loggedInUser = req.user as IUser;
-      const kyc: KycResponseBody = await this.kycService.initiate(
-        loggedInUser._id.toString(),
-      );
 
+      const kyc: KycResult = await this.kycService.initiate(loggedInUser._id.toString());
       const message = 'Initiated KYC successfully';
-      logger.info(message, kyc);
-      return res.status(200).json({ message: message, kyc });
+      const response = new KycResponseDto(message, kyc);
+
+      logger.info(response);
+      return res.status(200).json(response);
     } catch (err) {
       next(err);
     }
@@ -32,19 +31,23 @@ export class KycController {
     res: Response,
     next: NextFunction,
   ): Promise<Response | void> {
-    try {
-      const { error } = validateKyc(req.body);
-      if (error) return res.status(400).json({ error: error.details[0].message });
+    const requestValidation = validateKyc(req.body);
+    if (!requestValidation.success) {
+      return handleValidationError(requestValidation.errors, next);
+    }
 
+    try {
       const loggedInUser: IUser = req.user as IUser;
-      const kyc: KycResponseBody = await this.kycService.update(
+
+      const kyc: KycResult = await this.kycService.update(
         loggedInUser._id.toString(),
         req.body,
       );
-
       const message = 'Submitted KYC successfully';
-      logger.info(message, kyc);
-      return res.status(200).json({ message: message, kyc });
+      const response = new KycResponseDto(message, kyc);
+
+      logger.info(response);
+      return res.status(200).json(response);
     } catch (err) {
       next(err);
     }
@@ -57,11 +60,13 @@ export class KycController {
   ): Promise<Response | void> {
     try {
       const userId: string = req.params.id;
-      const kyc: KycResponseBody = await this.kycService.approve(userId);
 
+      const kyc: KycResult = await this.kycService.approve(userId);
       const message = 'Approved KYC successfully';
-      logger.info(message, kyc);
-      return res.status(200).json({ message: message, kyc });
+      const response = new KycResponseDto(message, kyc);
+
+      logger.info(response);
+      return res.status(200).json(response);
     } catch (err) {
       next(err);
     }
@@ -74,11 +79,13 @@ export class KycController {
   ): Promise<Response | void> {
     try {
       const userId: string = req.params.id;
-      const kyc: KycResponseBody = await this.kycService.reject(userId);
 
+      const kyc: KycResult = await this.kycService.reject(userId);
       const message = 'Rejected KYC successfully';
-      logger.info(message, kyc);
-      return res.status(200).json({ message: message, kyc });
+      const response = new KycResponseDto(message, kyc);
+
+      logger.info(response);
+      return res.status(200).json(response);
     } catch (err) {
       next(err);
     }
@@ -90,11 +97,12 @@ export class KycController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const result: KycResponseBody[] = await this.kycService.getAllKyc();
-
+      const result: KycResult[] = await this.kycService.getAllKyc();
       const message = 'Retrieved all KYCs successfully';
-      logger.info(message, result);
-      return res.status(200).json({ message: message, result });
+      const response = new KycResponseDto(message, result);
+
+      logger.info(response);
+      return res.status(200).json(response);
     } catch (err) {
       next(err);
     }
@@ -109,14 +117,15 @@ export class KycController {
       const userId: string = req.params.id;
       const loggedInUser = req.user as IUser;
 
-      const result: KycResponseBody = await this.kycService.getKycByUserId(
+      const result: KycResult = await this.kycService.getKycByUserId(
         userId,
         loggedInUser,
       );
-
       const message = 'Retrieved KYC successfully';
-      logger.info(message, result);
-      return res.status(200).json({ message: message, result });
+      const response = new KycResponseDto(message, result);
+
+      logger.info(response);
+      return res.status(200).json(response);
     } catch (err) {
       next(err);
     }

@@ -1,7 +1,11 @@
 import { Types } from 'mongoose';
-import { RoleEnum } from '../enums/role.enum';
-import { StatusEnum } from '../enums/status.enum';
-import { KycIdEnum, KycSubmissionStatusEnum, KycUserStatusEnum } from '../enums/kyc.enum';
+import {
+  StatusEnum,
+  RoleEnum,
+  KycIdEnum,
+  KycSubmissionStatusEnum,
+  KycUserStatusEnum,
+} from '../enums';
 
 export interface IUser extends Document {
   _id: Types.ObjectId;

@@ -1,16 +1,15 @@
-import { KycSubmissionStatusEnum, KycUserStatusEnum } from '../enums/kyc.enum';
-import { RoleEnum } from '../enums/role.enum';
-import { KycRepository } from '../repositories/kyc.repository';
-import { UserRepository } from '../repositories/user.repository';
-import { KycResponseBody, KycSubmissionBody } from '../types/kyc.types';
-import { IKyc, IRole, IUser } from '../types/schema.types';
+import { RoleEnum, KycSubmissionStatusEnum, KycUserStatusEnum } from '../enums';
+import { IKyc, IRole, IUser, KycResult } from '../types';
+import { UserRepository, KycRepository } from '../repositories';
+import { KycSubmitRequestDto } from '../dtos';
+
 export class KycService {
   constructor(
     private kycRepository: KycRepository,
     private userRepository: UserRepository,
   ) {}
 
-  async initiate(userId: string): Promise<KycResponseBody> {
+  async initiate(userId: string): Promise<KycResult> {
     const user = await this.userRepository.findById(userId);
     if (!user) throw new Error('Could not initiate KYC. User not found');
 
@@ -23,7 +22,7 @@ export class KycService {
       KycSubmissionStatusEnum.INITIATED,
     );
 
-    const kycInitiateResponse = {
+    const kycResult: KycResult = {
       kyc: {
         id: kyc._id,
         user: kyc.user,
@@ -34,10 +33,10 @@ export class KycService {
       },
     };
 
-    return kycInitiateResponse;
+    return kycResult;
   }
 
-  async update(userId: string, data: KycSubmissionBody): Promise<KycResponseBody> {
+  async update(userId: string, data: KycSubmitRequestDto): Promise<KycResult> {
     // Fetch KYC and User in parallel
     const [kyc, user] = await Promise.all([
       this.kycRepository.findByUserId(userId),
@@ -59,6 +58,7 @@ export class KycService {
       idType: data.idType,
       idNumber: data.idNumber,
       idExpiration: new Date(data.idExpiration),
+      // idExpiration: data.idExpiration,
       submissionStatus: KycSubmissionStatusEnum.FOR_REVIEW,
     };
 
@@ -77,7 +77,7 @@ export class KycService {
       throw new Error("Could not update the User's KYC status. User not found");
 
     // Construct and return the response
-    const kycSubmitResponse: KycResponseBody = {
+    const kycSubmitResult: KycResult = {
       kyc: {
         id: updatedKyc._id,
         user: updatedKyc.user,
@@ -88,10 +88,10 @@ export class KycService {
       },
     };
 
-    return kycSubmitResponse;
+    return kycSubmitResult;
   }
 
-  async approve(userId: string): Promise<KycResponseBody> {
+  async approve(userId: string): Promise<KycResult> {
     // Fetch KYC and User in parallel
     const [kyc, user] = await Promise.all([
       this.kycRepository.findByUserId(userId),
@@ -125,7 +125,7 @@ export class KycService {
       throw new Error("Could not update the User's KYC status. User not found");
 
     // Construct and return the response
-    const kycApproveResponse: KycResponseBody = {
+    const kycApproveResult: KycResult = {
       kyc: {
         id: updatedKyc._id,
         user: updatedKyc.user,
@@ -136,10 +136,10 @@ export class KycService {
       },
     };
 
-    return kycApproveResponse;
+    return kycApproveResult;
   }
 
-  async reject(userId: string): Promise<KycResponseBody> {
+  async reject(userId: string): Promise<KycResult> {
     // Fetch KYC and User in parallel
     const [kyc, user] = await Promise.all([
       this.kycRepository.findByUserId(userId),
@@ -173,7 +173,7 @@ export class KycService {
       throw new Error("Could not update the User's KYC status. User not found");
 
     // Construct and return the response
-    const kycRejectResponse: KycResponseBody = {
+    const kycRejectResult: KycResult = {
       kyc: {
         id: updatedKyc._id,
         user: updatedKyc.user,
@@ -184,12 +184,12 @@ export class KycService {
       },
     };
 
-    return kycRejectResponse;
+    return kycRejectResult;
   }
 
-  async getAllKyc(): Promise<KycResponseBody[]> {
+  async getAllKyc(): Promise<KycResult[]> {
     const kycs: IKyc[] = await this.kycRepository.findAll();
-    const kycsResponse: KycResponseBody[] = kycs.map((kyc) => ({
+    const kycsResult: KycResult[] = kycs.map((kyc) => ({
       kyc: {
         id: kyc._id,
         user: kyc.user,
@@ -199,10 +199,10 @@ export class KycService {
         submissionStatus: kyc.submissionStatus,
       },
     }));
-    return kycsResponse;
+    return kycsResult;
   }
 
-  async getKycByUserId(userId: string, loggedInUser: IUser): Promise<KycResponseBody> {
+  async getKycByUserId(userId: string, loggedInUser: IUser): Promise<KycResult> {
     const isSameUser = loggedInUser._id.toString() === userId;
     const isAdmin = loggedInUser.roles.some(
       (role: IRole) => role.name === RoleEnum.ADMIN,
@@ -214,7 +214,7 @@ export class KycService {
     const kyc = await this.kycRepository.findByUserId(userId);
     if (!kyc) throw new Error('KYC does not exist.');
 
-    const kycResponse: KycResponseBody = {
+    const kycResult: KycResult = {
       kyc: {
         id: kyc._id,
         user: kyc.user,
@@ -224,6 +224,6 @@ export class KycService {
         submissionStatus: kyc.submissionStatus,
       },
     };
-    return kycResponse;
+    return kycResult;
   }
 }

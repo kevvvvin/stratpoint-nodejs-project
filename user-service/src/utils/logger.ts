@@ -6,7 +6,7 @@ const { combine, timestamp, errors, splat, json, colorize, simple } = format;
 
 const logDirectory = path.join(__dirname, '../../logs');
 
-const logger = createLogger({
+export const logger = createLogger({
   level: config.logLevel || 'info',
   format: combine(
     timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
@@ -31,5 +31,3 @@ if (config.nodeENV !== 'production') {
     }),
   );
 }
-
-export default logger;

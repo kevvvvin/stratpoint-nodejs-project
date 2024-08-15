@@ -1,8 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { IUser } from '../types/schema.types';
-import { StatusEnum } from '../enums/status.enum';
-import { KycUserStatusEnum } from '../enums/kyc.enum';
+import { StatusEnum, KycUserStatusEnum } from '../enums';
+import { IUser } from '../types';
 
 const userSchema = new Schema<IUser>({
   email: {
@@ -57,6 +56,4 @@ userSchema.methods.checkPassword = async function (
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-const User = mongoose.model('User', userSchema);
-
-export default User;
+export const User = mongoose.model('User', userSchema);

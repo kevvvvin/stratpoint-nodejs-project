@@ -1,10 +1,7 @@
-import Role from '../models/role.model';
-import { RoleType } from '../types/role.types';
-import { RoleEnum } from '../enums/role.enum';
-import logger from './logger';
-import User from '../models/user.model';
-import { StatusEnum } from '../enums/status.enum';
-import { KycUserStatusEnum } from '../enums/kyc.enum';
+import { StatusEnum, RoleEnum, KycUserStatusEnum } from '../enums';
+import { RoleType } from '../types';
+import { Role, User } from '../models';
+import { logger } from './';
 
 const roles: RoleType[] = [
   { name: RoleEnum.ADMIN, description: 'Administrator with full privileges' },
