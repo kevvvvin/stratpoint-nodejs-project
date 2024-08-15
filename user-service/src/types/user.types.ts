@@ -1,6 +1,5 @@
 import { Types } from 'mongoose';
-import { StatusEnum } from '../enums/status.enum';
-import { KycUserStatusEnum } from '../enums/kyc.enum';
+import { StatusEnum, KycUserStatusEnum } from '../enums';
 
 export interface UserDetails {
   id: Types.ObjectId;
@@ -12,23 +11,11 @@ export interface UserDetails {
   roles: string[];
 }
 
-export interface UserResponseBody {
-  user: UserDetails;
-}
-
-export interface RegisterRequestBody {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-}
-
-export interface LoginRequestBody {
-  email: string;
-  password: string;
-}
-
-export interface AuthResponseBody {
+export interface AuthResult {
   token: string;
   user: UserDetails;
+}
+
+export interface UserResult {
+  user: UserDetails | UserDetails[];
 }

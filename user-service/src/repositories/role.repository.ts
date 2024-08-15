@@ -1,6 +1,6 @@
-import { RoleEnum } from '../enums/role.enum';
-import { IRole } from '../types/schema.types';
-import Role from '../models/role.model';
+import { RoleEnum } from '../enums';
+import { IRole } from '../types';
+import { Role } from '../models';
 
 export class RoleRepository {
   async findById(id: string): Promise<IRole | null> {

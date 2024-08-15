@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
-import { KycIdEnum, KycSubmissionStatusEnum } from '../enums/kyc.enum';
-import { IKyc } from '../types/schema.types';
+import { KycIdEnum, KycSubmissionStatusEnum } from '../enums';
+import { IKyc } from '../types';
 
 const kycSchema = new Schema<IKyc>({
   user: {
@@ -26,6 +26,4 @@ const kycSchema = new Schema<IKyc>({
   },
 });
 
-const Kyc = mongoose.model('Kyc', kycSchema);
-
-export default Kyc;
+export const Kyc = mongoose.model('Kyc', kycSchema);

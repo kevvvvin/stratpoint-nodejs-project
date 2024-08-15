@@ -1,15 +1,14 @@
-import { RoleEnum } from '../enums/role.enum';
-import { UserRepository } from '../repositories/user.repository';
-import { IRole, IUser } from '../types/schema.types';
-import { UserResponseBody } from '../types/user.types';
+import { RoleEnum } from '../enums';
+import { IRole, IUser, UserResult } from '../types';
+import { UserRepository } from '../repositories';
 
 export class UserService {
   constructor(private userRepository: UserRepository) {}
 
-  async getAllUsers(): Promise<UserResponseBody[]> {
+  async getAllUsers(): Promise<UserResult[]> {
     const users = await this.userRepository.findAll();
 
-    const usersResponse: UserResponseBody[] = users.map((user) => ({
+    const usersResult: UserResult[] = users.map((user) => ({
       user: {
         id: user._id,
         email: user.email,
@@ -21,10 +20,10 @@ export class UserService {
       },
     }));
 
-    return usersResponse;
+    return usersResult;
   }
 
-  async getUserById(id: string, loggedInUser: IUser): Promise<UserResponseBody> {
+  async getUserById(id: string, loggedInUser: IUser): Promise<UserResult> {
     const isSameUser = loggedInUser._id.toString() === id;
     const isAdmin = loggedInUser.roles.some(
       (role: IRole) => role.name === RoleEnum.ADMIN,
@@ -36,7 +35,7 @@ export class UserService {
     const user = await this.userRepository.findById(id);
     if (!user) throw new Error('User does not exist.');
 
-    const userResponse: UserResponseBody = {
+    const userResult: UserResult = {
       user: {
         id: user._id,
         email: user.email,
@@ -48,6 +47,6 @@ export class UserService {
       },
     };
 
-    return userResponse;
+    return userResult;
   }
 }

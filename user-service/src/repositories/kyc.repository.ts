@@ -1,6 +1,6 @@
-import { KycSubmissionStatusEnum } from '../enums/kyc.enum';
-import Kyc from '../models/kyc.model';
-import { IKyc } from '../types/schema.types';
+import { KycSubmissionStatusEnum } from '../enums';
+import { IKyc } from '../types';
+import { Kyc } from '../models';
 
 export class KycRepository {
   async findById(id: string): Promise<IKyc | null> {

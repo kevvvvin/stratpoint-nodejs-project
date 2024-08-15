@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { ITokenBlacklist } from '../types/schema.types';
+import { ITokenBlacklist } from '../types';
 
 // Define the Role schema
 const blackListedTokenSchema = new Schema<ITokenBlacklist>({
@@ -17,9 +17,7 @@ const blackListedTokenSchema = new Schema<ITokenBlacklist>({
 // Create the Role model
 blackListedTokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
-const BlacklistedToken = mongoose.model<ITokenBlacklist>(
+export const BlacklistedToken = mongoose.model<ITokenBlacklist>(
   'BlacklistedToken',
   blackListedTokenSchema,
 );
-
-export default BlacklistedToken;

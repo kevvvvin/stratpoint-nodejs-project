@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
-import { IRole } from '../types/schema.types';
-import { RoleEnum } from '../enums/role.enum';
+import { RoleEnum } from '../enums';
+import { IRole } from '../types';
 
 // Define the Role schema
 const roleSchema = new Schema<IRole>({
@@ -17,6 +17,4 @@ const roleSchema = new Schema<IRole>({
 });
 
 // Create the Role model
-const Role = mongoose.model<IRole>('Role', roleSchema);
-
-export default Role;
+export const Role = mongoose.model<IRole>('Role', roleSchema);

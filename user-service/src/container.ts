@@ -1,13 +1,11 @@
-import { UserRepository } from './repositories/user.repository';
-import { RoleRepository } from './repositories/role.repository';
-import { AuthService } from './services/auth.service';
-import { AuthController } from './controllers/auth.controller';
-import { UserService } from './services/user.service';
-import { UserController } from './controllers/user.controller';
-import { KycRepository } from './repositories/kyc.repository';
-import { KycService } from './services/kyc.service';
-import { KycController } from './controllers/kyc.controller';
-import { BlacklistedTokenRepository } from './repositories/blacklistedToken.repository';
+import {
+  RoleRepository,
+  UserRepository,
+  KycRepository,
+  BlacklistedTokenRepository,
+} from './repositories';
+import { AuthService, UserService, KycService } from './services';
+import { AuthController, UserController, KycController } from './controllers';
 
 const userRepository: UserRepository = new UserRepository();
 const roleRepository: RoleRepository = new RoleRepository();

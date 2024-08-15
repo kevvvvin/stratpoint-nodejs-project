@@ -1,5 +1,5 @@
-import { ITokenBlacklist } from '../types/schema.types';
-import BlacklistedToken from '../models/blacklistedToken';
+import { ITokenBlacklist } from '../types';
+import { BlacklistedToken } from '../models';
 
 export class BlacklistedTokenRepository {
   async findById(id: string): Promise<ITokenBlacklist | null> {

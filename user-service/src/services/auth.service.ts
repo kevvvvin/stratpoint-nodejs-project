@@ -1,17 +1,13 @@
 import jwt from 'jsonwebtoken';
 import config from '../config';
-import { RoleEnum } from '../enums/role.enum';
-import { UserRepository } from '../repositories/user.repository';
-import { RoleRepository } from '../repositories/role.repository';
+import { StatusEnum, KycUserStatusEnum, RoleEnum } from '../enums';
+import { JwtPayload, AuthResult } from '../types';
 import {
-  AuthResponseBody,
-  LoginRequestBody,
-  RegisterRequestBody,
-} from '../types/user.types';
-import { StatusEnum } from '../enums/status.enum';
-import { KycUserStatusEnum } from '../enums/kyc.enum';
-import { JwtPayload } from '../types/utils.types';
-import { BlacklistedTokenRepository } from '../repositories/blacklistedToken.repository';
+  RoleRepository,
+  UserRepository,
+  BlacklistedTokenRepository,
+} from '../repositories';
+import { LoginRequestDto, RegisterRequestDto } from '../dtos';
 
 export class AuthService {
   constructor(
@@ -20,7 +16,7 @@ export class AuthService {
     private blacklistedTokenRepository: BlacklistedTokenRepository,
   ) {}
 
-  async register(data: RegisterRequestBody): Promise<AuthResponseBody> {
+  async register(data: RegisterRequestDto): Promise<AuthResult> {
     const { email, password, firstName, lastName } = data;
 
     const userRole = await this.roleRepository.findByName(RoleEnum.USER);
@@ -40,7 +36,7 @@ export class AuthService {
       expiresIn: '1d',
     });
 
-    const registerResponse: AuthResponseBody = {
+    const registerResult: AuthResult = {
       token,
       user: {
         id: user._id,
@@ -53,10 +49,10 @@ export class AuthService {
       },
     };
 
-    return registerResponse;
+    return registerResult;
   }
 
-  async login(data: LoginRequestBody): Promise<AuthResponseBody> {
+  async login(data: LoginRequestDto): Promise<AuthResult> {
     const { email, password } = data;
 
     const user = await this.userRepository.findByEmail(email);
@@ -70,7 +66,7 @@ export class AuthService {
       expiresIn: '1d',
     });
 
-    const loginResponse: AuthResponseBody = {
+    const loginResult: AuthResult = {
       token,
       user: {
         id: user._id,
@@ -83,10 +79,10 @@ export class AuthService {
       },
     };
 
-    return loginResponse;
+    return loginResult;
   }
 
-  async logout(token: string): Promise<AuthResponseBody> {
+  async logout(token: string): Promise<AuthResult> {
     const decodedToken = jwt.decode(token) as JwtPayload;
     const expiresAt = new Date(decodedToken.exp * 1000);
     const user = await this.userRepository.findById(decodedToken.id);
@@ -94,7 +90,7 @@ export class AuthService {
 
     await this.blacklistedTokenRepository.create({ token, expiresAt });
 
-    const logoutResponse: AuthResponseBody = {
+    const logoutResult: AuthResult = {
       token,
       user: {
         id: user._id,
@@ -107,6 +103,6 @@ export class AuthService {
       },
     };
 
-    return logoutResponse;
+    return logoutResult;
   }
 }

@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { UserService } from '../services/user.service';
-import logger from '../utils/logger';
-import { IUser } from '../types/schema.types';
-import { UserResponseBody } from '../types/user.types';
+import { IUser, UserResult } from '../types';
+import { UserService } from '../services';
+import { UserResponseDto } from '../dtos';
+import { logger } from '../utils';
 
 export class UserController {
   constructor(private userService: UserService) {}
@@ -13,11 +13,11 @@ export class UserController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const result: UserResponseBody[] = await this.userService.getAllUsers();
-
+      const result: UserResult[] = await this.userService.getAllUsers();
       const message = 'Retrieved all users successfully';
+      const response = new UserResponseDto(message, result);
       logger.info(message, result);
-      return res.status(200).json({ message: message, result });
+      return res.status(200).json(response);
     } catch (err) {
       next(err);
     }
@@ -32,14 +32,12 @@ export class UserController {
       const userId: string = req.params.id;
       const loggedInUser = req.user as IUser;
 
-      const result: UserResponseBody = await this.userService.getUserById(
-        userId,
-        loggedInUser,
-      );
-
+      const result: UserResult = await this.userService.getUserById(userId, loggedInUser);
       const message = 'Retrieved user successfully';
-      logger.info(message, result);
-      return res.status(200).json({ message: message, result });
+      const response = new UserResponseDto(message, result);
+
+      logger.info(response);
+      return res.status(200).json(response);
     } catch (err) {
       next(err);
     }

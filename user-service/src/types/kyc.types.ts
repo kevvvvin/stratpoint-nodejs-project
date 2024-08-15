@@ -1,5 +1,4 @@
 import { Types } from 'mongoose';
-import { KycIdEnum } from '../enums/kyc.enum';
 
 interface KycDetails {
   id: Types.ObjectId;
@@ -10,16 +9,6 @@ interface KycDetails {
   submissionStatus: string;
 }
 
-export interface KycParams {
-  id: string;
-}
-
-export interface KycSubmissionBody {
-  idType: KycIdEnum;
-  idNumber: string;
-  idExpiration: string;
-}
-
-export interface KycResponseBody {
+export interface KycResult {
   kyc: KycDetails;
 }
