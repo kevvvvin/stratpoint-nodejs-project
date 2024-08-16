@@ -9,7 +9,7 @@ function parseSchema<T>(schema: ZodSchema<T>, data: unknown): ValidationResult<T
   const result = schema.safeParse(data);
 
   if (result.success) return { success: true, data: result.data };
-  return { success: false, errors: result.error };
+  else return { success: false, errors: result.error };
 }
 
 export const validateRegister = (
@@ -48,16 +48,7 @@ export const validateKyc = (
       errorMap: () => ({ message: 'Invalid ID type. Please choose a valid option.' }),
     }),
     idNumber: z.string().min(1, 'ID number is required.'),
-    idExpiration: z.string(),
-    // idExpiration: z
-    //   .string()
-    //   .transform((val) => new Date(val)) // Transform string to Date object
-    //   .refine((date) => !isNaN(date.getTime()), {
-    //     message: 'Invalid date format. Please provide a valid date.',
-    //   })
-    //   .refine((date) => date > new Date(), {
-    //     message: 'ID expiration date must be in the future.',
-    //   }),
+    idExpiration: z.string().date('Invalid date format. Expected YYYY-MM-DD'),
   });
 
   return parseSchema(kycSchema, data);

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthResult } from '../types';
+import { AuthResult, UserResult } from '../types';
 import { AuthService } from '../services';
-import { AuthResponseDto } from '../dtos';
+import { AuthResponseDto, UserResponseDto } from '../dtos';
 import { validateLogin, validateRegister, handleValidationError, logger } from '../utils';
 
 export class AuthController {
@@ -18,9 +18,9 @@ export class AuthController {
     }
 
     try {
-      const result: AuthResult = await this.authService.register(req.body);
+      const result: UserResult = await this.authService.register(req.body);
       const message = 'User registered successfully';
-      const response = new AuthResponseDto(message, result);
+      const response = new UserResponseDto(message, result);
 
       logger.info(response);
       return res.status(200).json(response);

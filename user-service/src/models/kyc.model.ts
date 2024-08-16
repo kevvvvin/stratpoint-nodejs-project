@@ -15,7 +15,6 @@ const kycSchema = new Schema<IKyc>({
   },
   idNumber: {
     type: String,
-    unique: true,
   },
   idExpiration: {
     type: Date,

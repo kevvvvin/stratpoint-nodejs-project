@@ -1,6 +1,3 @@
-import { RoleEnum } from '../enums';
+import { IRole } from './';
 
-export type RoleType = {
-  name: RoleEnum;
-  description: string;
-};
+export type RoleType = Pick<IRole, 'name' | 'description'>;
