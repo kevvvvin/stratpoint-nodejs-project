@@ -20,6 +20,8 @@ services:
     build:
       context: ./account-service
       dockerfile: Dockerfile
+    volumes:
+      - ./account-service:/usr/src/app  # Volume mount
     env_file:
       - ./account-service/.env
     ports:
