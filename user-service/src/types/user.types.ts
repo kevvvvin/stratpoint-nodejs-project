@@ -1,15 +1,9 @@
-import { Types } from 'mongoose';
-import { StatusEnum, KycUserStatusEnum } from '../enums';
+import { IUser } from './';
 
-export interface UserDetails {
-  id: Types.ObjectId;
-  email: string;
-  firstName: string;
-  lastName: string;
-  status: StatusEnum;
-  kycStatus: KycUserStatusEnum;
-  roles: string[];
-}
+type UserDetails = Pick<
+  IUser,
+  '_id' | 'email' | 'firstName' | 'lastName' | 'status' | 'kycStatus'
+> & { roles: string[] };
 
 export interface AuthResult {
   token: string;

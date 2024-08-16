@@ -1,4 +1,4 @@
-import { Types } from 'mongoose';
+import { Types, Document } from 'mongoose';
 import {
   StatusEnum,
   RoleEnum,
@@ -20,6 +20,7 @@ export interface IUser extends Document {
 }
 
 export interface IRole extends Document {
+  _id: Types.ObjectId;
   name: RoleEnum;
   description: string;
 }
@@ -34,6 +35,7 @@ export interface IKyc extends Document {
 }
 
 export interface ITokenBlacklist extends Document {
+  _id: Types.ObjectId;
   token: string;
   expiresAt: Date;
 }

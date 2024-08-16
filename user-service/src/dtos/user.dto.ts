@@ -1,4 +1,4 @@
-import { AuthResult, UserResult } from '../types';
+import { AuthResult, IUser, UserResult } from '../types';
 
 export class UserResponseDto {
   message: string;
@@ -20,7 +20,9 @@ export class AuthResponseDto {
   }
 }
 
-export class RegisterRequestDto {
+export class RegisterRequestDto
+  implements Pick<IUser, 'email' | 'password' | 'firstName' | 'lastName'>
+{
   email: string;
   password: string;
   firstName: string;
@@ -34,7 +36,7 @@ export class RegisterRequestDto {
   }
 }
 
-export class LoginRequestDto {
+export class LoginRequestDto implements Pick<IUser, 'email' | 'password'> {
   email: string;
   password: string;
 

@@ -10,7 +10,7 @@ export class UserService {
 
     const usersResult: UserResult[] = users.map((user) => ({
       user: {
-        id: user._id,
+        _id: user._id,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -37,7 +37,7 @@ export class UserService {
 
     const userResult: UserResult = {
       user: {
-        id: user._id,
+        _id: user._id,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
