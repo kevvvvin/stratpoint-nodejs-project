@@ -10,26 +10,29 @@ export class KycService {
   ) {}
 
   async initiate(userId: string): Promise<KycResult> {
-    const user = await this.userRepository.findById(userId);
+    const [kyc, user] = await Promise.all([
+      this.kycRepository.findByUserId(userId),
+      this.userRepository.findById(userId),
+    ]);
+    if (kyc) throw new Error('Could not initiate KYC. KYC is already initiated.');
     if (!user) throw new Error('Could not initiate KYC. User not found');
 
     if (user.kycStatus === KycUserStatusEnum.VERIFIED) {
       throw new Error('Could not initiate KYC. User already approved');
     }
 
-    const kyc = await this.kycRepository.create(
+    const newKyc = await this.kycRepository.create(
       userId,
       KycSubmissionStatusEnum.INITIATED,
     );
 
     const kycResult: KycResult = {
       kyc: {
-        id: kyc._id,
-        user: kyc.user,
-        idType: kyc.idType,
-        idNumber: kyc.idNumber,
-        idExpiration: kyc.idExpiration,
-        submissionStatus: kyc.submissionStatus,
+        user: newKyc.user,
+        idType: newKyc.idType,
+        idNumber: newKyc.idNumber,
+        idExpiration: newKyc.idExpiration,
+        submissionStatus: newKyc.submissionStatus,
       },
     };
 
@@ -57,8 +60,7 @@ export class KycService {
     const updateData: Partial<IKyc> = {
       idType: data.idType,
       idNumber: data.idNumber,
-      idExpiration: new Date(data.idExpiration),
-      // idExpiration: data.idExpiration,
+      idExpiration: data.idExpiration as Date,
       submissionStatus: KycSubmissionStatusEnum.FOR_REVIEW,
     };
 
@@ -79,7 +81,6 @@ export class KycService {
     // Construct and return the response
     const kycSubmitResult: KycResult = {
       kyc: {
-        id: updatedKyc._id,
         user: updatedKyc.user,
         idType: updatedKyc.idType,
         idNumber: updatedKyc.idNumber,
@@ -127,7 +128,6 @@ export class KycService {
     // Construct and return the response
     const kycApproveResult: KycResult = {
       kyc: {
-        id: updatedKyc._id,
         user: updatedKyc.user,
         idType: updatedKyc.idType,
         idNumber: updatedKyc.idNumber,
@@ -175,7 +175,6 @@ export class KycService {
     // Construct and return the response
     const kycRejectResult: KycResult = {
       kyc: {
-        id: updatedKyc._id,
         user: updatedKyc.user,
         idType: updatedKyc.idType,
         idNumber: updatedKyc.idNumber,
@@ -216,7 +215,6 @@ export class KycService {
 
     const kycResult: KycResult = {
       kyc: {
-        id: kyc._id,
         user: kyc.user,
         idType: kyc.idType,
         idNumber: kyc.idNumber,

@@ -16,7 +16,9 @@ export class KycRepository {
   }
 
   async create(userId: string, submissionStatus: KycSubmissionStatusEnum): Promise<IKyc> {
-    return Kyc.create({ user: userId, submissionStatus: submissionStatus });
+    let newKyc = Kyc.create({ user: userId, submissionStatus: submissionStatus });
+    newKyc = (await newKyc).populate('user', 'email kycStatus');
+    return newKyc;
   }
 
   async update(userId: string, updateData: Partial<IKyc>): Promise<IKyc | null> {

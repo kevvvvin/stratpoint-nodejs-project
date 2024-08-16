@@ -1,5 +1,5 @@
 import { KycIdEnum } from '../enums';
-import { KycResult } from '../types';
+import { IKyc, KycResult } from '../types';
 
 export class KycResponseDto {
   message: string;
@@ -11,13 +11,12 @@ export class KycResponseDto {
   }
 }
 
-export class KycSubmitRequestDto {
+export class KycSubmitRequestDto implements Pick<IKyc, 'idType' | 'idNumber'> {
   idType: KycIdEnum;
   idNumber: string;
-  idExpiration: string;
-  // idExpiration: Date;
+  idExpiration: string | Date;
 
-  constructor(idType: KycIdEnum, idNumber: string, idExpiration: string) {
+  constructor(idType: KycIdEnum, idNumber: string, idExpiration: string | Date) {
     this.idType = idType;
     this.idNumber = idNumber;
     this.idExpiration = idExpiration;

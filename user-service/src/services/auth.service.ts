@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import config from '../config';
 import { StatusEnum, KycUserStatusEnum, RoleEnum } from '../enums';
-import { JwtPayload, AuthResult } from '../types';
+import { JwtPayload, AuthResult, IUser, UserResult } from '../types';
 import {
   RoleRepository,
   UserRepository,
@@ -16,13 +16,19 @@ export class AuthService {
     private blacklistedTokenRepository: BlacklistedTokenRepository,
   ) {}
 
-  async register(data: RegisterRequestDto): Promise<AuthResult> {
+  async register(data: RegisterRequestDto): Promise<UserResult> {
     const { email, password, firstName, lastName } = data;
 
-    const userRole = await this.roleRepository.findByName(RoleEnum.USER);
-    if (!userRole) throw new Error('User role not found. Roles are not initialized');
+    const [userRole, user] = await Promise.all([
+      this.roleRepository.findByName(RoleEnum.USER),
+      this.userRepository.findByEmail(email),
+    ]);
 
-    const user = await this.userRepository.create({
+    if (!userRole) throw new Error('User role not found. Roles are not initialized');
+    if (user)
+      throw new Error(`Registration failed. User with email ${email} already exists `);
+
+    const newUser: IUser = await this.userRepository.create({
       email,
       password,
       firstName,
@@ -32,20 +38,15 @@ export class AuthService {
       roles: [userRole],
     });
 
-    const token = jwt.sign({ id: user._id }, config.jwtSecret, {
-      expiresIn: '1d',
-    });
-
-    const registerResult: AuthResult = {
-      token,
+    const registerResult: UserResult = {
       user: {
-        id: user._id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        status: user.status,
-        kycStatus: user.kycStatus,
-        roles: user.roles.map((role) => role.name),
+        _id: newUser._id,
+        email: newUser.email,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        status: newUser.status,
+        kycStatus: newUser.kycStatus,
+        roles: newUser.roles.map((role) => role.name),
       },
     };
 
@@ -69,7 +70,7 @@ export class AuthService {
     const loginResult: AuthResult = {
       token,
       user: {
-        id: user._id,
+        _id: user._id,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -93,7 +94,7 @@ export class AuthService {
     const logoutResult: AuthResult = {
       token,
       user: {
-        id: user._id,
+        _id: user._id,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,

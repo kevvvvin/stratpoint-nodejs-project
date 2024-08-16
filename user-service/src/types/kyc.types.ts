@@ -1,13 +1,9 @@
-import { Types } from 'mongoose';
+import { IKyc } from './';
 
-interface KycDetails {
-  id: Types.ObjectId;
-  user: Types.ObjectId;
-  idType: string;
-  idNumber: string;
-  idExpiration: Date;
-  submissionStatus: string;
-}
+type KycDetails = Pick<
+  IKyc,
+  'user' | 'idType' | 'idNumber' | 'idExpiration' | 'submissionStatus'
+>;
 
 export interface KycResult {
   kyc: KycDetails;
