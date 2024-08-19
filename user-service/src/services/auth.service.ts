@@ -1,19 +1,14 @@
-import jwt from 'jsonwebtoken';
-import config from '../config';
 import { StatusEnum, KycUserStatusEnum, RoleEnum } from '../enums';
-import { JwtPayload, AuthResult, IUser, UserResult } from '../types';
-import {
-  RoleRepository,
-  UserRepository,
-  BlacklistedTokenRepository,
-} from '../repositories';
+import { AuthResult, IUser, UserResult } from '../types';
+import { RoleRepository, UserRepository } from '../repositories';
+import { JwtService } from './';
 import { LoginRequestDto, RegisterRequestDto } from '../dtos';
 
 export class AuthService {
   constructor(
     private userRepository: UserRepository,
     private roleRepository: RoleRepository,
-    private blacklistedTokenRepository: BlacklistedTokenRepository,
+    private jwtService: JwtService,
   ) {}
 
   async register(data: RegisterRequestDto): Promise<UserResult> {
@@ -63,9 +58,7 @@ export class AuthService {
     if (!isMatch) throw new Error('Invalid email or password');
 
     // Generate a JWT token
-    const token = jwt.sign({ id: user._id }, config.jwtSecret, {
-      expiresIn: '1d',
-    });
+    const token = await this.jwtService.generateToken(user);
 
     const loginResult: AuthResult = {
       token,
@@ -83,13 +76,8 @@ export class AuthService {
     return loginResult;
   }
 
-  async logout(token: string): Promise<AuthResult> {
-    const decodedToken = jwt.decode(token) as JwtPayload;
-    const expiresAt = new Date(decodedToken.exp * 1000);
-    const user = await this.userRepository.findById(decodedToken.id);
-    if (!user) throw new Error('Invalid token. User not found.');
-
-    await this.blacklistedTokenRepository.create({ token, expiresAt });
+  async logout(token: string, user: IUser): Promise<AuthResult> {
+    await this.jwtService.revokeToken(token);
 
     const logoutResult: AuthResult = {
       token,

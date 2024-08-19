@@ -9,15 +9,12 @@ export class KycService {
     private userRepository: UserRepository,
   ) {}
 
-  async initiate(userId: string): Promise<KycResult> {
-    const [kyc, user] = await Promise.all([
-      this.kycRepository.findByUserId(userId),
-      this.userRepository.findById(userId),
-    ]);
+  async initiate(loggedInUser: IUser): Promise<KycResult> {
+    const userId = loggedInUser._id.toString();
+    const kyc = await this.kycRepository.findByUserId(userId);
     if (kyc) throw new Error('Could not initiate KYC. KYC is already initiated.');
-    if (!user) throw new Error('Could not initiate KYC. User not found');
 
-    if (user.kycStatus === KycUserStatusEnum.VERIFIED) {
+    if (loggedInUser.kycStatus === KycUserStatusEnum.VERIFIED) {
       throw new Error('Could not initiate KYC. User already approved');
     }
 
@@ -39,15 +36,10 @@ export class KycService {
     return kycResult;
   }
 
-  async update(userId: string, data: KycSubmitRequestDto): Promise<KycResult> {
-    // Fetch KYC and User in parallel
-    const [kyc, user] = await Promise.all([
-      this.kycRepository.findByUserId(userId),
-      this.userRepository.findById(userId),
-    ]);
-
+  async update(loggedInUser: IUser, data: KycSubmitRequestDto): Promise<KycResult> {
+    const userId = loggedInUser._id.toString();
+    const kyc = await this.kycRepository.findByUserId(userId);
     if (!kyc) throw new Error('Could not update KYC submission. KYC not found');
-    if (!user) throw new Error("Could not update the user's KYC status. User not found");
 
     if (
       kyc.submissionStatus === KycSubmissionStatusEnum.APPROVED ||

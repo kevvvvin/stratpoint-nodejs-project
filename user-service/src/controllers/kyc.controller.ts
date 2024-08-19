@@ -15,7 +15,7 @@ export class KycController {
     try {
       const loggedInUser = req.user as IUser;
 
-      const kyc: KycResult = await this.kycService.initiate(loggedInUser._id.toString());
+      const kyc: KycResult = await this.kycService.initiate(loggedInUser);
       const message = 'Initiated KYC successfully';
       const response = new KycResponseDto(message, kyc);
 
@@ -39,10 +39,7 @@ export class KycController {
     try {
       const loggedInUser: IUser = req.user as IUser;
 
-      const kyc: KycResult = await this.kycService.update(
-        loggedInUser._id.toString(),
-        req.body,
-      );
+      const kyc: KycResult = await this.kycService.update(loggedInUser, req.body);
       const message = 'Submitted KYC successfully';
       const response = new KycResponseDto(message, kyc);
 

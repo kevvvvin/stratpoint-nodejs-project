@@ -14,7 +14,7 @@ export const logger = createLogger({
     splat(),
     json(),
   ),
-  defaultMeta: { service: 'e-wallet-user-api' },
+  defaultMeta: { service: 'user-service' },
   transports: [
     new transports.File({
       filename: path.join(logDirectory, 'error.log'),

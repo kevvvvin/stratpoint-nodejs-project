@@ -1,7 +1,12 @@
 import { ZodError } from 'zod';
+import { KycUserStatusEnum, StatusEnum } from '../enums';
 
 export interface JwtPayload {
-  id: string;
+  sub: string;
+  email: string;
+  roles: string[];
+  status: StatusEnum;
+  kycStatus: KycUserStatusEnum;
   exp: number;
 }
 

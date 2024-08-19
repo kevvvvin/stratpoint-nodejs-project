@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthResult, UserResult } from '../types';
+import { AuthResult, IUser, UserResult } from '../types';
 import { AuthService } from '../services';
 import { AuthResponseDto, UserResponseDto } from '../dtos';
 import { validateLogin, validateRegister, handleValidationError, logger } from '../utils';
@@ -54,13 +54,27 @@ export class AuthController {
   ): Promise<Response | void> {
     try {
       const token = req.token as string;
+      const user = req.user as IUser;
 
-      const result = await this.authService.logout(token);
-      const message = 'User logged out successfully';
+      const result = await this.authService.logout(token, user);
+      const message = 'User logged out successfully. Token has been revoked';
       const response = new AuthResponseDto(message, result);
 
       logger.info(response);
       return res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async validateToken(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const user = req.user;
+      return res.status(200).json({ valid: true, user: user });
     } catch (err) {
       next(err);
     }

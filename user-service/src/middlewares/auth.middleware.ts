@@ -22,7 +22,7 @@ const authenticateJWT = async (
 ): Promise<Response | void> => {
   try {
     const authHeader = req.header('Authorization');
-    if (!authHeader) {
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       const error = new JwtError('Access denied. No token provided');
       return next(error);
     }
@@ -41,7 +41,7 @@ const authenticateJWT = async (
 
     const decoded = jwt.verify(token, config.jwtSecret) as JwtPayload;
 
-    const user = await User.findById(decoded.id)
+    const user = await User.findById(decoded.sub)
       .select('-password')
       .populate('roles', 'name');
 
