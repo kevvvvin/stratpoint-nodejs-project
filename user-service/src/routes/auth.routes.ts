@@ -9,7 +9,7 @@ router.post('/login', (req, res, next) => authController.login(req, res, next));
 router.post('/logout', authenticateJWT, (req, res, next) =>
   authController.logout(req, res, next),
 );
-router.post('/validate-token', authenticateJWT, (req, res, next) =>
+router.get('/validate-token', authenticateJWT, (req, res, next) =>
   authController.validateToken(req, res, next),
 );
 

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { WalletResult } from '../types';
+import { JwtPayload, WalletResult } from '../types';
 import { WalletService } from '../services';
 import { WalletResponseDto } from '../dtos';
 import { logger } from '../utils';
@@ -8,12 +8,14 @@ export class WalletController {
   constructor(private walletService: WalletService) {}
 
   async create(
-    _req: Request,
+    req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const result: WalletResult = await this.walletService.create();
+      const userDetails = req.payload as JwtPayload;
+
+      const result: WalletResult = await this.walletService.create(userDetails.sub);
       const message = 'Wallet created successfully';
       const response = new WalletResponseDto(message, result);
 

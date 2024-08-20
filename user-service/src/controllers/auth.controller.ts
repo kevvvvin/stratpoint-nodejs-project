@@ -68,13 +68,12 @@ export class AuthController {
   }
 
   async validateToken(
-    req: Request,
+    _req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const user = req.user;
-      return res.status(200).json({ valid: true, user: user });
+      return res.status(200).json({ valid: true });
     } catch (err) {
       next(err);
     }

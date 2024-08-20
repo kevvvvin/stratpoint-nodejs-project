@@ -2,8 +2,8 @@ import { Wallet } from '../models';
 import { IWallet } from '../types';
 
 export class WalletRepository {
-  async create(): Promise<IWallet> {
-    return Wallet.create({});
+  async create(userId: string): Promise<IWallet> {
+    return Wallet.create({ user: userId });
   }
   async findById(id: string): Promise<IWallet | null> {
     return Wallet.findById(id);

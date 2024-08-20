@@ -4,17 +4,18 @@ import { WalletRepository } from '../repositories';
 export class WalletService {
   constructor(private walletRepository: WalletRepository) {}
 
-  async create(): Promise<WalletResult> {
+  async create(userId: string): Promise<WalletResult> {
     /*
       TODO: accept a user id, ideally taken from the JWT token
       validate that the user does not already have an account (only one account allowed per user)
     */
-    const wallet = await this.walletRepository.create();
+    const wallet = await this.walletRepository.create(userId);
 
     const createResult: WalletResult = {
       wallet: {
         _id: wallet._id,
         balance: wallet.balance,
+        currency: wallet.currency,
       },
     };
 
@@ -34,6 +35,7 @@ export class WalletService {
       wallet: {
         _id: wallet._id,
         balance: wallet.balance,
+        currency: wallet.currency,
       },
     };
 
