@@ -8,13 +8,16 @@ export class WalletService {
     const wallet = await this.walletRepository.findByUserId(userDetails.sub);
     if (wallet) throw new Error('Wallet creation failed. Wallet already exists.');
 
-    const customerResponse = await fetch('http://localhost:3004/api/customer/create', {
-      method: 'POST',
-      headers: {
-        Authorization: authHeader,
-        'Content-Type': 'application/json',
+    const customerResponse = await fetch(
+      'http://localhost:3004/api/stripe/create-customer-id',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: authHeader,
+          'Content-Type': 'application/json',
+        },
       },
-    });
+    );
 
     if (customerResponse.status !== 201)
       throw new Error('Wallet creation failed. Customer creation failed.');

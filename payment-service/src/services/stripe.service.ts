@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
 import { JwtPayload, CustomerResult } from '../types';
+import { PaymentMethodRequestDto } from '../dtos';
 
 export class StripeService {
   constructor(private stripe: Stripe) {}
@@ -18,5 +19,34 @@ export class StripeService {
     };
 
     return createResult;
+  }
+
+  async createPaymentMethod(
+    paymentMethodDetails: PaymentMethodRequestDto,
+  ): Promise<Stripe.PaymentMethod> {
+    const paymentMethodData: Stripe.PaymentMethodCreateParams = {
+      type: 'card',
+      card: {
+        token: paymentMethodDetails.token,
+      },
+    };
+    return await this.stripe.paymentMethods.create(paymentMethodData);
+  }
+
+  async getCustomerId(email: string): Promise<string> {
+    const customer = await this.stripe.customers.list({
+      email: email,
+      limit: 1,
+    });
+    return customer.data[0].id;
+  }
+
+  async attachPaymentMethodToCustomer(
+    paymentMethodId: string,
+    customerId: string,
+  ): Promise<Stripe.PaymentMethod> {
+    return await this.stripe.paymentMethods.attach(paymentMethodId, {
+      customer: customerId,
+    });
   }
 }
