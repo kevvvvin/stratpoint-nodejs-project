@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import config from '../config';
+import { envConfig } from '../configs';
 import { Request, Response, NextFunction } from 'express';
 import { RoleEnum } from '../enums';
 import { JwtPayload, IRole, IUser } from '../types';
@@ -39,7 +39,7 @@ const authenticateJWT = async (
       return next(error);
     }
 
-    const decoded = jwt.verify(token, config.jwtSecret) as JwtPayload;
+    const decoded = jwt.verify(token, envConfig.jwtSecret) as JwtPayload;
 
     const user = await User.findById(decoded.sub)
       .select('-password')

@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import config from '../config';
+import { envConfig } from '../configs';
 import { Request, Response, NextFunction } from 'express';
 import { JwtPayload } from '../types';
 
@@ -41,10 +41,14 @@ export const authenticateJWT = async (
     );
 
     if (!validateResponse.ok) {
-      const error = new Error('JWT Token is validation');
+      const error = new Error('Token is not valid.');
       return next(error);
     }
-    const decoded = jwt.verify(token, config.jwtSecret) as JwtPayload;
+    const decoded = jwt.verify(token, envConfig.jwtSecret) as JwtPayload;
+    if (decoded.kycStatus !== 'VERIFIED') {
+      const error = new Error('User is not verified. Please verify your account.');
+      return next(error);
+    }
 
     req.payload = decoded;
     next();

@@ -5,11 +5,8 @@ export class WalletRepository {
   async create(userId: string): Promise<IWallet> {
     return Wallet.create({ user: userId });
   }
-  async findById(id: string): Promise<IWallet | null> {
-    return Wallet.findById(id);
-  }
 
   async findByUserId(userId: string): Promise<IWallet | null> {
-    return Wallet.findOne({ userId });
+    return Wallet.findOne({ user: userId });
   }
 }

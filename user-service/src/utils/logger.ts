@@ -1,5 +1,5 @@
 import { createLogger, format, transports } from 'winston';
-import config from '../config';
+import { envConfig } from '../configs';
 import path from 'path';
 
 const { combine, timestamp, errors, splat, json, colorize, simple } = format;
@@ -7,7 +7,7 @@ const { combine, timestamp, errors, splat, json, colorize, simple } = format;
 const logDirectory = path.join(__dirname, '../../logs');
 
 export const logger = createLogger({
-  level: config.logLevel || 'info',
+  level: envConfig.logLevel || 'info',
   format: combine(
     timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     errors({ stack: true }),
@@ -24,7 +24,7 @@ export const logger = createLogger({
   ],
 });
 
-if (config.nodeENV !== 'production') {
+if (envConfig.nodeENV !== 'production') {
   logger.add(
     new transports.Console({
       format: combine(colorize(), simple()),

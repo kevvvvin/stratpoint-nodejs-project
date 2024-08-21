@@ -5,7 +5,7 @@ const walletSchema = new Schema<IWallet>({
   user: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    // required: true,
+    required: true,
   },
   balance: {
     type: Number,
@@ -18,7 +18,6 @@ const walletSchema = new Schema<IWallet>({
   },
   stripeCustomerId: {
     type: String,
-    // required: true,
   },
   createdAt: {
     type: Date,
