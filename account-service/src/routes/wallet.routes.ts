@@ -7,6 +7,8 @@ const router = express.Router();
 router.post('/create', authenticateJWT, (req, res, next) =>
   walletController.create(req, res, next),
 );
-router.get('/', (req, res, next) => walletController.getWalletByUserId(req, res, next));
+router.get('/balance', authenticateJWT, (req, res, next) =>
+  walletController.getWalletBalance(req, res, next),
+);
 
 export default router;

@@ -26,16 +26,17 @@ export class WalletController {
     }
   }
 
-  async getWalletByUserId(
-    _req: Request,
+  async getWalletBalance(
+    req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      // TODO: get userId from JWT token
-      const userId = '123-456-789';
+      const userDetails = req.payload as JwtPayload;
 
-      const result: WalletResult = await this.walletService.getWalletByUserId(userId);
+      const result: WalletResult = await this.walletService.getWalletBalance(
+        userDetails.sub,
+      );
       const message = 'Retrieved wallet successfully';
       const response = new WalletResponseDto(message, result);
 

@@ -1,4 +1,4 @@
-export interface Config {
+export interface EnvConfig {
   port: number;
   mongoURI: string;
   jwtSecret: string;

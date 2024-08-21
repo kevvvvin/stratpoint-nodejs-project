@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import config from '../config';
+import { envConfig } from '../configs';
 import { IUser, JwtPayload } from '../types';
 import { BlacklistedTokenRepository } from '../repositories';
 
@@ -15,7 +15,7 @@ export class JwtService {
       kycStatus: user.kycStatus,
     };
 
-    return jwt.sign(payload, config.jwtSecret, { expiresIn: '2h' });
+    return jwt.sign(payload, envConfig.jwtSecret, { expiresIn: '2h' });
   }
 
   async revokeToken(token: string): Promise<void> {
