@@ -1,14 +1,29 @@
-import { WalletResult } from '../types';
+import { JwtPayload, WalletResult } from '../types';
 import { WalletRepository } from '../repositories';
 
 export class WalletService {
   constructor(private walletRepository: WalletRepository) {}
 
-  async create(userId: string): Promise<WalletResult> {
-    const wallet = await this.walletRepository.findByUserId(userId);
+  async create(userDetails: JwtPayload, authHeader: string): Promise<WalletResult> {
+    const wallet = await this.walletRepository.findByUserId(userDetails.sub);
     if (wallet) throw new Error('Wallet creation failed. Wallet already exists.');
 
-    const newWallet = await this.walletRepository.create(userId);
+    const customerResponse = await fetch('http://localhost:3004/api/customer/create', {
+      method: 'POST',
+      headers: {
+        Authorization: authHeader,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (customerResponse.status !== 201)
+      throw new Error('Wallet creation failed. Customer creation failed.');
+
+    const customer = await customerResponse.json();
+    const newWallet = await this.walletRepository.create(
+      userDetails.sub,
+      customer.result.id as string,
+    );
     const createResult: WalletResult = {
       wallet: {
         _id: newWallet._id,

@@ -23,5 +23,5 @@ RUN tsc
 EXPOSE 3002
 
 # Command to run the application
-# CMD ["node", "dist/index.js"]
-CMD ["sh", "-c", "npm run build && node dist/index.js"]
+# CMD ["sh", "-c", "npm run build && node dist/index.js"]
+CMD ["node", "dist/index.js"]
