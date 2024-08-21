@@ -13,9 +13,15 @@ export class WalletController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
+      const authHeader = req.header('Authorization') as string;
       const userDetails = req.payload as JwtPayload;
 
-      const result: WalletResult = await this.walletService.create(userDetails.sub);
+      logger.info(authHeader);
+
+      const result: WalletResult = await this.walletService.create(
+        userDetails,
+        authHeader,
+      );
       const message = 'Wallet created successfully';
       const response = new WalletResponseDto(message, result);
 

@@ -48,6 +48,8 @@ services:
     build:
       context: ./payment-service
       dockerfile: Dockerfile
+    volumes:
+      - ./payment-service:/usr/src/app  # Volume mount
     env_file:
       - ./payment-service/.env
     ports:
