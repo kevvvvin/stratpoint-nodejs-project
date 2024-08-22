@@ -12,6 +12,7 @@ export interface IWallet extends Document {
 }
 
 export interface IPaymentMethod extends Document {
+  _id: Types.ObjectId;
   user: Types.ObjectId;
   stripePaymentMethodId: string;
   type: string;

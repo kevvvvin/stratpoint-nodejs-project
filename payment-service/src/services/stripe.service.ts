@@ -62,6 +62,13 @@ export class StripeService {
     return attachedMethod;
   }
 
+  async detachPaymentMethodFromCustomer(
+    paymentMethodId: string,
+  ): Promise<Stripe.PaymentMethod> {
+    const detachedPaymentMethod = this.stripe.paymentMethods.detach(paymentMethodId);
+    return detachedPaymentMethod;
+  }
+
   async listCustomerPaymentMethods(
     customerId: string,
   ): Promise<Stripe.Response<Stripe.ApiList<Stripe.PaymentMethod>>> {

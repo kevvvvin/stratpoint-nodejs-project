@@ -3,6 +3,7 @@ import { StripeService } from '../services';
 import {
   AttachPaymentRequestDto,
   CustomerResponseDto,
+  DetachPaymentRequestDto,
   PaymentMethodRequestDto,
   PaymentMethodResponseDto,
   RetrievePaymentRequestDto,
@@ -120,6 +121,27 @@ export class StripeController {
       );
 
       const message = 'Payment method attached to customer successfully';
+      const response = new PaymentMethodResponseDto(message, result);
+
+      logger.info(response);
+      return res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async detachPaymentMethod(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const detachPaymentRequest: DetachPaymentRequestDto = req.body;
+      const result = await this.stripeService.detachPaymentMethodFromCustomer(
+        detachPaymentRequest.paymentMethodId,
+      );
+
+      const message = 'Payment method detached from customer successfully';
       const response = new PaymentMethodResponseDto(message, result);
 
       logger.info(response);

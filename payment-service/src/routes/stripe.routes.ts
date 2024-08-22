@@ -24,4 +24,8 @@ router.post('/attach-payment-method', authenticateJWT, (req, res, next) =>
   stripeController.attachPaymentMethod(req, res, next),
 );
 
+router.post('/detach-payment-method', authenticateJWT, (req, res, next) =>
+  stripeController.detachPaymentMethod(req, res, next),
+);
+
 export default router;

@@ -50,3 +50,11 @@ export class AttachPaymentRequestDto {
     this.customerId = customerId;
   }
 }
+
+export class DetachPaymentRequestDto {
+  paymentMethodId: string;
+
+  constructor(paymentMethodId: string) {
+    this.paymentMethodId = paymentMethodId;
+  }
+}

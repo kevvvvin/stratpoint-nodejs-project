@@ -1,4 +1,10 @@
-import { IPaymentMethod, JwtPayload, WalletResult } from '../types';
+import {
+  IPaymentMethod,
+  JwtPayload,
+  PaymentMethodResult,
+  WalletResult,
+  STRIPE_TEST_PAYMENT_METHODS,
+} from '../types';
 import { WalletRepository, PaymentMethodRepository } from '../repositories';
 import { Types } from 'mongoose';
 
@@ -69,6 +75,9 @@ export class WalletService {
     const wallet = await this.walletRepository.findByUserId(userId);
     if (!wallet) throw new Error('Wallet does not exist.');
 
+    if (!STRIPE_TEST_PAYMENT_METHODS.has(paymentMethodId))
+      throw new Error('Invalid test payment method');
+
     const existingPaymentMethod =
       await this.paymentMethodRepository.findByPaymentMethodId(paymentMethodId);
     if (existingPaymentMethod)
@@ -118,5 +127,65 @@ export class WalletService {
     });
 
     return newPaymentMethod;
+  }
+
+  async getPaymentMethods(userId: string): Promise<PaymentMethodResult[]> {
+    const paymentMethods =
+      await this.paymentMethodRepository.findUserPaymentMethods(userId);
+    const methodResults: PaymentMethodResult[] = paymentMethods.map((paymentMethod) => ({
+      paymentMethod: {
+        user: paymentMethod.user,
+        stripePaymentMethodId: paymentMethod.stripePaymentMethodId,
+        type: paymentMethod.type,
+        card: {
+          brand: paymentMethod.card.brand,
+          last4: paymentMethod.card.last4,
+          expMonth: paymentMethod.card.expMonth,
+          expYear: paymentMethod.card.expYear,
+        },
+        isDefault: paymentMethod.isDefault,
+      },
+    }));
+    return methodResults;
+  }
+
+  async deletePaymentMethod(
+    userId: string,
+    paymentMethodId: string,
+    // authHeader: string,
+  ): Promise<IPaymentMethod> {
+    const wallet = await this.walletRepository.findByUserId(userId);
+    if (!wallet) throw new Error('Wallet does not exist.');
+
+    if (!STRIPE_TEST_PAYMENT_METHODS.has(paymentMethodId))
+      throw new Error('Invalid test payment method');
+
+    const paymentMethod = await this.paymentMethodRepository.findUserPaymentMethod(
+      userId,
+      paymentMethodId,
+    );
+    if (!paymentMethod) throw new Error('Payment method does not exist.');
+
+    /* TODO: detach payment method from customer for non-test data
+    const detachResponse = await fetch(
+      'http://localhost:3004/api/stripe/detach-payment-method',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: authHeader,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ paymentMethodId }),
+      },
+    );
+
+    if (detachResponse.status !== 200)
+      throw new Error('Payment method detachment to customer failed');
+
+    */
+
+    await this.paymentMethodRepository.delete(paymentMethod._id);
+
+    return paymentMethod;
   }
 }

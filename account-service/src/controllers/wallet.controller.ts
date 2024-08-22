@@ -82,4 +82,50 @@ export class WalletController {
       next(err);
     }
   }
+
+  async getPaymentMethods(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const userDetails = req.payload as JwtPayload;
+
+      const paymentMethods = await this.walletService.getPaymentMethods(userDetails.sub);
+
+      const message = 'Retrieved payment methods successfully';
+      const response = new PaymentMethodResponseDto(message, paymentMethods);
+
+      logger.info(response);
+      return res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async deletePaymentMethod(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const { paymentMethodId } = req.params;
+      // const authHeader = req.header('Authorization') as string;
+      const userDetails = req.payload as JwtPayload;
+
+      const deletedMethod = await this.walletService.deletePaymentMethod(
+        userDetails.sub,
+        paymentMethodId,
+        // authHeader,
+      );
+
+      const message = 'Payment method deleted successfully';
+      const response = new PaymentMethodResponseDto(message, deletedMethod);
+
+      logger.info(response);
+      return res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
 }

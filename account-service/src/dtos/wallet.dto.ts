@@ -1,4 +1,4 @@
-import { IPaymentMethod, WalletResult } from '../types';
+import { IPaymentMethod, PaymentMethodResult, WalletResult } from '../types';
 
 export class WalletResponseDto {
   message: string;
@@ -12,9 +12,16 @@ export class WalletResponseDto {
 
 export class PaymentMethodResponseDto {
   message: string;
-  result: IPaymentMethod;
+  result: IPaymentMethod | PaymentMethodResult | IPaymentMethod[] | PaymentMethodResult[];
 
-  constructor(message: string, result: IPaymentMethod) {
+  constructor(
+    message: string,
+    result:
+      | IPaymentMethod
+      | PaymentMethodResult
+      | IPaymentMethod[]
+      | PaymentMethodResult[],
+  ) {
     this.message = message;
     this.result = result;
   }
