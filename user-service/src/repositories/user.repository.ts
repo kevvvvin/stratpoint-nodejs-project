@@ -1,17 +1,18 @@
 import { IUser } from '../types';
 import { User } from '../models';
+import { Types } from 'mongoose';
 
 export class UserRepository {
   async findById(id: string): Promise<IUser | null> {
-    return User.findById(id).populate('roles', 'name');
+    return await User.findById(new Types.ObjectId(id)).populate('roles', 'name');
   }
 
   async findByEmail(email: string): Promise<IUser | null> {
-    return User.findOne({ email }).populate('roles', 'name');
+    return await User.findOne({ email }).populate('roles', 'name');
   }
 
   async findAll(): Promise<IUser[]> {
-    return User.find().populate('roles', 'name');
+    return await User.find().populate('roles', 'name');
   }
 
   async create(userData: Partial<IUser>): Promise<IUser> {
@@ -21,10 +22,13 @@ export class UserRepository {
   }
 
   async update(id: string, updateData: Partial<IUser>): Promise<IUser | null> {
-    return User.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
+    return await User.findByIdAndUpdate(new Types.ObjectId(id), updateData, {
+      new: true,
+      runValidators: true,
+    });
   }
 
   async delete(id: string): Promise<void> {
-    await User.findByIdAndDelete(id);
+    await User.findByIdAndDelete(new Types.ObjectId(id));
   }
 }

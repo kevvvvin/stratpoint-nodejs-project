@@ -16,7 +16,6 @@
   "description": "Microservice for user related operations",
   "dependencies": {
     "@types/cors": "^2.8.17",
-    "@types/winston": "^2.4.4",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -31,7 +30,6 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.6",
-    "@types/mongoose": "^5.11.97",
     "@types/node": "^22.1.0",
     "@typescript-eslint/eslint-plugin": "^8.0.1",
     "@typescript-eslint/parser": "^8.0.1",

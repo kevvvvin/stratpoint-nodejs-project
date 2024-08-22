@@ -1,4 +1,5 @@
 import { Types, Document } from 'mongoose';
+import { cardDetails } from '../types';
 
 export interface IWallet extends Document {
   _id: Types.ObjectId;
@@ -8,4 +9,14 @@ export interface IWallet extends Document {
   stripeCustomerId: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface IPaymentMethod extends Document {
+  _id: Types.ObjectId;
+  user: Types.ObjectId;
+  stripePaymentMethodId: string;
+  type: string;
+  card: cardDetails;
+  isDefault: boolean;
+  createdAt: Date;
 }

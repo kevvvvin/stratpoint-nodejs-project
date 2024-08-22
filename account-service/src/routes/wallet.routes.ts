@@ -10,5 +10,14 @@ router.post('/create', authenticateJWT, (req, res, next) =>
 router.get('/balance', authenticateJWT, (req, res, next) =>
   walletController.getWalletBalance(req, res, next),
 );
+router.post('/add-payment-method', authenticateJWT, (req, res, next) =>
+  walletController.addPaymentMethod(req, res, next),
+);
+router.get('/payment-methods', authenticateJWT, (req, res, next) =>
+  walletController.getPaymentMethods(req, res, next),
+);
+router.delete('/payment-methods/:paymentMethodId', authenticateJWT, (req, res, next) =>
+  walletController.deletePaymentMethod(req, res, next),
+);
 
 export default router;
