@@ -110,16 +110,17 @@ export class WalletController {
   ): Promise<Response | void> {
     try {
       const { paymentMethodId } = req.params;
-      // const authHeader = req.header('Authorization') as string;
+      const authHeader = req.header('Authorization') as string;
       const userDetails = req.payload as JwtPayload;
 
       const deletedMethod = await this.walletService.deletePaymentMethod(
         userDetails.sub,
         paymentMethodId,
-        // authHeader,
+        authHeader,
       );
-
-      const message = 'Payment method deleted successfully';
+      const message = paymentMethodId.startsWith('pm_card')
+        ? 'Test payment method deleted successfully'
+        : 'Payment method deleted successfully';
       const response = new PaymentMethodResponseDto(message, deletedMethod);
 
       logger.info(response);

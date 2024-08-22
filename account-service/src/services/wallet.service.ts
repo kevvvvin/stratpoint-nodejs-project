@@ -7,6 +7,7 @@ import {
 } from '../types';
 import { WalletRepository, PaymentMethodRepository } from '../repositories';
 import { Types } from 'mongoose';
+import { logger } from '../utils';
 
 export class WalletService {
   constructor(
@@ -74,9 +75,6 @@ export class WalletService {
   ): Promise<IPaymentMethod> {
     const wallet = await this.walletRepository.findByUserId(userId);
     if (!wallet) throw new Error('Wallet does not exist.');
-
-    if (!STRIPE_TEST_PAYMENT_METHODS.has(paymentMethodId))
-      throw new Error('Invalid test payment method');
 
     const existingPaymentMethod =
       await this.paymentMethodRepository.findByPaymentMethodId(paymentMethodId);
@@ -152,13 +150,10 @@ export class WalletService {
   async deletePaymentMethod(
     userId: string,
     paymentMethodId: string,
-    // authHeader: string,
+    authHeader: string,
   ): Promise<IPaymentMethod> {
     const wallet = await this.walletRepository.findByUserId(userId);
     if (!wallet) throw new Error('Wallet does not exist.');
-
-    if (!STRIPE_TEST_PAYMENT_METHODS.has(paymentMethodId))
-      throw new Error('Invalid test payment method');
 
     const paymentMethod = await this.paymentMethodRepository.findUserPaymentMethod(
       userId,
@@ -166,7 +161,12 @@ export class WalletService {
     );
     if (!paymentMethod) throw new Error('Payment method does not exist.');
 
-    /* TODO: detach payment method from customer for non-test data
+    if (STRIPE_TEST_PAYMENT_METHODS.has(paymentMethodId)) {
+      logger.info('Payment method is a test card. Proceeding with local deletion');
+      await this.paymentMethodRepository.delete(paymentMethod._id);
+      return paymentMethod;
+    }
+
     const detachResponse = await fetch(
       'http://localhost:3004/api/stripe/detach-payment-method',
       {
@@ -179,10 +179,11 @@ export class WalletService {
       },
     );
 
-    if (detachResponse.status !== 200)
-      throw new Error('Payment method detachment to customer failed');
-
-    */
+    if (detachResponse.status !== 200) {
+      logger.warn(
+        'Payment method detachment to customer failed. Proceeding with local deletion',
+      );
+    }
 
     await this.paymentMethodRepository.delete(paymentMethod._id);
 
