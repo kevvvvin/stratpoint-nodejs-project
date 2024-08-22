@@ -49,4 +49,14 @@ export class StripeService {
       customer: customerId,
     });
   }
+
+  async listCustomerPaymentMethods(
+    customerId: string,
+  ): Promise<Stripe.Response<Stripe.ApiList<Stripe.PaymentMethod>>> {
+    const paymentMethods = this.stripe.customers.listPaymentMethods(customerId, {
+      type: 'card',
+    });
+
+    return paymentMethods;
+  }
 }

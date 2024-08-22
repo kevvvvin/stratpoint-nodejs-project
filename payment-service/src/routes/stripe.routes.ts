@@ -12,4 +12,8 @@ router.post('/create-payment-method', authenticateJWT, (req, res, next) =>
   stripeController.createPaymentMethod(req, res, next),
 );
 
+router.get('/payment-methods', authenticateJWT, (req, res, next) =>
+  stripeController.getPaymentMethods(req, res, next),
+);
+
 export default router;
