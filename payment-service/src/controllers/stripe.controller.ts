@@ -1,9 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { StripeService } from '../services';
 import {
+  AttachPaymentRequestDto,
   CustomerResponseDto,
   PaymentMethodRequestDto,
   PaymentMethodResponseDto,
+  RetrievePaymentRequestDto,
 } from '../dtos';
 import { logger } from '../utils';
 import { JwtPayload } from '../types';
@@ -54,6 +56,7 @@ export class StripeController {
 
       const message = 'Payment method created successfully';
       const response = new PaymentMethodResponseDto(message, paymentMethod);
+
       logger.info(response);
       return res.status(201).json(response);
     } catch (err) {
@@ -75,6 +78,49 @@ export class StripeController {
 
       const message = 'Retrieved payment methods successfully';
       const response = new PaymentMethodResponseDto(message, paymentMethods);
+
+      logger.info(response);
+      return res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async retrievePaymentMethod(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const retrieveRequest: RetrievePaymentRequestDto = req.body;
+      const result = await this.stripeService.retrievePaymentMethod(
+        retrieveRequest.paymentMethodId,
+      );
+
+      const message = 'Retrieved payment method successfully';
+      const response = new PaymentMethodResponseDto(message, result);
+
+      logger.info(response);
+      return res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async attachPaymentMethod(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const attachPaymentRequest: AttachPaymentRequestDto = req.body;
+      const result = await this.stripeService.attachPaymentMethodToCustomer(
+        attachPaymentRequest.paymentMethodId,
+        attachPaymentRequest.customerId,
+      );
+
+      const message = 'Payment method attached to customer successfully';
+      const response = new PaymentMethodResponseDto(message, result);
 
       logger.info(response);
       return res.status(200).json(response);

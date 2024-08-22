@@ -1,7 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { JwtPayload, WalletResult } from '../types';
 import { WalletService } from '../services';
-import { WalletResponseDto } from '../dtos';
+import {
+  PaymentMethodRequestDto,
+  PaymentMethodResponseDto,
+  WalletResponseDto,
+} from '../dtos';
 import { logger } from '../utils';
 
 export class WalletController {
@@ -45,6 +49,32 @@ export class WalletController {
       );
       const message = 'Retrieved wallet successfully';
       const response = new WalletResponseDto(message, result);
+
+      logger.info(response);
+      return res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async addPaymentMethod(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const authHeader = req.header('Authorization') as string;
+      const paymentMethod: PaymentMethodRequestDto = req.body;
+      const userDetails = req.payload as JwtPayload;
+
+      const result = await this.walletService.addPaymentMethod(
+        userDetails.sub,
+        paymentMethod.paymentMethodId,
+        authHeader,
+      );
+
+      const message = 'Payment method added successfully';
+      const response = new PaymentMethodResponseDto(message, result);
 
       logger.info(response);
       return res.status(200).json(response);

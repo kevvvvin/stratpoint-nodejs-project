@@ -1,6 +1,7 @@
 import Stripe from 'stripe';
 import { JwtPayload, CustomerResult } from '../types';
 import { PaymentMethodRequestDto } from '../dtos';
+import { logger } from '../utils';
 
 export class StripeService {
   constructor(private stripe: Stripe) {}
@@ -45,9 +46,20 @@ export class StripeService {
     paymentMethodId: string,
     customerId: string,
   ): Promise<Stripe.PaymentMethod> {
-    return await this.stripe.paymentMethods.attach(paymentMethodId, {
+    const paymentMethod = await this.stripe.paymentMethods.retrieve(paymentMethodId);
+    if (paymentMethod.customer === customerId)
+      throw new Error('Payment method already attached to customer');
+
+    if (paymentMethod.customer) {
+      await this.stripe.paymentMethods.detach(paymentMethodId);
+      logger.info(`Detached payment method ${paymentMethodId} from previous customer`);
+    }
+
+    const attachedMethod = await this.stripe.paymentMethods.attach(paymentMethodId, {
       customer: customerId,
     });
+
+    return attachedMethod;
   }
 
   async listCustomerPaymentMethods(
@@ -58,5 +70,9 @@ export class StripeService {
     });
 
     return paymentMethods;
+  }
+
+  async retrievePaymentMethod(paymentMethodId: string): Promise<Stripe.PaymentMethod> {
+    return await this.stripe.paymentMethods.retrieve(paymentMethodId);
   }
 }

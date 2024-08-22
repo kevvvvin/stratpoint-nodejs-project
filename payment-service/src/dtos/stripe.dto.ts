@@ -32,3 +32,21 @@ export class PaymentMethodRequestDto {
     this.token = token;
   }
 }
+
+export class RetrievePaymentRequestDto {
+  paymentMethodId: string;
+
+  constructor(paymentMethodId: string) {
+    this.paymentMethodId = paymentMethodId;
+  }
+}
+
+export class AttachPaymentRequestDto {
+  paymentMethodId: string;
+  customerId: string;
+
+  constructor(paymentMethodId: string, customerId: string) {
+    this.paymentMethodId = paymentMethodId;
+    this.customerId = customerId;
+  }
+}
