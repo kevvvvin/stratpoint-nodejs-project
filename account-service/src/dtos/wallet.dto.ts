@@ -1,4 +1,10 @@
-import { IPaymentMethod, PaymentMethodResult, WalletResult } from '../types';
+import {
+  ConfirmPaymentIntentResult,
+  CreatePaymentIntentResult,
+  IPaymentMethod,
+  PaymentMethodResult,
+  WalletResult,
+} from '../types';
 
 export class WalletResponseDto {
   message: string;
@@ -32,5 +38,62 @@ export class PaymentMethodRequestDto {
 
   constructor(paymentMethodId: string) {
     this.paymentMethodId = paymentMethodId;
+  }
+}
+
+// TODO: shared
+export class PaymentIntentRequestDto {
+  amount: number;
+  currency: string;
+  stripeCustomerId: string;
+
+  constructor(amount: number, currency: string, stripeCustomerId: string) {
+    this.amount = amount;
+    this.currency = currency;
+    this.stripeCustomerId = stripeCustomerId;
+  }
+}
+
+export class CreatePaymentIntentResponseDto {
+  message: string;
+  result: CreatePaymentIntentResult;
+
+  constructor(message: string, result: CreatePaymentIntentResult) {
+    this.message = message;
+    this.result = result;
+  }
+}
+
+export class ConfirmPaymentIntentResponseDto {
+  message: string;
+  result: ConfirmPaymentIntentResult;
+
+  constructor(message: string, result: ConfirmPaymentIntentResult) {
+    this.message = message;
+    this.result = result;
+  }
+}
+
+export class TransactionRequestDto {
+  type: string;
+  amount: number;
+  fromWalletId: string | null;
+  toWalletId: string | null;
+  stripePaymentIntentId: string | null;
+  status = 'completed';
+  metadata = {};
+
+  constructor(
+    type: string,
+    amount: number,
+    fromWalletId: string | null,
+    toWalletId: string | null,
+    stripePaymentIntentId: string | null,
+  ) {
+    this.type = type;
+    this.amount = amount;
+    this.fromWalletId = fromWalletId;
+    this.toWalletId = toWalletId;
+    this.stripePaymentIntentId = stripePaymentIntentId;
   }
 }

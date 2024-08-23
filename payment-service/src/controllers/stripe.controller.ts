@@ -4,6 +4,8 @@ import {
   AttachPaymentRequestDto,
   CustomerResponseDto,
   DetachPaymentRequestDto,
+  PaymentIntentRequestDto,
+  PaymentIntentResponseDto,
   PaymentMethodRequestDto,
   PaymentMethodResponseDto,
   RetrievePaymentRequestDto,
@@ -143,6 +145,51 @@ export class StripeController {
 
       const message = 'Payment method detached from customer successfully';
       const response = new PaymentMethodResponseDto(message, result);
+
+      logger.info(response);
+      return res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async createPaymentIntent(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const paymentIntentRequest: PaymentIntentRequestDto = req.body;
+      const result = await this.stripeService.createPaymentIntent(
+        paymentIntentRequest.amount,
+        paymentIntentRequest.currency,
+        paymentIntentRequest.stripeCustomerId,
+      );
+
+      const message = 'Payment intent created successfully';
+      const response = new PaymentIntentResponseDto(message, result);
+
+      logger.info(response);
+      return res.status(201).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async confirmPaymentIntent(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const { paymentIntentId, paymentMethodId } = req.body;
+      const result = await this.stripeService.confirmPaymentIntent(
+        paymentIntentId,
+        paymentMethodId,
+      );
+
+      const message = 'Payment intent confirmed successfully';
+      const response = new PaymentIntentResponseDto(message, result);
 
       logger.info(response);
       return res.status(200).json(response);

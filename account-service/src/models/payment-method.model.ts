@@ -28,7 +28,7 @@ const paymentMethodSchema = new Schema<IPaymentMethod>({
   },
   createdAt: {
     type: Date,
-    default: new Date(),
+    default: (): Date => new Date(),
   },
 });
 

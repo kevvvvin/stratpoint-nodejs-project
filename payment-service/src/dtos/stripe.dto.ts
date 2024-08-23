@@ -58,3 +58,26 @@ export class DetachPaymentRequestDto {
     this.paymentMethodId = paymentMethodId;
   }
 }
+
+// TODO: shared
+export class PaymentIntentRequestDto {
+  amount: number;
+  currency: string;
+  stripeCustomerId: string;
+
+  constructor(amount: number, currency: string, stripeCustomerId: string) {
+    this.amount = amount;
+    this.currency = currency;
+    this.stripeCustomerId = stripeCustomerId;
+  }
+}
+
+export class PaymentIntentResponseDto {
+  message: string;
+  result: Stripe.PaymentIntent;
+
+  constructor(message: string, result: Stripe.PaymentIntent) {
+    this.message = message;
+    this.result = result;
+  }
+}

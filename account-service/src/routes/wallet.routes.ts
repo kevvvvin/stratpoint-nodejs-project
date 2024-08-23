@@ -19,5 +19,11 @@ router.get('/payment-methods', authenticateJWT, (req, res, next) =>
 router.delete('/payment-methods/:paymentMethodId', authenticateJWT, (req, res, next) =>
   walletController.deletePaymentMethod(req, res, next),
 );
+router.post('/create-payment-intent', authenticateJWT, (req, res, next) =>
+  walletController.createPaymentIntent(req, res, next),
+);
+router.post('/confirm-payment-intent', authenticateJWT, (req, res, next) =>
+  walletController.confirmPaymentIntent(req, res, next),
+);
 
 export default router;

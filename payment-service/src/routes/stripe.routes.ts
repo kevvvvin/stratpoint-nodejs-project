@@ -28,4 +28,12 @@ router.post('/detach-payment-method', authenticateJWT, (req, res, next) =>
   stripeController.detachPaymentMethod(req, res, next),
 );
 
+router.post('/create-payment-intent', authenticateJWT, (req, res, next) =>
+  stripeController.createPaymentIntent(req, res, next),
+);
+
+router.post('/confirm-payment-intent', authenticateJWT, (req, res, next) =>
+  stripeController.confirmPaymentIntent(req, res, next),
+);
+
 export default router;
