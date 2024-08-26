@@ -36,4 +36,20 @@ router.get('/payment-status/:paymentIntentId', authenticateJWT, (req, res, next)
   walletController.getPaymentStatus(req, res, next),
 );
 
+router.post('/deposit', authenticateJWT, (req, res, next) =>
+  walletController.deposit(req, res, next),
+);
+
+router.post('/withdraw', authenticateJWT, (req, res, next) =>
+  walletController.withdraw(req, res, next),
+);
+
+router.post('/transfer', authenticateJWT, (req, res, next) =>
+  walletController.transfer(req, res, next),
+);
+
+router.get('/transactions', authenticateJWT, (req, res, next) =>
+  walletController.getTransactions(req, res, next),
+);
+
 export default router;

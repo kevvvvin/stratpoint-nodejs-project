@@ -15,3 +15,12 @@ export type PaymentMethodDetails = Pick<
 export interface PaymentMethodResult {
   paymentMethod: PaymentMethodDetails | PaymentMethodDetails[];
 }
+
+export interface MockPayoutResult {
+  id: string;
+  object: string;
+  amount: number;
+  currency: string;
+  method: string;
+  status: string;
+}

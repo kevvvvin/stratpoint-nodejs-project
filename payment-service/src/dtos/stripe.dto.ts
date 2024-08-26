@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { CustomerResult } from '../types';
+import { CustomerResult, MockPayoutResult } from '../types';
 
 export class CustomerResponseDto {
   message: string;
@@ -77,6 +77,16 @@ export class PaymentIntentResponseDto {
   result: Stripe.PaymentIntent;
 
   constructor(message: string, result: Stripe.PaymentIntent) {
+    this.message = message;
+    this.result = result;
+  }
+}
+
+export class PayoutResponseDto {
+  message: string;
+  result: Stripe.Payout | MockPayoutResult;
+
+  constructor(message: string, result: Stripe.Payout | MockPayoutResult) {
     this.message = message;
     this.result = result;
   }

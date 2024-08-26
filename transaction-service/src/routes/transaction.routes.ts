@@ -12,4 +12,8 @@ router.get('/status/:paymentIntentId', authenticateJWT, (req, res, next) =>
   transactionController.getPaymentStatus(req, res, next),
 );
 
+router.get('/transactions/:walletId', authenticateJWT, (req, res, next) =>
+  transactionController.getTransactions(req, res, next),
+);
+
 export default router;

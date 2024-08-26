@@ -7,6 +7,9 @@ import {
   PaymentMethodRequestDto,
   PaymentMethodResponseDto,
   PaymentStatusResponseDto,
+  PayoutResponseDto,
+  TransactionsResponseDto,
+  TransferResponseDto,
   WalletResponseDto,
 } from '../dtos';
 import { logger } from '../utils';
@@ -201,6 +204,109 @@ export class WalletController {
 
       const message = 'Payment status retrieved successfully';
       const response = new PaymentStatusResponseDto(message, result);
+
+      logger.info(response);
+      return res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async deposit(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const authHeader = req.header('Authorization') as string;
+      const userDetails = req.payload as JwtPayload;
+      const { amount, paymentMethodId } = req.body;
+      const result = await this.walletService.deposit(
+        authHeader,
+        userDetails.sub,
+        amount,
+        paymentMethodId,
+      );
+
+      const message = 'Deposit successful';
+      const response = new ConfirmPaymentIntentResponseDto(message, result);
+
+      logger.info(response);
+      return res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async withdraw(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const authHeader = req.header('Authorization') as string;
+      const userDetails = req.payload as JwtPayload;
+      const { amount } = req.body;
+
+      const result = await this.walletService.withdraw(
+        authHeader,
+        userDetails.sub,
+        amount,
+      );
+
+      const message = 'Withdrawal successful';
+      const response = new PayoutResponseDto(message, result);
+
+      logger.info(response);
+      return res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async transfer(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const authHeader = req.header('Authorization') as string;
+      const { toUserId, amount } = req.body;
+      const userDetails = req.payload as JwtPayload;
+
+      const result = await this.walletService.transfer(
+        authHeader,
+        userDetails.sub,
+        toUserId,
+        amount,
+      );
+
+      const message = 'Transfer successful';
+      const response = new TransferResponseDto(message, result);
+
+      logger.info(response);
+      return res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getTransactions(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const authHeader = req.header('Authorization') as string;
+      const userDetails = req.payload as JwtPayload;
+
+      const transactions = await this.walletService.getTransactions(
+        authHeader,
+        userDetails.sub,
+      );
+
+      const message = 'Retrieved transactions successfully';
+      const response = new TransactionsResponseDto(message, transactions);
 
       logger.info(response);
       return res.status(200).json(response);

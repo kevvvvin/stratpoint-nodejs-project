@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { JwtPayload, CustomerResult } from '../types';
+import { JwtPayload, CustomerResult, MockPayoutResult } from '../types';
 import { PaymentMethodRequestDto } from '../dtos';
 import { logger } from '../utils';
 
@@ -103,5 +103,30 @@ export class StripeService {
     return await this.stripe.paymentIntents.confirm(paymentIntentId, {
       payment_method: paymentMethodId,
     });
+  }
+
+  async createPayout(amount: number, customerId: string): Promise<MockPayoutResult> {
+    // const payout = await this.stripe.payouts.create(
+    //   {
+    //     amount: amount * 100,
+    //     currency: 'usd',
+    //     method: 'instant',
+    //   },
+    //   {
+    //     stripeAccount: customerId,
+    //   },
+    // );
+    const mockPayout = {
+      id: `po_${Math.random().toString(36).substring(7)}`,
+      object: 'payout',
+      amount: amount * 100,
+      currency: 'usd',
+      method: 'instant',
+      status: 'completed',
+    };
+    logger.info(
+      `Created payout for customer ${customerId}: ${JSON.stringify(mockPayout)}`,
+    );
+    return mockPayout;
   }
 }

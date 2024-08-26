@@ -7,11 +7,15 @@ import {
   CreatePaymentIntentResult,
   ConfirmPaymentIntentResult,
   PaymentStatusResult,
+  PayoutResult,
+  TransferResult,
+  TransactionResult,
 } from '../types';
 import { WalletRepository, PaymentMethodRepository } from '../repositories';
 import { Types } from 'mongoose';
 import { logger } from '../utils';
 import { PaymentIntentRequestDto, TransactionRequestDto } from '../dtos';
+import crypto from 'crypto';
 
 export class WalletService {
   constructor(
@@ -335,5 +339,239 @@ export class WalletService {
       createdAt: transaction.createdAt,
       updatedAt: transaction.updatedAt,
     };
+  }
+
+  async deposit(
+    authHeader: string,
+    userId: string,
+    amount: number,
+    paymentMethodId: string,
+  ): Promise<ConfirmPaymentIntentResult> {
+    const wallet = await this.walletRepository.findByUserId(userId);
+    if (!wallet) throw new Error('Wallet does not exist.');
+
+    const paymentMethod = await this.paymentMethodRepository.findUserPaymentMethod(
+      userId,
+      paymentMethodId,
+    );
+    if (!paymentMethod) throw new Error('Payment method does not exist.');
+
+    let paymentIntent;
+    if (STRIPE_TEST_PAYMENT_METHODS.has(paymentMethodId)) {
+      paymentIntent = {
+        id: `pi_simulated_${crypto.randomBytes(16).toString('hex')}`,
+        status: 'succeeded',
+        amount: amount * 100,
+      };
+      logger.info(
+        `Simulated payment intent for test payment method: ${JSON.stringify(paymentIntent)}`,
+      );
+    } else {
+      const createPaymentIntentRequest = new PaymentIntentRequestDto(
+        amount,
+        wallet.currency,
+        wallet.stripeCustomerId,
+      );
+      const createPaymentIntentResponse = await fetch(
+        'http://localhost:3004/api/stripe/create-payment-intent',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: authHeader,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(createPaymentIntentRequest),
+        },
+      );
+
+      if (createPaymentIntentResponse.status !== 201)
+        throw new Error('Payment intent creation failed');
+
+      paymentIntent = (await createPaymentIntentResponse.json()).result;
+
+      const confirmPaymentIntentResponse = await fetch(
+        'http://localhost:3004/api/stripe/confirm-payment-intent',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: authHeader,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            paymentIntentId: paymentIntent.id,
+            paymentMethodId,
+          }),
+        },
+      );
+
+      if (confirmPaymentIntentResponse.status !== 200)
+        throw new Error('Payment intent confirmation failed');
+
+      paymentIntent = (await confirmPaymentIntentResponse.json()).result;
+    }
+
+    if (paymentIntent.status === 'succeeded') {
+      const depositAmount = paymentIntent.amount / 100;
+      wallet.balance += depositAmount;
+      await wallet.save();
+
+      const transactionRequestDto = new TransactionRequestDto(
+        'deposit',
+        depositAmount,
+        null,
+        wallet._id.toString(),
+        paymentIntent.id,
+      );
+      const transactionResponse = await fetch(
+        'http://localhost:3003/api/transaction/create',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: authHeader,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(transactionRequestDto),
+        },
+      );
+      if (transactionResponse.status !== 201) {
+        logger.warn('Transaction creation on deposit failed');
+      }
+
+      return {
+        balance: wallet.balance,
+        transactionId: paymentIntent.id,
+      };
+    } else {
+      throw new Error('Deposit failed');
+    }
+  }
+
+  async withdraw(
+    authHeader: string,
+    userId: string,
+    amount: number,
+  ): Promise<PayoutResult> {
+    const wallet = await this.walletRepository.findByUserId(userId);
+    if (!wallet) throw new Error('Wallet does not exist.');
+
+    if (wallet.balance < amount) throw new Error('Insufficient funds');
+
+    const createPayoutResponse = await fetch(
+      'http://localhost:3004/api/stripe/create-payout',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: authHeader,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: amount,
+          customerId: wallet.stripeCustomerId,
+        }),
+      },
+    );
+
+    if (createPayoutResponse.status !== 201) throw new Error('Payout creation failed');
+    wallet.balance -= amount;
+    await wallet.save();
+
+    const payout = (await createPayoutResponse.json()).result;
+
+    const transactionRequestDto = new TransactionRequestDto(
+      'withdrawal',
+      amount,
+      wallet._id.toString(),
+      null,
+      payout.id,
+    );
+    const transactionResponse = await fetch(
+      'http://localhost:3003/api/transaction/create',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: authHeader,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(transactionRequestDto),
+      },
+    );
+    if (transactionResponse.status !== 201) {
+      logger.warn('Transaction creation on withdraw failed');
+    }
+
+    return {
+      balance: wallet.balance,
+      payoutId: payout.id,
+    };
+  }
+
+  async transfer(
+    authHeader: string,
+    fromUserId: string,
+    toUserId: string,
+    amount: number,
+  ): Promise<TransferResult> {
+    const fromWallet = await this.walletRepository.findByUserId(fromUserId);
+    const toWallet = await this.walletRepository.findByUserId(toUserId);
+
+    if (!fromWallet || !toWallet) throw new Error('One or both wallets do not exist.');
+
+    fromWallet.balance -= amount;
+    toWallet.balance += amount;
+
+    await fromWallet.save();
+    await toWallet.save();
+
+    const transactionRequestDto = new TransactionRequestDto(
+      'transfer',
+      amount,
+      fromWallet._id.toString(),
+      toWallet._id.toString(),
+      null,
+    );
+    const transactionResponse = await fetch(
+      'http://localhost:3003/api/transaction/create',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: authHeader,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(transactionRequestDto),
+      },
+    );
+    if (transactionResponse.status !== 201) {
+      logger.warn('Transaction creation on withdraw failed');
+    }
+
+    return {
+      fromBalance: fromWallet.balance,
+      toBalance: toWallet.balance,
+    };
+  }
+
+  async getTransactions(
+    authHeader: string,
+    userId: string,
+  ): Promise<TransactionResult[]> {
+    const wallet = await this.walletRepository.findByUserId(userId);
+    if (!wallet) throw new Error('Wallet does not exist.');
+
+    const transactionsResponse = await fetch(
+      'http://localhost:3003/api/transaction/transactions/' + wallet._id.toString(),
+      {
+        method: 'GET',
+        headers: {
+          Authorization: authHeader,
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+    if (transactionsResponse.status !== 200) {
+      logger.warn('Transaction retrieval failed');
+    }
+
+    const transactions = (await transactionsResponse.json()).result;
+    return transactions;
   }
 }
