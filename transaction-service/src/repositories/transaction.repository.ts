@@ -37,7 +37,7 @@ export class TransactionRepository {
         { fromWallet: new Types.ObjectId(walletId) },
         { toWallet: new Types.ObjectId(walletId) },
       ],
-    });
+    }).sort({ createdAt: -1 });
 
     return transactions;
   }
