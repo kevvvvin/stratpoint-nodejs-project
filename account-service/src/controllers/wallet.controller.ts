@@ -2,8 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import { JwtPayload, WalletResult } from '../types';
 import { WalletService } from '../services';
 import {
+  ConfirmPaymentIntentResponseDto,
+  CreatePaymentIntentResponseDto,
   PaymentMethodRequestDto,
   PaymentMethodResponseDto,
+  PaymentStatusResponseDto,
   WalletResponseDto,
 } from '../dtos';
 import { logger } from '../utils';
@@ -122,6 +125,82 @@ export class WalletController {
         ? 'Test payment method deleted successfully'
         : 'Payment method deleted successfully';
       const response = new PaymentMethodResponseDto(message, deletedMethod);
+
+      logger.info(response);
+      return res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async createPaymentIntent(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const authHeader = req.header('Authorization') as string;
+      const { amount } = req.body;
+      const userDetails = req.payload as JwtPayload;
+
+      const paymentIntent = await this.walletService.createPaymentIntent(
+        authHeader,
+        amount,
+        userDetails.sub,
+      );
+
+      const message = 'Payment intent created successfully';
+      const response = new CreatePaymentIntentResponseDto(message, paymentIntent);
+
+      logger.info(response);
+      return res.status(201).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async confirmPaymentIntent(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const authHeader = req.header('Authorization') as string;
+      const userDetails = req.payload as JwtPayload;
+      const { paymentIntentId, paymentMethodId } = req.body;
+
+      const result = await this.walletService.confirmPaymentIntent(
+        authHeader,
+        userDetails.sub,
+        paymentIntentId,
+        paymentMethodId,
+      );
+
+      const message = 'Payment intent confirmed successfully';
+      const response = new ConfirmPaymentIntentResponseDto(message, result);
+
+      logger.info(response);
+      return res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getPaymentStatus(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const { paymentIntentId } = req.params;
+      const authHeader = req.header('Authorization') as string;
+      const result = await this.walletService.getPaymentStatus(
+        authHeader,
+        paymentIntentId,
+      );
+
+      const message = 'Payment status retrieved successfully';
+      const response = new PaymentStatusResponseDto(message, result);
 
       logger.info(response);
       return res.status(200).json(response);

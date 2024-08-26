@@ -4,10 +4,14 @@ import {
   PaymentMethodResult,
   WalletResult,
   STRIPE_TEST_PAYMENT_METHODS,
+  CreatePaymentIntentResult,
+  ConfirmPaymentIntentResult,
+  PaymentStatusResult,
 } from '../types';
 import { WalletRepository, PaymentMethodRepository } from '../repositories';
 import { Types } from 'mongoose';
 import { logger } from '../utils';
+import { PaymentIntentRequestDto, TransactionRequestDto } from '../dtos';
 
 export class WalletService {
   constructor(
@@ -188,5 +192,148 @@ export class WalletService {
     await this.paymentMethodRepository.delete(paymentMethod._id);
 
     return paymentMethod;
+  }
+
+  async createPaymentIntent(
+    authHeader: string,
+    amount: number,
+    userId: string,
+  ): Promise<CreatePaymentIntentResult> {
+    const wallet = await this.walletRepository.findByUserId(userId);
+    if (!wallet) throw new Error('Wallet does not exist.');
+
+    const paymentIntentRequest = new PaymentIntentRequestDto(
+      amount,
+      wallet.currency,
+      wallet.stripeCustomerId,
+    );
+    const paymentIntentResponse = await fetch(
+      'http://localhost:3004/api/stripe/create-payment-intent',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: authHeader,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(paymentIntentRequest),
+      },
+    );
+
+    if (paymentIntentResponse.status !== 201) {
+      throw new Error('Payment intent creation failed');
+    }
+
+    const paymentIntent = (await paymentIntentResponse.json()).result;
+
+    return {
+      paymentIntent: {
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id,
+      },
+    };
+  }
+
+  async confirmPaymentIntent(
+    authHeader: string,
+    userId: string,
+    paymentIntentId: string,
+    paymentMethodId: string,
+  ): Promise<ConfirmPaymentIntentResult> {
+    const wallet = await this.walletRepository.findByUserId(userId);
+    if (!wallet) throw new Error('Wallet does not exist.');
+
+    const paymentMethod = await this.paymentMethodRepository.findUserPaymentMethod(
+      userId,
+      paymentMethodId,
+    );
+    if (!paymentMethod) throw new Error('Payment method does not exist.');
+
+    let paymentIntent;
+    if (STRIPE_TEST_PAYMENT_METHODS.has(paymentMethodId)) {
+      paymentIntent = {
+        id: paymentIntentId,
+        status: 'succeeded',
+        amount: 5000,
+      };
+      logger.info('Simulated payment intent confirmation for test payment method');
+    } else {
+      const paymentIntentResponse = await fetch(
+        'http://localhost:3004/api/stripe/confirm-payment-intent',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: authHeader,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ paymentIntentId, paymentMethodId }),
+        },
+      );
+      if (paymentIntentResponse.status !== 200) {
+        throw new Error('Payment intent confirmation failed');
+      }
+      paymentIntent = (await paymentIntentResponse.json()).result;
+    }
+
+    if (paymentIntent.status === 'succeeded') {
+      const amount = paymentIntent.amount / 100;
+      wallet.balance += amount;
+      await wallet.save();
+
+      const transactionRequestDto = new TransactionRequestDto(
+        'deposit',
+        amount,
+        null,
+        wallet._id.toString(),
+        paymentIntent.id,
+      );
+      const transactionResponse = await fetch(
+        'http://localhost:3003/api/transaction/create',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: authHeader,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(transactionRequestDto),
+        },
+      );
+      if (transactionResponse.status !== 201) {
+        logger.warn('Transaction creation on payment intent confirm failed');
+      }
+
+      return { balance: wallet.balance, transactionId: paymentIntent.id };
+    } else {
+      throw new Error('Payment failed');
+    }
+  }
+
+  async getPaymentStatus(
+    authHeader: string,
+    paymentIntentId: string,
+  ): Promise<PaymentStatusResult> {
+    const transactionResponse = await fetch(
+      'http://localhost:3003/api/transaction/status/' + paymentIntentId,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: authHeader,
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+
+    if (transactionResponse.status !== 200) {
+      throw new Error('Payment status check failed');
+    }
+
+    const transaction = (await transactionResponse.json()).result;
+
+    return {
+      stripePaymentIntentId: transaction.stripePaymentIntentId,
+      status: transaction.status,
+      amount: transaction.amount,
+      createdAt: transaction.createdAt,
+      updatedAt: transaction.updatedAt,
+    };
   }
 }

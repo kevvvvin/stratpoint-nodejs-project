@@ -14,18 +14,18 @@ const walletSchema = new Schema<IWallet>({
   },
   currency: {
     type: String,
-    default: 'USD',
+    default: 'usd',
   },
   stripeCustomerId: {
     type: String,
   },
   createdAt: {
     type: Date,
-    default: new Date(),
+    default: (): Date => new Date(),
   },
   updatedAt: {
     type: Date,
-    default: new Date(),
+    default: (): Date => new Date(),
   },
 });
 

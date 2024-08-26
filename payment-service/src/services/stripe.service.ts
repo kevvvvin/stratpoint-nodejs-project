@@ -82,4 +82,26 @@ export class StripeService {
   async retrievePaymentMethod(paymentMethodId: string): Promise<Stripe.PaymentMethod> {
     return await this.stripe.paymentMethods.retrieve(paymentMethodId);
   }
+
+  async createPaymentIntent(
+    amount: number,
+    currency: string,
+    customerId: string,
+  ): Promise<Stripe.PaymentIntent> {
+    return await this.stripe.paymentIntents.create({
+      amount: amount * 100,
+      currency,
+      customer: customerId,
+      payment_method_types: ['card'],
+    });
+  }
+
+  async confirmPaymentIntent(
+    paymentIntentId: string,
+    paymentMethodId: string,
+  ): Promise<Stripe.PaymentIntent> {
+    return await this.stripe.paymentIntents.confirm(paymentIntentId, {
+      payment_method: paymentMethodId,
+    });
+  }
 }
