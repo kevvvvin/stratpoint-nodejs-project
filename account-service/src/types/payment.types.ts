@@ -28,6 +28,14 @@ export interface ConfirmPaymentIntentResult {
   transactionId: string;
 }
 
+export interface PaymentStatusResult {
+  stripePaymentIntentId: string;
+  status: string;
+  amount: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export const STRIPE_TEST_PAYMENT_METHODS = new Set([
   'pm_card_visa',
   'pm_card_mastercard',

@@ -2,6 +2,7 @@ import { Types } from 'mongoose';
 import { TransactionRequestDto } from '../dtos';
 import { TransactionRepository } from '../repositories';
 import { ITransaction } from '../types';
+import { PaymentStatusResult } from '../types/transaction.types';
 
 export class TransactionService {
   constructor(private transactionRepository: TransactionRepository) {}
@@ -23,7 +24,14 @@ export class TransactionService {
     const status = transactionDetails.status;
     const metadata = transactionDetails.metadata;
 
-    const transaction = await this.transactionRepository.createTransaction(
+    // if (stripePaymentIntentId) {
+    //   const transaction =
+    //     await this.transactionRepository.getTransactionByPaymentId(stripePaymentIntentId);
+    //   if (transaction)
+    //     throw new Error(`Transaction with ID ${stripePaymentIntentId} already exists`);
+    // }
+
+    const newTransaction = await this.transactionRepository.createTransaction(
       type,
       amount,
       fromWalletId,
@@ -33,6 +41,20 @@ export class TransactionService {
       metadata,
     );
 
-    return transaction;
+    return newTransaction;
+  }
+
+  async getPaymentStatus(paymentIntentId: string): Promise<PaymentStatusResult> {
+    const result =
+      await this.transactionRepository.getTransactionByPaymentId(paymentIntentId);
+    if (!result) throw new Error(`Transaction with ID ${paymentIntentId} not found`);
+
+    return {
+      stripePaymentIntentId: result.stripePaymentIntentId,
+      status: result.status,
+      amount: result.amount,
+      createdAt: result.createdAt,
+      updatedAt: result.updatedAt,
+    };
   }
 }

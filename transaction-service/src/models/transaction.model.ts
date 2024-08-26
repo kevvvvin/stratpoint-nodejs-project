@@ -37,6 +37,7 @@ const transactionSchema = new Schema<ITransaction>({
   },
   stripePaymentIntentId: {
     type: String,
+    unique: true,
   },
   metadata: {
     type: Schema.Types.Mixed,
@@ -45,6 +46,15 @@ const transactionSchema = new Schema<ITransaction>({
     type: Date,
     default: (): Date => new Date(),
   },
+  updatedAt: {
+    type: Date,
+    default: (): Date => new Date(),
+  },
+});
+
+transactionSchema.pre('save', function (next) {
+  this.updatedAt = new Date();
+  next();
 });
 
 export const Transaction = mongoose.model('Transaction', transactionSchema);

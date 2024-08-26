@@ -6,6 +6,7 @@ import {
   STRIPE_TEST_PAYMENT_METHODS,
   CreatePaymentIntentResult,
   ConfirmPaymentIntentResult,
+  PaymentStatusResult,
 } from '../types';
 import { WalletRepository, PaymentMethodRepository } from '../repositories';
 import { Types } from 'mongoose';
@@ -304,5 +305,35 @@ export class WalletService {
     } else {
       throw new Error('Payment failed');
     }
+  }
+
+  async getPaymentStatus(
+    authHeader: string,
+    paymentIntentId: string,
+  ): Promise<PaymentStatusResult> {
+    const transactionResponse = await fetch(
+      'http://localhost:3003/api/transaction/status/' + paymentIntentId,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: authHeader,
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+
+    if (transactionResponse.status !== 200) {
+      throw new Error('Payment status check failed');
+    }
+
+    const transaction = (await transactionResponse.json()).result;
+
+    return {
+      stripePaymentIntentId: transaction.stripePaymentIntentId,
+      status: transaction.status,
+      amount: transaction.amount,
+      createdAt: transaction.createdAt,
+      updatedAt: transaction.updatedAt,
+    };
   }
 }

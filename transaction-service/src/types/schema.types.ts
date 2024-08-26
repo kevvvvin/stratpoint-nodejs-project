@@ -11,4 +11,5 @@ export interface ITransaction extends Document {
   stripePaymentIntentId?: string;
   metadata?: Schema.Types.Mixed;
   createdAt: Date;
+  updatedAt: Date;
 }

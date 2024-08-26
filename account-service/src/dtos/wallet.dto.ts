@@ -3,6 +3,7 @@ import {
   CreatePaymentIntentResult,
   IPaymentMethod,
   PaymentMethodResult,
+  PaymentStatusResult,
   WalletResult,
 } from '../types';
 
@@ -95,5 +96,15 @@ export class TransactionRequestDto {
     this.fromWalletId = fromWalletId;
     this.toWalletId = toWalletId;
     this.stripePaymentIntentId = stripePaymentIntentId;
+  }
+}
+
+export class PaymentStatusResponseDto {
+  message: string;
+  result: PaymentStatusResult;
+
+  constructor(message: string, result: PaymentStatusResult) {
+    this.message = message;
+    this.result = result;
   }
 }

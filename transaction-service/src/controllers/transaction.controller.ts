@@ -1,7 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 // import { JwtPayload } from '../types';
 import { TransactionService } from '../services';
-import { TransactionRequestDto, TransactionResponseDto } from '../dtos';
+import {
+  PaymentStatusResponseDto,
+  TransactionRequestDto,
+  TransactionResponseDto,
+} from '../dtos';
 import { logger } from '../utils';
 
 export class TransactionController {
@@ -22,6 +26,25 @@ export class TransactionController {
 
       logger.info(response);
       return res.status(201).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getPaymentStatus(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const { paymentIntentId } = req.params;
+      const result = await this.transactionService.getPaymentStatus(paymentIntentId);
+
+      const message = 'Payment status retrieved successfully';
+      const response = new PaymentStatusResponseDto(message, result);
+
+      logger.info(response);
+      return res.status(200).json(response);
     } catch (err) {
       next(err);
     }

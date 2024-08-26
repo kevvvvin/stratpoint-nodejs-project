@@ -3,6 +3,12 @@ import { ITransaction } from '../types';
 import { Types } from 'mongoose';
 
 export class TransactionRepository {
+  async getTransactionByPaymentId(paymentIntentId: string): Promise<ITransaction | null> {
+    const transaction = await Transaction.findOne({
+      stripePaymentIntentId: paymentIntentId,
+    });
+    return transaction;
+  }
   async createTransaction(
     type: string,
     amount: number,

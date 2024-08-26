@@ -6,6 +6,7 @@ import {
   CreatePaymentIntentResponseDto,
   PaymentMethodRequestDto,
   PaymentMethodResponseDto,
+  PaymentStatusResponseDto,
   WalletResponseDto,
 } from '../dtos';
 import { logger } from '../utils';
@@ -177,6 +178,29 @@ export class WalletController {
 
       const message = 'Payment intent confirmed successfully';
       const response = new ConfirmPaymentIntentResponseDto(message, result);
+
+      logger.info(response);
+      return res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getPaymentStatus(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const { paymentIntentId } = req.params;
+      const authHeader = req.header('Authorization') as string;
+      const result = await this.walletService.getPaymentStatus(
+        authHeader,
+        paymentIntentId,
+      );
+
+      const message = 'Payment status retrieved successfully';
+      const response = new PaymentStatusResponseDto(message, result);
 
       logger.info(response);
       return res.status(200).json(response);
