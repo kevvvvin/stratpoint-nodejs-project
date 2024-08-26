@@ -4,6 +4,9 @@ import {
   IPaymentMethod,
   PaymentMethodResult,
   PaymentStatusResult,
+  PayoutResult,
+  TransactionResult,
+  TransferResult,
   WalletResult,
 } from '../types';
 
@@ -104,6 +107,36 @@ export class PaymentStatusResponseDto {
   result: PaymentStatusResult;
 
   constructor(message: string, result: PaymentStatusResult) {
+    this.message = message;
+    this.result = result;
+  }
+}
+
+export class PayoutResponseDto {
+  message: string;
+  result: PayoutResult;
+
+  constructor(message: string, result: PayoutResult) {
+    this.message = message;
+    this.result = result;
+  }
+}
+
+export class TransferResponseDto {
+  message: string;
+  result: TransferResult;
+
+  constructor(message: string, result: TransferResult) {
+    this.message = message;
+    this.result = result;
+  }
+}
+
+export class TransactionsResponseDto {
+  message: string;
+  result: TransactionResult[];
+
+  constructor(message: string, result: TransactionResult[]) {
     this.message = message;
     this.result = result;
   }

@@ -49,4 +49,23 @@ export class TransactionController {
       next(err);
     }
   }
+
+  async getTransactions(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const { walletId } = req.params;
+      const result = await this.transactionService.getTransactions(walletId);
+
+      const message = 'Transactions retrieved successfully';
+      const response = new TransactionResponseDto(message, result);
+
+      logger.info(response);
+      return res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
 }

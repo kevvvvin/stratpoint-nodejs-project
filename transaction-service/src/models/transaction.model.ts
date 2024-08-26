@@ -37,7 +37,6 @@ const transactionSchema = new Schema<ITransaction>({
   },
   stripePaymentIntentId: {
     type: String,
-    unique: true,
   },
   metadata: {
     type: Schema.Types.Mixed,

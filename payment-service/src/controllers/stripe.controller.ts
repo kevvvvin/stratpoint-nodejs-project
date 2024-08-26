@@ -8,6 +8,7 @@ import {
   PaymentIntentResponseDto,
   PaymentMethodRequestDto,
   PaymentMethodResponseDto,
+  PayoutResponseDto,
   RetrievePaymentRequestDto,
 } from '../dtos';
 import { logger } from '../utils';
@@ -193,6 +194,25 @@ export class StripeController {
 
       logger.info(response);
       return res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async createPayout(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const { amount, customerId } = req.body;
+      const result = await this.stripeService.createPayout(amount, customerId);
+
+      const message = 'Payout created successfully';
+      const response = new PayoutResponseDto(message, result);
+
+      logger.info(response);
+      return res.status(201).json(response);
     } catch (err) {
       next(err);
     }

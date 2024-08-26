@@ -30,4 +30,15 @@ export class TransactionRepository {
     await transaction.save();
     return transaction;
   }
+
+  async getUserTransactions(walletId: string): Promise<ITransaction[]> {
+    const transactions = await Transaction.find({
+      $or: [
+        { fromWallet: new Types.ObjectId(walletId) },
+        { toWallet: new Types.ObjectId(walletId) },
+      ],
+    });
+
+    return transactions;
+  }
 }

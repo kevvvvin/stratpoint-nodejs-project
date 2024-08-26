@@ -36,6 +36,16 @@ export interface PaymentStatusResult {
   updatedAt: Date;
 }
 
+export interface PayoutResult {
+  balance: number;
+  payoutId: string;
+}
+
+export interface TransferResult {
+  fromBalance: number;
+  toBalance: number;
+}
+
 export const STRIPE_TEST_PAYMENT_METHODS = new Set([
   'pm_card_visa',
   'pm_card_mastercard',

@@ -57,4 +57,10 @@ export class TransactionService {
       updatedAt: result.updatedAt,
     };
   }
+
+  async getTransactions(walletId: string): Promise<ITransaction[]> {
+    const result = await this.transactionRepository.getUserTransactions(walletId);
+
+    return result;
+  }
 }

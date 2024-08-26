@@ -36,4 +36,8 @@ router.post('/confirm-payment-intent', authenticateJWT, (req, res, next) =>
   stripeController.confirmPaymentIntent(req, res, next),
 );
 
+router.post('/create-payout', authenticateJWT, (req, res, next) =>
+  stripeController.createPayout(req, res, next),
+);
+
 export default router;
