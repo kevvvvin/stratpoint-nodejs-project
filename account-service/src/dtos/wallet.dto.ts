@@ -78,6 +78,7 @@ export class ConfirmPaymentIntentResponseDto {
   }
 }
 
+// TODO: shared
 export class TransactionRequestDto {
   type: string;
   amount: number;
@@ -132,6 +133,7 @@ export class TransferResponseDto {
   }
 }
 
+// TODO: shared
 export class TransactionsResponseDto {
   message: string;
   result: TransactionResult[];
