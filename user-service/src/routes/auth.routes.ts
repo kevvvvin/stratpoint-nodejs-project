@@ -1,11 +1,16 @@
 import express from 'express';
 import { authController } from '../container';
-import { authenticateJWT } from '../middlewares';
+import { authenticateJWT, validateRequest } from '../middlewares';
+import { loginSchema, registerSchema } from '../utils';
 
 const router = express.Router();
 
-router.post('/register', (req, res, next) => authController.register(req, res, next));
-router.post('/login', (req, res, next) => authController.login(req, res, next));
+router.post('/register', validateRequest(registerSchema), (req, res, next) =>
+  authController.register(req, res, next),
+);
+router.post('/login', validateRequest(loginSchema), (req, res, next) =>
+  authController.login(req, res, next),
+);
 router.post('/logout', authenticateJWT, (req, res, next) =>
   authController.logout(req, res, next),
 );

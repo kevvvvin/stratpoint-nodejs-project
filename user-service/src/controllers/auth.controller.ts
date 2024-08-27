@@ -1,8 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthResult, IUser, UserResult } from '../types';
 import { AuthService } from '../services';
-import { AuthResponseDto, UserResponseDto } from '../dtos';
-import { validateLogin, validateRegister, handleValidationError, logger } from '../utils';
+import {
+  AuthResponseDto,
+  LoginRequestDto,
+  RegisterRequestDto,
+  UserResponseDto,
+} from '../dtos';
+import { logger } from '../utils';
 
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -12,13 +17,9 @@ export class AuthController {
     res: Response,
     next: NextFunction,
   ): Promise<Response | void> {
-    const requestValidation = validateRegister(req.body);
-    if (!requestValidation.success) {
-      return handleValidationError(requestValidation.errors, next);
-    }
-
     try {
-      const result: UserResult = await this.authService.register(req.body);
+      const registerData: RegisterRequestDto = req.body;
+      const result: UserResult = await this.authService.register(registerData);
       const message = 'User registered successfully';
       const response = new UserResponseDto(message, result);
 
@@ -30,13 +31,9 @@ export class AuthController {
   }
 
   async login(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
-    const requestValidation = validateLogin(req.body);
-    if (!requestValidation.success) {
-      return handleValidationError(requestValidation.errors, next);
-    }
-
     try {
-      const result: AuthResult = await this.authService.login(req.body);
+      const loginData: LoginRequestDto = req.body;
+      const result: AuthResult = await this.authService.login(loginData);
       const message = 'User logged in successfully';
       const response = new AuthResponseDto(message, result);
 
