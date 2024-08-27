@@ -44,9 +44,16 @@ export class NotFoundError extends Error {
   }
 }
 
+interface RequestError {
+  field: string | number;
+  message: string;
+}
+
 export class RequestValidationError extends Error {
-  constructor(message: string) {
+  errors: RequestError[];
+  constructor(message: string, errors: RequestError[]) {
     super(message);
     this.name = 'RequestValidationError';
+    this.errors = errors;
   }
 }

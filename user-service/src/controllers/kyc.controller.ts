@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { IUser, KycResult } from '../types';
 import { KycService } from '../services';
 import { KycResponseDto } from '../dtos';
-import { validateKyc, handleValidationError, logger } from '../utils';
+import { logger } from '../utils';
 
 export class KycController {
   constructor(private kycService: KycService) {}
@@ -31,11 +31,6 @@ export class KycController {
     res: Response,
     next: NextFunction,
   ): Promise<Response | void> {
-    const requestValidation = validateKyc(req.body);
-    if (!requestValidation.success) {
-      return handleValidationError(requestValidation.errors, next);
-    }
-
     try {
       const loggedInUser: IUser = req.user as IUser;
 

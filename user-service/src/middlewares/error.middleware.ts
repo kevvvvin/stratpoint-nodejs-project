@@ -20,7 +20,10 @@ export const errorHandler = (
   }
 
   if (err instanceof RequestValidationError) {
-    return res.status(400).json({ error: 'Bad Request', message: err.message });
+    return res.status(400).json({
+      message: err.message,
+      errors: err.errors,
+    });
   }
 
   if (err instanceof MongooseError) {

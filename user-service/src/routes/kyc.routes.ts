@@ -1,7 +1,8 @@
 import express from 'express';
 import { RoleEnum } from '../enums';
 import { kycController } from '../container';
-import { authenticateJWT, authorizeRoles } from '../middlewares';
+import { authenticateJWT, authorizeRoles, validateRequest } from '../middlewares';
+import { kycSchema } from '../utils';
 
 const router = express.Router();
 
@@ -14,6 +15,7 @@ router.post(
 
 router.put(
   '/submit',
+  validateRequest(kycSchema),
   authenticateJWT,
   authorizeRoles([RoleEnum.USER, RoleEnum.ADMIN]),
   (req, res, next) => kycController.submit(req, res, next),
