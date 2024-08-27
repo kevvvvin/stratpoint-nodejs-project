@@ -4,7 +4,12 @@ import mongoose, { ConnectOptions } from 'mongoose';
 import { envConfig } from './configs';
 import router from './routes';
 import { errorHandler } from './middlewares';
-import { initializeRoles, initializeAdmin, logger } from './utils';
+import {
+  initializeRoles,
+  initializeAdmin,
+  logger,
+  initializeVerifiedUser,
+} from './utils';
 
 const connectToDatabase = async (): Promise<void> => {
   try {
@@ -14,6 +19,8 @@ const connectToDatabase = async (): Promise<void> => {
 
     await initializeRoles();
     await initializeAdmin();
+    await initializeVerifiedUser('testUser1@gmail.com');
+    await initializeVerifiedUser('testUser2@gmail.com');
   } catch (err) {
     logger.info('MongoDB Connection Error:, ', err);
   }

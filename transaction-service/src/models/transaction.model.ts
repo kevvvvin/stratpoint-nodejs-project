@@ -18,14 +18,12 @@ const transactionSchema = new Schema<ITransaction>({
   },
   fromWallet: {
     type: Schema.Types.ObjectId,
-    ref: 'Wallet',
     required: function (this: ITransaction): boolean {
       return this.type === 'transfer' && this.status !== 'pending';
     },
   },
   toWallet: {
     type: Schema.Types.ObjectId,
-    ref: 'Wallet',
     required: function (this: ITransaction): boolean {
       return this.type === 'transfer' || this.type === 'deposit';
     },

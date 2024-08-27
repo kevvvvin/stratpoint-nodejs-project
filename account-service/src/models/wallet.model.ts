@@ -4,7 +4,6 @@ import { IWallet } from '../types';
 const walletSchema = new Schema<IWallet>({
   user: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
     required: true,
   },
   balance: {

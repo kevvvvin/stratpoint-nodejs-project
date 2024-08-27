@@ -54,8 +54,42 @@ export async function initializeAdmin(): Promise<void> {
     });
 
     await adminUser.save();
-    logger.info('Admin account initialized successfully');
+    logger.info('Admin initialized successfully');
   } catch (err) {
     logger.error(`Error initializing admin account: ${err}`);
+  }
+}
+
+export async function initializeVerifiedUser(email: string): Promise<void> {
+  try {
+    let userEmail = email;
+    let userPassword = 'QWEqwe123!';
+
+    const userRole = await Role.findOne({ name: RoleEnum.USER });
+    if (!userRole) {
+      logger.error('User role not found. Roles are not initialized');
+      return;
+    }
+
+    const existingAdmin = await User.findOne({ email: userEmail });
+    if (existingAdmin) {
+      logger.info('Regular user is already initialized.');
+      return;
+    }
+
+    const user = new User({
+      email: userEmail,
+      password: userPassword,
+      firstName: 'John',
+      lastName: 'Doe',
+      status: StatusEnum.ACTIVE,
+      kycStatus: KycUserStatusEnum.VERIFIED,
+      roles: [userRole],
+    });
+
+    await user.save();
+    logger.info('Regular user initialized successfully');
+  } catch (err) {
+    logger.error(`Error initializing regular user: ${err}`);
   }
 }
