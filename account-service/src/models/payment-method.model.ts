@@ -4,7 +4,6 @@ import { IPaymentMethod } from '../types';
 const paymentMethodSchema = new Schema<IPaymentMethod>({
   user: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
     required: true,
   },
   stripePaymentMethodId: {
