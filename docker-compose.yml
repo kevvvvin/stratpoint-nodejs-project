@@ -61,6 +61,21 @@ services:
     networks:
       - mynetwork
 
+  kyc-service:
+  build:
+    context: ./kyc-service
+    dockerfile: Dockerfile
+  volumes:
+    - ./kyc-service:/usr/src/app  # Volume mount
+  env_file:
+    - ./kyc-service/.env
+  ports:
+    - "3005:3005"
+  depends_on:
+    - mongodb
+  networks:
+    - mynetwork
+
   mongodb:
     image: mongo:latest
     ports:
