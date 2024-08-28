@@ -35,6 +35,8 @@ services:
     build:
       context: ./transaction-service
       dockerfile: Dockerfile
+    volumes:
+      - ./transaction-service:/usr/src/app  # Volume mount
     env_file:
       - ./transaction-service/.env
     ports:

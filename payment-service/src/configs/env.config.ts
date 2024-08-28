@@ -7,12 +7,13 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 // console.log("Environment Variables: ", process.env);
 
 const envConfig: EnvConfig = {
-  port: parseInt(process.env.PORT || '3001', 10),
+  port: parseInt(process.env.PORT || '3004', 10),
   mongoURI: process.env.MONGO_URI || '',
   jwtSecret: process.env.JWT_SECRET || '',
   logLevel: process.env.LOG_LEVEL || '',
   nodeENV: process.env.NODE_ENV || '',
   stripeSecret: process.env.STRIPE_SECRET || '',
+  hostAddress: process.env.HOST_ADDRESS || 'localhost',
 };
 
 if (!envConfig.mongoURI) {

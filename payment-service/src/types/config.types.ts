@@ -5,4 +5,5 @@ export interface EnvConfig {
   logLevel: string;
   nodeENV: string;
   stripeSecret: string;
+  hostAddress: string;
 }
