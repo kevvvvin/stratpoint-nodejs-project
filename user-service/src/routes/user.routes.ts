@@ -16,4 +16,8 @@ router.get(
   (req, res, next) => userController.getUserById(req, res, next),
 );
 
+router.put('/update-kyc-status/:userId', authenticateJWT, (req, res, next) =>
+  userController.updateKycStatus(req, res, next),
+);
+
 export default router;

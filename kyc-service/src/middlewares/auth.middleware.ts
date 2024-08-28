@@ -44,12 +44,8 @@ export const authenticateJWT = async (
       const error = new Error('Token is not valid.');
       return next(error);
     }
-    const decoded = jwt.verify(token, envConfig.jwtSecret) as JwtPayload;
-    if (decoded.kycStatus !== 'VERIFIED') {
-      const error = new Error('User is not verified. Please verify your account.');
-      return next(error);
-    }
 
+    const decoded = jwt.verify(token, envConfig.jwtSecret) as JwtPayload;
     req.payload = decoded;
     next();
   } catch (error) {

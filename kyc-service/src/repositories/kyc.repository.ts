@@ -9,7 +9,7 @@ export class KycRepository {
   }
 
   async findByUserId(userId: string): Promise<IKyc | null> {
-    return await Kyc.findOne({ user: new Types.ObjectId(userId) });
+    return await Kyc.findOne({ userId: new Types.ObjectId(userId) });
   }
 
   async findAll(): Promise<IKyc[]> {
@@ -18,15 +18,19 @@ export class KycRepository {
 
   async create(userId: string, submissionStatus: KycSubmissionStatusEnum): Promise<IKyc> {
     return Kyc.create({
-      user: new Types.ObjectId(userId),
+      userId: new Types.ObjectId(userId),
       submissionStatus: submissionStatus,
     });
   }
 
   async update(userId: string, updateData: Partial<IKyc>): Promise<IKyc | null> {
-    return await Kyc.findOneAndUpdate({ user: new Types.ObjectId(userId) }, updateData, {
-      new: true,
-      runValidators: true,
-    });
+    return await Kyc.findOneAndUpdate(
+      { userId: new Types.ObjectId(userId) },
+      updateData,
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
   }
 }

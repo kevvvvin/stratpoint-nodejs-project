@@ -2,6 +2,8 @@ import { KycSubmissionStatusEnum } from '../enums';
 import { IKyc, JwtPayload, KycResult } from '../types';
 import { KycRepository } from '../repositories';
 import { KycSubmitRequestDto } from '../dtos';
+import { fetchHelper } from '../utils';
+import { envConfig } from '../configs';
 
 export class KycService {
   constructor(private kycRepository: KycRepository) {}
@@ -37,6 +39,7 @@ export class KycService {
   }
 
   async update(
+    authHeader: string,
     userDetails: JwtPayload,
     kycSubmission: KycSubmitRequestDto,
   ): Promise<KycResult> {
@@ -58,14 +61,26 @@ export class KycService {
       submissionStatus: KycSubmissionStatusEnum.FOR_REVIEW,
     };
 
+    const updateKycStatusResponse = await fetchHelper(
+      authHeader,
+      `http://${envConfig.userService}:3001/api/users/update-kyc-status/${userId}`,
+      'PUT',
+      { updatedStatus: 'PENDING' },
+    );
+
+    if (updateKycStatusResponse.status !== 200)
+      throw new Error('Could not update KYC. Could not update user status');
+
     const updatedKyc = await this.kycRepository.update(userId, updateData);
     if (!updatedKyc) throw new Error('Could not update KYC. KYC not found');
 
+    const updatedUser = (await updateKycStatusResponse.json()).result.user;
+
     return {
       user: {
-        id: userDetails.sub,
-        email: userDetails.email,
-        kycStatus: userDetails.kycStatus,
+        id: updatedUser._id,
+        email: updatedUser.email,
+        kycStatus: updatedUser.kycStatus,
       },
       kyc: {
         userId: updatedKyc.userId,
@@ -77,7 +92,11 @@ export class KycService {
     };
   }
 
-  async approve(userDetails: JwtPayload, targetUserId: string): Promise<KycResult> {
+  async approve(
+    authHeader: string,
+    userDetails: JwtPayload,
+    targetUserId: string,
+  ): Promise<KycResult> {
     if (!userDetails.roles.includes('ADMIN'))
       throw new Error('Only admins can approve KYC');
 
@@ -92,14 +111,26 @@ export class KycService {
       submissionStatus: KycSubmissionStatusEnum.APPROVED,
     };
 
+    const updateKycStatusResponse = await fetchHelper(
+      authHeader,
+      `http://${envConfig.userService}:3001/api/users/update-kyc-status/${targetUserId}`,
+      'PUT',
+      { updatedStatus: 'VERIFIED' },
+    );
+
+    if (updateKycStatusResponse.status !== 200)
+      throw new Error('Could not update KYC. Could not update user status');
+
     const updatedKyc = await this.kycRepository.update(targetUserId, updatedKycData);
     if (!updatedKyc) throw new Error('Could not update KYC submission. KYC not found');
 
+    const updatedUser = (await updateKycStatusResponse.json()).result.user;
+
     return {
       user: {
-        id: updatedKyc.userId.toString(),
-        email: userDetails.email,
-        kycStatus: userDetails.kycStatus,
+        id: updatedUser._id,
+        email: updatedUser.email,
+        kycStatus: updatedUser.kycStatus,
       },
       kyc: {
         userId: updatedKyc.userId,
@@ -111,9 +142,13 @@ export class KycService {
     };
   }
 
-  async reject(userDetails: JwtPayload, targetUserId: string): Promise<KycResult> {
+  async reject(
+    authHeader: string,
+    userDetails: JwtPayload,
+    targetUserId: string,
+  ): Promise<KycResult> {
     if (!userDetails.roles.includes('ADMIN'))
-      throw new Error('Only admins can approve KYC');
+      throw new Error('Only admins can reject KYC');
 
     const kyc = await this.kycRepository.findByUserId(targetUserId);
     if (!kyc) throw new Error('Could not reject KYC. KYC not found');
@@ -126,14 +161,26 @@ export class KycService {
       submissionStatus: KycSubmissionStatusEnum.REJECTED,
     };
 
+    const updateKycStatusResponse = await fetchHelper(
+      authHeader,
+      `http://${envConfig.userService}:3001/api/users/update-kyc-status/${targetUserId}`,
+      'PUT',
+      { updatedStatus: 'TO_REVISE' },
+    );
+
+    if (updateKycStatusResponse.status !== 200)
+      throw new Error('Could not update KYC. Could not update user status');
+
     const updatedKyc = await this.kycRepository.update(targetUserId, updatedKycData);
     if (!updatedKyc) throw new Error('Could not update KYC submission. KYC not found');
 
+    const updatedUser = (await updateKycStatusResponse.json()).result.user;
+
     return {
       user: {
-        id: updatedKyc.userId.toString(),
-        email: userDetails.email,
-        kycStatus: userDetails.kycStatus,
+        id: updatedUser._id,
+        email: updatedUser.email,
+        kycStatus: updatedUser.kycStatus,
       },
       kyc: {
         userId: updatedKyc.userId,
@@ -154,7 +201,7 @@ export class KycService {
   }
 
   async getKycByUserId(userDetails: JwtPayload, targetUserId: string): Promise<IKyc> {
-    if (!userDetails.roles.includes('ADMIN') || userDetails.sub !== targetUserId)
+    if (!userDetails.roles.includes('ADMIN') && userDetails.sub !== targetUserId)
       throw new Error('Access denied. You are not authorized to view this user.');
 
     const kyc = await this.kycRepository.findByUserId(targetUserId);

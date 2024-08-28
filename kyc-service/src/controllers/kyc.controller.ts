@@ -32,10 +32,15 @@ export class KycController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
+      const authHeader = req.header('Authorization') as string;
       const userDetails = req.payload as JwtPayload;
       const kycSubmission = req.body;
 
-      const kyc: KycResult = await this.kycService.update(userDetails, kycSubmission);
+      const kyc: KycResult = await this.kycService.update(
+        authHeader,
+        userDetails,
+        kycSubmission,
+      );
       const message = 'Submitted KYC successfully';
       const response = new KycResponseDto(message, kyc);
 
@@ -52,10 +57,15 @@ export class KycController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
+      const authHeader = req.header('Authorization') as string;
       const userDetails = req.payload as JwtPayload;
       const targetUserId: string = req.params.id;
 
-      const kyc: KycResult = await this.kycService.approve(userDetails, targetUserId);
+      const kyc: KycResult = await this.kycService.approve(
+        authHeader,
+        userDetails,
+        targetUserId,
+      );
       const message = 'Approved KYC successfully';
       const response = new KycResponseDto(message, kyc);
 
@@ -72,10 +82,15 @@ export class KycController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
+      const authHeader = req.header('Authorization') as string;
       const userDetails = req.payload as JwtPayload;
       const targetUserId: string = req.params.id;
 
-      const kyc: KycResult = await this.kycService.reject(userDetails, targetUserId);
+      const kyc: KycResult = await this.kycService.reject(
+        authHeader,
+        userDetails,
+        targetUserId,
+      );
       const message = 'Rejected KYC successfully';
       const response = new KycResponseDto(message, kyc);
 
