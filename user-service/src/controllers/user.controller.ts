@@ -49,10 +49,16 @@ export class UserController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
+      const userDetails = req.user as IUser;
       const targetUserId = req.params.userId;
+
       const { updatedStatus } = req.body;
 
-      const result = await this.userService.updateKycStatus(targetUserId, updatedStatus);
+      const result = await this.userService.updateKycStatus(
+        userDetails,
+        targetUserId,
+        updatedStatus,
+      );
       const message = "User's KYC status updated successfully";
       const response = new UserResponseDto(message, result);
       logger.info(response);

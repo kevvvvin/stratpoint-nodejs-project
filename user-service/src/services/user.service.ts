@@ -51,9 +51,18 @@ export class UserService {
   }
 
   async updateKycStatus(
+    loggedInUser: IUser,
     targetUserId: string,
     updatedStatus: string,
   ): Promise<UserResult> {
+    const isSameUser = loggedInUser._id.toString() === targetUserId;
+    const isAdmin = loggedInUser.roles.some(
+      (role: IRole) => role.name === RoleEnum.ADMIN,
+    );
+
+    if (!isSameUser && !isAdmin)
+      throw new Error('Access denied. You are not authorized to view this user.');
+
     const targetUser = await this.userRepository.findById(targetUserId);
     if (!targetUser) throw new Error('User does not exist.');
 
