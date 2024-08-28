@@ -12,7 +12,7 @@ const envConfig: EnvConfig = {
   jwtSecret: process.env.JWT_SECRET || '',
   logLevel: process.env.LOG_LEVEL || '',
   nodeENV: process.env.NODE_ENV || '',
-  hostAddress: process.env.HOST_ADDRESS || 'localhost',
+  userService: process.env.USER_SERVICE_URL || 'localhost',
 };
 
 if (!envConfig.mongoURI) {

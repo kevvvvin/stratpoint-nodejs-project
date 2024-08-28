@@ -4,5 +4,7 @@ export interface EnvConfig {
   jwtSecret: string;
   logLevel: string;
   nodeENV: string;
-  hostAddress: string;
+  userService: string;
+  transactionService: string;
+  paymentService: string;
 }

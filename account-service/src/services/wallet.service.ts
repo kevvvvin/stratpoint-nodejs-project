@@ -30,7 +30,7 @@ export class WalletService {
 
     const customerResponse = await fetchHelper(
       authHeader,
-      `http://${envConfig.hostAddress}:3004/api/stripe/create-customer-id`,
+      `http://${envConfig.paymentService}:3004/api/stripe/create-customer-id`,
       'POST',
       null,
     );
@@ -84,7 +84,7 @@ export class WalletService {
 
     const retrieveResponse = await fetchHelper(
       authHeader,
-      `http://${envConfig.hostAddress}:3004/api/stripe/retrieve-payment-method`,
+      `http://${envConfig.paymentService}:3004/api/stripe/retrieve-payment-method`,
       'POST',
       { paymentMethodId },
     );
@@ -95,7 +95,7 @@ export class WalletService {
 
     const attachResponse = await fetchHelper(
       authHeader,
-      `http://${envConfig.hostAddress}:3004/api/stripe/attach-payment-method`,
+      `http://${envConfig.paymentService}:3004/api/stripe/attach-payment-method`,
       'POST',
       { paymentMethodId, customerId: wallet.stripeCustomerId },
     );
@@ -160,7 +160,7 @@ export class WalletService {
 
     const detachResponse = await fetchHelper(
       authHeader,
-      `http://${envConfig.hostAddress}:3004/api/stripe/detach-payment-method`,
+      `http://${envConfig.paymentService}:3004/api/stripe/detach-payment-method`,
       'POST',
       { paymentMethodId },
     );
@@ -191,7 +191,7 @@ export class WalletService {
 
     const paymentIntentResponse = await fetchHelper(
       authHeader,
-      `http://${envConfig.hostAddress}:3004/api/stripe/create-payment-intent`,
+      `http://${envConfig.paymentService}:3004/api/stripe/create-payment-intent`,
       'POST',
       paymentIntentRequest,
     );
@@ -234,7 +234,7 @@ export class WalletService {
     // } else {
     const paymentIntentResponse = await fetchHelper(
       authHeader,
-      `http://${envConfig.hostAddress}:3004/api/stripe/confirm-payment-intent`,
+      `http://${envConfig.paymentService}:3004/api/stripe/confirm-payment-intent`,
       'POST',
       { paymentIntentId, paymentMethodId },
     );
@@ -256,7 +256,7 @@ export class WalletService {
       );
       const transactionResponse = await fetchHelper(
         authHeader,
-        `http://${envConfig.hostAddress}:3003/api/transaction/create`,
+        `http://${envConfig.transactionService}:3003/api/transaction/create`,
         'POST',
         transactionRequestDto,
       );
@@ -278,7 +278,7 @@ export class WalletService {
   ): Promise<PaymentStatusResult> {
     const transactionResponse = await fetchHelper(
       authHeader,
-      `http://${envConfig.hostAddress}:3003/api/transaction/status/${paymentIntentId}`,
+      `http://${envConfig.transactionService}:3003/api/transaction/status/${paymentIntentId}`,
       'GET',
       null,
     );
@@ -329,7 +329,7 @@ export class WalletService {
     );
     const createPaymentIntentResponse = await fetchHelper(
       authHeader,
-      `http://${envConfig.hostAddress}:3004/api/stripe/create-payment-intent`,
+      `http://${envConfig.paymentService}:3004/api/stripe/create-payment-intent`,
       'POST',
       createPaymentIntentRequest,
     );
@@ -344,7 +344,7 @@ export class WalletService {
     };
     const confirmPaymentIntentResponse = await fetchHelper(
       authHeader,
-      `http://${envConfig.hostAddress}:3004/api/stripe/confirm-payment-intent`,
+      `http://${envConfig.paymentService}:3004/api/stripe/confirm-payment-intent`,
       'POST',
       confirmPaymentIntentRequest,
     );
@@ -365,7 +365,7 @@ export class WalletService {
       );
       const transactionResponse = await fetchHelper(
         authHeader,
-        `http://${envConfig.hostAddress}:3003/api/transaction/create`,
+        `http://${envConfig.transactionService}:3003/api/transaction/create`,
         'POST',
         transactionRequestDto,
       );
@@ -400,7 +400,7 @@ export class WalletService {
     };
     const createPayoutResponse = await fetchHelper(
       authHeader,
-      `http://${envConfig.hostAddress}:3004/api/stripe/create-payout`,
+      `http://${envConfig.paymentService}:3004/api/stripe/create-payout`,
       'POST',
       createPayoutRequest,
     );
@@ -416,7 +416,7 @@ export class WalletService {
       payout.id,
     );
     const transactionResponse = await fetch(
-      `http://${envConfig.hostAddress}:3003/api/transaction/create`,
+      `http://${envConfig.transactionService}:3003/api/transaction/create`,
       {
         method: 'POST',
         headers: {
@@ -458,7 +458,7 @@ export class WalletService {
     );
     const transactionResponse = await fetchHelper(
       authHeader,
-      `http://${envConfig.hostAddress}:3003/api/transaction/create`,
+      `http://${envConfig.transactionService}:3003/api/transaction/create`,
       'POST',
       transactionRequestDto,
     );
@@ -485,7 +485,7 @@ export class WalletService {
 
     const transactionsResponse = await fetchHelper(
       authHeader,
-      `http://${envConfig.hostAddress}:3003/api/transaction/transactions/${wallet._id.toString()}`,
+      `http://${envConfig.transactionService}:3003/api/transaction/transactions/${wallet._id.toString()}`,
       'GET',
       null,
     );

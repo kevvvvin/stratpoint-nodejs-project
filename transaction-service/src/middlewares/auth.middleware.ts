@@ -30,7 +30,7 @@ export const authenticateJWT = async (
     }
 
     const validateResponse = await fetch(
-      `http://${envConfig.hostAddress}:3001/api/auth/validate-token`,
+      `http://${envConfig.userService}:3001/api/auth/validate-token`,
       {
         method: 'GET',
         headers: {
