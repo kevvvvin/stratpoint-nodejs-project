@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { IUser, KycResult } from '../types';
+import { IKyc, JwtPayload, KycResult } from '../types';
 import { KycService } from '../services';
 import { KycResponseDto } from '../dtos';
 import { logger } from '../utils';
@@ -13,9 +13,9 @@ export class KycController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const loggedInUser = req.user as IUser;
+      const userDetails = req.payload as JwtPayload;
 
-      const kyc: KycResult = await this.kycService.initiate(loggedInUser);
+      const kyc: KycResult = await this.kycService.initiate(userDetails);
       const message = 'Initiated KYC successfully';
       const response = new KycResponseDto(message, kyc);
 
@@ -32,9 +32,15 @@ export class KycController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const loggedInUser: IUser = req.user as IUser;
+      const authHeader = req.header('Authorization') as string;
+      const userDetails = req.payload as JwtPayload;
+      const kycSubmission = req.body;
 
-      const kyc: KycResult = await this.kycService.update(loggedInUser, req.body);
+      const kyc: KycResult = await this.kycService.update(
+        authHeader,
+        userDetails,
+        kycSubmission,
+      );
       const message = 'Submitted KYC successfully';
       const response = new KycResponseDto(message, kyc);
 
@@ -51,9 +57,15 @@ export class KycController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const userId: string = req.params.id;
+      const authHeader = req.header('Authorization') as string;
+      const userDetails = req.payload as JwtPayload;
+      const targetUserId: string = req.params.id;
 
-      const kyc: KycResult = await this.kycService.approve(userId);
+      const kyc: KycResult = await this.kycService.approve(
+        authHeader,
+        userDetails,
+        targetUserId,
+      );
       const message = 'Approved KYC successfully';
       const response = new KycResponseDto(message, kyc);
 
@@ -70,9 +82,15 @@ export class KycController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const userId: string = req.params.id;
+      const authHeader = req.header('Authorization') as string;
+      const userDetails = req.payload as JwtPayload;
+      const targetUserId: string = req.params.id;
 
-      const kyc: KycResult = await this.kycService.reject(userId);
+      const kyc: KycResult = await this.kycService.reject(
+        authHeader,
+        userDetails,
+        targetUserId,
+      );
       const message = 'Rejected KYC successfully';
       const response = new KycResponseDto(message, kyc);
 
@@ -84,12 +102,14 @@ export class KycController {
   }
 
   async getAllKyc(
-    _req: Request,
+    req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const result: KycResult[] = await this.kycService.getAllKyc();
+      const userDetails = req.payload as JwtPayload;
+
+      const result: IKyc[] = await this.kycService.getAllKyc(userDetails);
       const message = 'Retrieved all KYCs successfully';
       const response = new KycResponseDto(message, result);
 
@@ -106,12 +126,12 @@ export class KycController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const userId: string = req.params.id;
-      const loggedInUser = req.user as IUser;
+      const userDetails = req.payload as JwtPayload;
+      const targetUserId: string = req.params.id;
 
-      const result: KycResult = await this.kycService.getKycByUserId(
-        userId,
-        loggedInUser,
+      const result: IKyc = await this.kycService.getKycByUserId(
+        userDetails,
+        targetUserId,
       );
       const message = 'Retrieved KYC successfully';
       const response = new KycResponseDto(message, result);

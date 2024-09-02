@@ -42,4 +42,29 @@ export class UserController {
       next(err);
     }
   }
+
+  async updateKycStatus(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const userDetails = req.user as IUser;
+      const targetUserId = req.params.userId;
+
+      const { updatedStatus } = req.body;
+
+      const result = await this.userService.updateKycStatus(
+        userDetails,
+        targetUserId,
+        updatedStatus,
+      );
+      const message = "User's KYC status updated successfully";
+      const response = new UserResponseDto(message, result);
+      logger.info(response);
+      return res.status(200).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
 }

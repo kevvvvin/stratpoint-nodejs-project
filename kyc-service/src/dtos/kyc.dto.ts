@@ -3,9 +3,9 @@ import { IKyc, KycResult } from '../types';
 
 export class KycResponseDto {
   message: string;
-  result: KycResult | KycResult[];
+  result: KycResult | IKyc | KycResult[] | IKyc[];
 
-  constructor(message: string, result: KycResult | KycResult[]) {
+  constructor(message: string, result: KycResult | IKyc | KycResult[] | IKyc[]) {
     this.message = message;
     this.result = result;
   }

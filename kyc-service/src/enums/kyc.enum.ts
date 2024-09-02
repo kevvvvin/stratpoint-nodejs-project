@@ -1,0 +1,25 @@
+export enum KycSubmissionStatusEnum {
+  INITIATED = 'INITIATED',
+  FOR_REVIEW = 'FOR_REVIEW',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
+export enum KycIdEnum {
+  NATIONAL_ID = 'NATIONAL_ID',
+  E_PHIL_ID = 'E_PHIL_ID',
+  PASSPORT = 'PASSPORT',
+  HDMF = 'HDMF',
+  DRIVERS_LICENSE = 'DRIVERS_LICENSE',
+  POSTAL_ID = 'POSTAL_ID',
+  PRC_ID = 'PRC_ID',
+  UMID = 'UMID',
+  SSS_ID = 'SSS_ID',
+}
+
+export enum KycUserStatusEnum {
+  UNVERIFIED = 'UNVERIFIED',
+  PENDING = 'PENDING',
+  VERIFIED = 'VERIFIED',
+  TO_REVISE = 'TO_REVISE',
+}

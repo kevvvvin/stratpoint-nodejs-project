@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { KycIdEnum } from '../enums';
 
 export const registerSchema = z.object({
   email: z.string().email('Invalid email format').min(1, 'Email is required'),
@@ -17,12 +16,4 @@ export const registerSchema = z.object({
 export const loginSchema = z.object({
   email: z.string().email('Invalid email format').min(1, 'Email is required'),
   password: z.string().min(1, 'Password is required'),
-});
-
-export const kycSchema = z.object({
-  idType: z.nativeEnum(KycIdEnum, {
-    errorMap: () => ({ message: 'Invalid ID type. Please choose a valid option.' }),
-  }),
-  idNumber: z.string().min(1, 'ID number is required.'),
-  idExpiration: z.string().date('Invalid date format. Expected YYYY-MM-DD'),
 });
