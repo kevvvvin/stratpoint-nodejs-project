@@ -3,6 +3,9 @@ import { AuthResult, IUser, UserResult } from '../types';
 import { RoleRepository, UserRepository } from '../repositories';
 import { JwtService } from './';
 import { LoginRequestDto, RegisterRequestDto } from '../dtos';
+import { fetchHelper } from '../utils/fetchHelper';
+import { envConfig } from '../configs';
+import { logger } from '../utils';
 
 export class AuthService {
   constructor(
@@ -59,6 +62,21 @@ export class AuthService {
 
     // Generate a JWT token
     const token = await this.jwtService.generateToken(user);
+
+    try {
+      const notificationResponse = await fetchHelper(
+        `Bearer ${token}`,
+        `http://${envConfig.notificationService}:3006/api/notif/login-notification`,
+        'POST',
+        null,
+      );
+
+      if (notificationResponse.status !== 200) {
+        logger.warn('Failed to send login notification');
+      }
+    } catch (err) {
+      logger.warn('Failed to send login notification: ', err);
+    }
 
     const loginResult: AuthResult = {
       token,

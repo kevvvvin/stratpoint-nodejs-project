@@ -85,6 +85,30 @@ services:
     networks:
       - mynetwork
 
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    volumes:
+      - ./notification-service:/usr/src/app  # Volume mount
+    env_file:
+      - ./notification-service/.env
+    ports:
+      - "3006:3006"
+    depends_on:
+      - mongodb
+    networks:
+      - mynetwork
+
+    mongodb:
+      image: mongo:latest
+      ports:
+        - "27017:27017"
+      volumes:
+        - mongo-data:/data/db
+      networks:
+        - mynetwork
+
 networks:
  mynetwork:
 
