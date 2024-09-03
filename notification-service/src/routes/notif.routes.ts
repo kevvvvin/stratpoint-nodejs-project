@@ -1,10 +1,10 @@
 import express from 'express';
 import { notificationController } from '../container';
-import { authenticateJWT } from '../middlewares';
+import { authenticateJWT, fetchAdminToken } from '../middlewares';
 
 const router = express.Router();
 
-router.post('/login-notification', authenticateJWT, (req, res, next) =>
+router.post('/login-notification', authenticateJWT, fetchAdminToken, (req, res, next) =>
   notificationController.notifyLogin(req, res, next),
 );
 

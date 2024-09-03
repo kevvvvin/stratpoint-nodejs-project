@@ -2,11 +2,13 @@ import jwt from 'jsonwebtoken';
 import { envConfig } from '../configs';
 import { Request, Response, NextFunction } from 'express';
 import { JwtPayload } from '../types';
+import { logger } from '../utils';
 
 declare global {
   namespace Express {
     interface Request {
       payload?: JwtPayload;
+      adminToken?: string;
     }
   }
 }
@@ -45,6 +47,7 @@ export const authenticateJWT = async (
       return next(error);
     }
 
+    logger.info('Token verified');
     const decoded = jwt.verify(token, envConfig.jwtSecret) as JwtPayload;
     req.payload = decoded;
     next();

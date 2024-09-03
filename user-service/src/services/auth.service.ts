@@ -112,4 +112,14 @@ export class AuthService {
 
     return logoutResult;
   }
+
+  async generateAdminToken(serviceName: string): Promise<string> {
+    const adminRole = await this.roleRepository.findByName(RoleEnum.ADMIN);
+    if (!adminRole) throw new Error('Admin role not found. Roles are not initialized');
+
+    const roleName = adminRole.name;
+    const adminToken = await this.jwtService.generateAdminToken(serviceName, roleName);
+
+    return adminToken;
+  }
 }

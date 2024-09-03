@@ -12,11 +12,12 @@ export class NotificationController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
+      const adminToken = req.adminToken as string;
       const user = req.payload as JwtPayload;
       const loginTime = new Date().toISOString();
       const loginLocation = req.ip as string;
 
-      await this.notifService.notifyLogin(user, loginTime, loginLocation);
+      await this.notifService.notifyLogin(adminToken, user.sub, loginTime, loginLocation);
       const message = 'Login notification sent successfully';
 
       logger.info({ message });

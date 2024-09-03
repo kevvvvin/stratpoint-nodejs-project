@@ -41,6 +41,8 @@ const authenticateJWT = async (
 
     const decoded = jwt.verify(token, envConfig.jwtSecret) as JwtPayload;
 
+    if (req.headers['x-internal-service'] === 'true') return next();
+
     const user = await User.findById(decoded.sub)
       .select('-password')
       .populate('roles', 'name');
@@ -65,6 +67,8 @@ const authorizeRoles = (allowedRoles: RoleEnum[]) => {
     next: NextFunction,
   ): Promise<Response | void> => {
     try {
+      if (req.headers['x-internal-service'] === 'true') return next();
+
       const user = req.user as IUser;
       if (!user) {
         const error = new JwtError('Access denied. User not found');

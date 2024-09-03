@@ -3,7 +3,7 @@ import Handlebars from 'handlebars';
 import path from 'path';
 import { promises as fs } from 'fs';
 import { envConfig } from '../configs';
-import { logger } from '../utils';
+import { fetchHelper, logger } from '../utils';
 import { JwtPayload, EmailContext } from '../types';
 
 export class NotificationService {
@@ -129,20 +129,28 @@ export class NotificationService {
   }
 
   async notifyLogin(
-    user: JwtPayload,
+    adminToken: string,
+    userId: string,
     loginTime: string,
     loginLoc: string,
   ): Promise<void> {
-    try {
-      await this.sendEmail(user.email, 'New Login to Your E-Wallet Account', 'login', {
-        firstName: user.sub,
-        loginTime,
-        loginLoc,
-        secureAccountLink: '',
-      });
-    } catch (err) {
-      logger.error('Error in notifyLogin: ', err);
-    }
+    const fetchUserResponse = await fetchHelper(
+      `Bearer ${adminToken}`,
+      `http://${envConfig.userService}:3001/api/users/${userId}`,
+      'GET',
+      null,
+    );
+    if (fetchUserResponse.status !== 200)
+      throw new Error('Failed to retrieve target user for notification sending.');
+
+    const user = (await fetchUserResponse.json()).result.user;
+
+    await this.sendEmail(user.email, 'New Login to Your E-Wallet Account', 'login', {
+      firstName: user.firstName,
+      loginTime,
+      loginLoc,
+      secureAccountLink: '',
+    });
   }
 
   async notifyDeposit(
@@ -182,4 +190,41 @@ export class NotificationService {
       throw new Error('Failed to send KYC update notification');
     }
   }
+
+  // async notifyTransfer(
+  //   fromUser: JwtPayload,
+  //   toUserId: string,
+  //   amount: number,
+  //   transactionId: string,
+  //   fromBalance: number,
+  //   toBalance: number,
+  // ): Promise<void> {
+  //   try {
+  //     await Promise.all([
+  //       this.sendEmail(fromUser.email, 'Transfer Sent', 'transfer', {
+  //         firstName: fromUser.sub,
+  //         transferStatus: 'sent',
+  //         amount,
+  //         otherPartyName: toUser.email,
+  //         transactionId,
+  //         transactionDate: new Date().toLocaleString(),
+  //         transactionDetailsLink: '',
+  //         newBalance: fromBalance,
+  //       }),
+  //       this.sendEmail(toUser.email, 'Transfer Received', 'transfer', {
+  //         firstName: toUser.sub,
+  //         transferStatus: 'received',
+  //         amount,
+  //         otherPartyName: fromUser.email,
+  //         transactionId,
+  //         transactionDate: new Date().toLocaleString(),
+  //         transactionDetailsLink: '',
+  //         newBalance: toBalance,
+  //       }),
+  //     ]);
+  //   } catch (err) {
+  //     logger.error('Error in notifyTransfer: ', err);
+  //     throw new Error(`Failed to send transfer notifications: ${err}`);
+  //   }
+  // }
 }

@@ -18,4 +18,8 @@ router.get('/validate-token', authenticateJWT, (req, res, next) =>
   authController.validateToken(req, res, next),
 );
 
+router.post('/generate-admin-token/:serviceName', (req, res, next) =>
+  authController.generateAdminToken(req, res, next),
+);
+
 export default router;

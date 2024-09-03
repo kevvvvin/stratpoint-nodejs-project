@@ -30,9 +30,14 @@ export class UserController {
   ): Promise<Response | void> {
     try {
       const userId: string = req.params.id;
-      const loggedInUser = req.user as IUser;
+      let result: UserResult;
+      if (req.headers['x-internal-service'] !== 'true') {
+        const loggedInUser = req.user as IUser;
+        result = await this.userService.getUserById(userId, loggedInUser);
+      } else {
+        result = await this.userService.getUserById(userId);
+      }
 
-      const result: UserResult = await this.userService.getUserById(userId, loggedInUser);
       const message = 'Retrieved user successfully';
       const response = new UserResponseDto(message, result);
 
