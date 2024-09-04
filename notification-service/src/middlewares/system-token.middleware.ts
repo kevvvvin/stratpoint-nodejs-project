@@ -7,7 +7,7 @@ import { logger } from '../utils';
 let adminToken: string | null = null;
 let tokenExpiry: number | null = null;
 
-export const fetchAdminToken = async (
+export const fetchServiceToken = async (
   req: Request,
   _res: Response,
   next: NextFunction,
@@ -16,12 +16,14 @@ export const fetchAdminToken = async (
     const currentTime = Math.floor(Date.now() / 1000);
     if (!adminToken || (tokenExpiry && currentTime >= tokenExpiry)) {
       const generateTokenResponse = await fetch(
-        `http://${envConfig.userService}:3001/api/auth/generate-admin-token/notification-service`,
+        `http://${envConfig.userService}:3001/api/auth/generate-service-token`,
         {
           method: 'POST',
           headers: {
             'x-internal-service': 'true',
+            'Content-Type': 'application/json',
           },
+          body: JSON.stringify({ serviceName: 'notification-service' }),
         },
       );
       if (generateTokenResponse.status !== 201)

@@ -1,4 +1,4 @@
-import { StatusEnum, KycUserStatusEnum, RoleEnum } from '../enums';
+import { StatusEnum, KycUserStatusEnum, RoleEnum, ServiceEnum } from '../enums';
 import { AuthResult, IUser, UserResult } from '../types';
 import { RoleRepository, UserRepository } from '../repositories';
 import { JwtService } from './';
@@ -113,7 +113,10 @@ export class AuthService {
     return logoutResult;
   }
 
-  async generateAdminToken(serviceName: string): Promise<string> {
+  async generateServiceToken(serviceName: string): Promise<string> {
+    if (!Object.values(ServiceEnum).includes(serviceName as ServiceEnum)) {
+      throw new Error(`Invalid service name: ${serviceName}.`);
+    }
     const adminRole = await this.roleRepository.findByName(RoleEnum.ADMIN);
     if (!adminRole) throw new Error('Admin role not found. Roles are not initialized');
 

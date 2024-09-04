@@ -76,7 +76,7 @@ export class AuthController {
     }
   }
 
-  async generateAdminToken(
+  async generateServiceToken(
     req: Request,
     res: Response,
     next: NextFunction,
@@ -84,12 +84,13 @@ export class AuthController {
     try {
       const isInternalRequest = req.headers['x-internal-service'] === 'true';
       if (!isInternalRequest)
-        throw new Error('Forbidden. Not authorized to generate admin token');
+        throw new Error('Forbidden. Not authorized to generate service token');
 
-      const serviceName = req.params.serviceName;
+      const { serviceName } = req.body;
 
-      const message = 'Generated an admin token successfully';
-      const result = await this.authService.generateAdminToken(serviceName);
+      const message =
+        'Generated an admin token for microservices communication successfully';
+      const result = await this.authService.generateServiceToken(serviceName);
 
       logger.info({ message, result });
       return res.status(201).json({ message, result });

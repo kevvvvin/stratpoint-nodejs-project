@@ -1,7 +1,7 @@
 import express from 'express';
 import { authController } from '../container';
 import { authenticateJWT, validateRequest } from '../middlewares';
-import { loginSchema, registerSchema } from '../utils';
+import { loginSchema, registerSchema, serviceTokenSchema } from '../utils';
 
 const router = express.Router();
 
@@ -18,8 +18,10 @@ router.get('/validate-token', authenticateJWT, (req, res, next) =>
   authController.validateToken(req, res, next),
 );
 
-router.post('/generate-admin-token/:serviceName', (req, res, next) =>
-  authController.generateAdminToken(req, res, next),
+router.post(
+  '/generate-service-token',
+  validateRequest(serviceTokenSchema),
+  (req, res, next) => authController.generateServiceToken(req, res, next),
 );
 
 export default router;

@@ -22,7 +22,7 @@ export class JwtService {
   async generateAdminToken(service: string, role: RoleEnum): Promise<string> {
     const payload: Omit<JwtPayload, 'exp'> = {
       sub: service,
-      email: `${service}@admin.com`,
+      email: `${service}@service.com`,
       roles: [role],
       status: StatusEnum.ACTIVE,
       kycStatus: KycUserStatusEnum.VERIFIED,
