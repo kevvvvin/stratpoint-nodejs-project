@@ -141,7 +141,7 @@ export class NotificationService {
       null,
     );
     if (fetchUserResponse.status !== 200)
-      throw new Error('Failed to retrieve target user for notification sending.');
+      throw new Error('Failed to retrieve target user for login notification sending.');
 
     const user = (await fetchUserResponse.json()).result.user;
 
@@ -154,22 +154,29 @@ export class NotificationService {
   }
 
   async notifyDeposit(
-    user: JwtPayload,
+    adminToken: string,
+    userId: string,
     amount: number,
     transactionId: string,
   ): Promise<void> {
-    try {
-      await this.sendEmail(user.email, 'Deposit Successful', 'deposit', {
-        firstName: user.sub,
-        amount,
-        transactionId,
-        transactionDate: new Date().toLocaleString(),
-        viewBalanceLink: '',
-      });
-    } catch (err) {
-      logger.error('Error in notifyDeposit: ', err);
-      throw new Error('Failed to send deposit notification');
-    }
+    const fetchUserResponse = await fetchHelper(
+      `Bearer ${adminToken}`,
+      `http://${envConfig.userService}:3001/api/users/${userId}`,
+      'GET',
+      null,
+    );
+    if (fetchUserResponse.status !== 200)
+      throw new Error('Failed to retrieve target user for deposit notification sending.');
+
+    const user = (await fetchUserResponse.json()).result.user;
+
+    await this.sendEmail(user.email, 'Deposit Successful', 'deposit', {
+      firstName: user.firstName,
+      amount,
+      transactionId,
+      transactionDate: new Date().toLocaleString(),
+      viewBalanceLink: '',
+    });
   }
 
   async notifyKycUpdate(
@@ -177,54 +184,156 @@ export class NotificationService {
     kycStatus: string,
     rejectionReason: string | null = null,
   ): Promise<void> {
-    try {
-      await this.sendEmail(user.email, 'KYC Verification Update', 'kyc-verification', {
-        firstName: user.sub,
-        kycStatus,
-        rejectionReason,
-        accountLink: '',
-        resubmitLink: '',
-      });
-    } catch (err) {
-      logger.error('Error in notifyKycUodate: ', err);
-      throw new Error('Failed to send KYC update notification');
-    }
+    await this.sendEmail(user.email, 'KYC Verification Update', 'kyc-verification', {
+      firstName: user.sub,
+      kycStatus,
+      rejectionReason,
+      accountLink: '',
+      resubmitLink: '',
+    });
   }
 
-  // async notifyTransfer(
-  //   fromUser: JwtPayload,
-  //   toUserId: string,
-  //   amount: number,
-  //   transactionId: string,
-  //   fromBalance: number,
-  //   toBalance: number,
-  // ): Promise<void> {
-  //   try {
-  //     await Promise.all([
-  //       this.sendEmail(fromUser.email, 'Transfer Sent', 'transfer', {
-  //         firstName: fromUser.sub,
-  //         transferStatus: 'sent',
-  //         amount,
-  //         otherPartyName: toUser.email,
-  //         transactionId,
-  //         transactionDate: new Date().toLocaleString(),
-  //         transactionDetailsLink: '',
-  //         newBalance: fromBalance,
-  //       }),
-  //       this.sendEmail(toUser.email, 'Transfer Received', 'transfer', {
-  //         firstName: toUser.sub,
-  //         transferStatus: 'received',
-  //         amount,
-  //         otherPartyName: fromUser.email,
-  //         transactionId,
-  //         transactionDate: new Date().toLocaleString(),
-  //         transactionDetailsLink: '',
-  //         newBalance: toBalance,
-  //       }),
-  //     ]);
-  //   } catch (err) {
-  //     logger.error('Error in notifyTransfer: ', err);
-  //     throw new Error(`Failed to send transfer notifications: ${err}`);
-  //   }
-  // }
+  async notifyTransfer(
+    adminToken: string,
+    fromUserId: string,
+    toUserId: string,
+    amount: number,
+    transactionId: string,
+    fromBalance: number,
+    toBalance: number,
+  ): Promise<void> {
+    const [fetchFromUserResponse, fetchToUserResponse] = await Promise.all([
+      fetchHelper(
+        `Bearer ${adminToken}`,
+        `http://${envConfig.userService}:3001/api/users/${fromUserId}`,
+        'GET',
+        null,
+      ),
+      fetchHelper(
+        `Bearer ${adminToken}`,
+        `http://${envConfig.userService}:3001/api/users/${toUserId}`,
+        'GET',
+        null,
+      ),
+    ]);
+
+    if (fetchFromUserResponse.status !== 200 && fetchToUserResponse.status !== 200)
+      throw new Error(
+        'Failed to retrieve one or both users for transfer notification sending.',
+      );
+
+    const fromUser = (await fetchFromUserResponse.json()).result.user;
+    const toUser = (await fetchToUserResponse.json()).result.user;
+
+    await Promise.all([
+      this.sendEmail(fromUser.email, 'Transfer Sent', 'transfer', {
+        firstName: fromUserId,
+        transferStatus: 'sent',
+        amount,
+        otherPartyName: toUser.email,
+        transactionId,
+        transactionDate: new Date().toLocaleString(),
+        transactionDetailsLink: '',
+        newBalance: fromBalance,
+      }),
+      this.sendEmail(toUser.email, 'Transfer Received', 'transfer', {
+        firstName: toUser.sub,
+        transferStatus: 'received',
+        amount,
+        otherPartyName: fromUser.email,
+        transactionId,
+        transactionDate: new Date().toLocaleString(),
+        transactionDetailsLink: '',
+        newBalance: toBalance,
+      }),
+    ]);
+  }
+
+  async notifyWithdraw(
+    adminToken: string,
+    userId: string,
+    amount: number,
+    newBalance: number,
+    transactionId: string,
+    withdrawalStatus: string,
+    withdrawalMethod: string,
+    failureReason = null,
+  ): Promise<void> {
+    const fetchUserResponse = await fetchHelper(
+      `Bearer ${adminToken}`,
+      `http://${envConfig.userService}:3001/api/users/${userId}`,
+      'GET',
+      null,
+    );
+    if (fetchUserResponse.status !== 200)
+      throw new Error(
+        'Failed to retrieve target user for withdrawal notification sending.',
+      );
+
+    const user = (await fetchUserResponse.json()).result.user;
+
+    await this.sendEmail(user.email, 'Withdrawal Update', 'withdrawal', {
+      firstName: user.firstName,
+      amount,
+      withdrawalStatus,
+      transactionId,
+      transactionDate: new Date().toLocaleString(),
+      withdrawalMethod,
+      failureReason,
+      transactionDetailsLink: '',
+      newBalance: newBalance,
+    });
+  }
+
+  async notifyWalletCreation(
+    adminToken: string,
+    userId: string,
+    initialBalance: number,
+  ): Promise<void> {
+    const fetchUserResponse = await fetchHelper(
+      `Bearer ${adminToken}`,
+      `http://${envConfig.userService}:3001/api/users/${userId}`,
+      'GET',
+      null,
+    );
+    if (fetchUserResponse.status !== 200)
+      throw new Error(
+        'Failed to retrieve target user for withdrawal notification sending.',
+      );
+
+    const user = (await fetchUserResponse.json()).result.user;
+
+    await this.sendEmail(user.email, 'Wallet Created Successfully', 'wallet-creation', {
+      firstName: user.firstName,
+      initialBalance,
+      walletLink: '',
+    });
+  }
+
+  async notifyPaymentMethodAdded(
+    adminToken: string,
+    userId: string,
+    last4: string,
+    cardBrand: string,
+  ): Promise<void> {
+    const fetchUserResponse = await fetchHelper(
+      `Bearer ${adminToken}`,
+      `http://${envConfig.userService}:3001/api/users/${userId}`,
+      'GET',
+      null,
+    );
+    if (fetchUserResponse.status !== 200)
+      throw new Error(
+        'Failed to retrieve target user for withdrawal notification sending.',
+      );
+
+    const user = (await fetchUserResponse.json()).result.user;
+
+    await this.sendEmail(user.email, 'New Payment Method Added', 'payment-method-added', {
+      firstName: user.firstName,
+      last4: last4,
+      cardBrand: cardBrand,
+      managePaymentMethodsLink: '',
+    });
+  }
 }

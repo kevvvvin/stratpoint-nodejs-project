@@ -19,6 +19,9 @@ RUN npm install -g typescript
 # Build the TypeScript code
 RUN tsc
 
+# Copy templates to build directory
+RUN npm run copy-templates
+
 # Expose the application port
 EXPOSE 3006
 

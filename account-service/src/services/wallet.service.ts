@@ -43,6 +43,21 @@ export class WalletService {
       customer.id as string,
     );
 
+    try {
+      const notificationResponse = await fetchHelper(
+        authHeader,
+        `http://${envConfig.notificationService}:3006/api/notif/wallet-creation-notification`,
+        'POST',
+        { initialBalance: newWallet.balance },
+      );
+
+      if (notificationResponse.status !== 200) {
+        logger.warn('Failed to send wallet creation notification');
+      }
+    } catch (err) {
+      logger.warn('Failed to send request to notification service: ', err);
+    }
+
     return {
       wallet: {
         _id: newWallet._id,
@@ -114,6 +129,24 @@ export class WalletService {
       },
       isDefault: false,
     });
+
+    try {
+      const notificationResponse = await fetchHelper(
+        authHeader,
+        `http://${envConfig.notificationService}:3006/api/notif/add-payment-method-notification`,
+        'POST',
+        {
+          last4: retrievedPaymentMethod.card.last4,
+          cardBrand: retrievedPaymentMethod.card.brand,
+        },
+      );
+
+      if (notificationResponse.status !== 200) {
+        logger.warn('Failed to send added payment method notification');
+      }
+    } catch (err) {
+      logger.warn('Failed to send request to notification service: ', err);
+    }
 
     return newPaymentMethod;
   }
@@ -224,14 +257,6 @@ export class WalletService {
     if (!paymentMethod) throw new Error('Payment method does not exist.');
 
     let paymentIntent;
-    // if (STRIPE_TEST_PAYMENT_METHODS.has(paymentMethodId)) {
-    //   paymentIntent = {
-    //     id: paymentIntentId,
-    //     status: 'succeeded',
-    //     amount: 5000,
-    //   };
-    //   logger.info('Simulated payment intent confirmation for test payment method');
-    // } else {
     const paymentIntentResponse = await fetchHelper(
       authHeader,
       `http://${envConfig.paymentService}:3004/api/stripe/confirm-payment-intent`,
@@ -263,10 +288,12 @@ export class WalletService {
       if (transactionResponse.status !== 201)
         throw new Error('Transaction creation on payment intent confirm failed');
 
+      const transactionId = (await transactionResponse.json()).result._id;
+
       wallet.balance += amount;
       await wallet.save();
 
-      return { balance: wallet.balance, transactionId: paymentIntent.id };
+      return { balance: wallet.balance, transactionId: transactionId };
     } else {
       throw new Error('Payment failed');
     }
@@ -312,16 +339,6 @@ export class WalletService {
     if (!paymentMethod) throw new Error('Payment method does not exist.');
 
     let paymentIntent;
-    // if (STRIPE_TEST_PAYMENT_METHODS.has(paymentMethodId)) {
-    //   paymentIntent = {
-    //     id: `pi_simulated_${crypto.randomBytes(16).toString('hex')}`,
-    //     status: 'succeeded',
-    //     amount: amount * 100,
-    //   };
-    //   logger.info(
-    //     `Simulated payment intent for test payment method: ${JSON.stringify(paymentIntent)}`,
-    //   );
-
     const createPaymentIntentRequest = new PaymentIntentRequestDto(
       amount,
       wallet.currency,
@@ -369,16 +386,32 @@ export class WalletService {
         'POST',
         transactionRequestDto,
       );
-      if (transactionResponse.status !== 201) {
+      if (transactionResponse.status !== 201)
         throw new Error('Transaction creation on deposit failed');
-      }
+
+      const transactionId = (await transactionResponse.json()).result._id;
 
       wallet.balance += depositAmount;
       await wallet.save();
 
+      try {
+        const notificationResponse = await fetchHelper(
+          authHeader,
+          `http://${envConfig.notificationService}:3006/api/notif/deposit-notification`,
+          'POST',
+          { amount: depositAmount, transactionId: transactionId },
+        );
+
+        if (notificationResponse.status !== 200) {
+          logger.warn('Failed to send deposit notification');
+        }
+      } catch (err) {
+        logger.warn('Failed to send request to notification service: ', err);
+      }
+
       return {
         balance: wallet.balance,
-        transactionId: paymentIntent.id,
+        transactionId: transactionId,
       };
     } else {
       throw new Error('Deposit failed');
@@ -430,8 +463,31 @@ export class WalletService {
       throw new Error('Transaction creation on withdraw failed');
     }
 
+    const transactionId = (await transactionResponse.json()).result._id;
+
     wallet.balance -= amount;
     await wallet.save();
+
+    try {
+      const notificationResponse = await fetchHelper(
+        authHeader,
+        `http://${envConfig.notificationService}:3006/api/notif/withdraw-notification`,
+        'POST',
+        {
+          amount: amount,
+          newBalance: wallet.balance,
+          transactionId: transactionId,
+          withdrawalStatus: 'completed',
+          withdrawalMethod: 'bank_transfer',
+        },
+      );
+
+      if (notificationResponse.status !== 200) {
+        logger.warn('Failed to send withdrawal notification');
+      }
+    } catch (err) {
+      logger.warn('Failed to send request to notification service: ', err);
+    }
 
     return {
       balance: wallet.balance,
@@ -465,10 +521,33 @@ export class WalletService {
     if (transactionResponse.status !== 201)
       throw new Error('Transaction creation on withdraw failed');
 
+    const transactionId = (await transactionResponse.json()).result._id;
+
     fromWallet.balance -= amount;
     toWallet.balance += amount;
     await fromWallet.save();
     await toWallet.save();
+
+    try {
+      const notificationResponse = await fetchHelper(
+        authHeader,
+        `http://${envConfig.notificationService}:3006/api/notif/transfer-notification`,
+        'POST',
+        {
+          toUserId: toUserId,
+          amount: amount,
+          transactionId: transactionId,
+          fromBalance: fromWallet.balance,
+          toBalance: toWallet.balance,
+        },
+      );
+
+      if (notificationResponse.status !== 200) {
+        logger.warn('Failed to send deposit notification');
+      }
+    } catch (err) {
+      logger.warn('Failed to send request to notification service: ', err);
+    }
 
     return {
       fromBalance: fromWallet.balance,
