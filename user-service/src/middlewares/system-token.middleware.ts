@@ -22,14 +22,14 @@ export const fetchServiceToken = async (
 
     if (!serviceToken || (tokenExpiry && currentTime >= tokenExpiry)) {
       const generateTokenResponse = await fetch(
-        `http://${envConfig.userService}:3001/api/auth/generate-service-token`,
+        `http://${req.get('host')}/api/auth/generate-service-token`,
         {
           method: 'POST',
           headers: {
             'x-internal-service-secret': envConfig.serviceSecret,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ serviceName: 'notification-service' }),
+          body: JSON.stringify({ serviceName: 'user-service' }),
         },
       );
       if (generateTokenResponse.status !== 201)
@@ -39,7 +39,7 @@ export const fetchServiceToken = async (
       const decoded = jwt.decode(serviceToken) as JwtPayload;
       tokenExpiry = decoded.exp;
 
-      logger.info('Generated a service token for internal service communication');
+      logger.info(`Generated a service token for internal service communication`);
     }
 
     req.serviceToken = serviceToken;

@@ -47,7 +47,7 @@ export const authenticateJWT = async (
       return next(error);
     }
 
-    logger.info('Token verified');
+    logger.info('User Token verified');
     const decoded = jwt.verify(token, envConfig.jwtSecret) as JwtPayload;
     req.payload = decoded;
     next();

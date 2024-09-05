@@ -112,20 +112,28 @@ export class NotificationService {
   }
 
   async notifyEmailVerification(
-    user: JwtPayload,
-    verificationLink: string,
-  ): Promise<boolean> {
-    try {
-      await this.sendEmail(user.email, 'Verify Your E-Wallet Email', 'verification', {
-        firstName: user.sub,
-        verificationLink,
-      });
-      logger.info(`Verification email sent successfully to ${user.email}`);
-      return true;
-    } catch (error) {
-      logger.error(`Error sending verification email to ${user.email}:`, error);
-      return false;
-    }
+    serviceToken: string,
+    userId: string,
+    verificationToken: string,
+  ): Promise<void> {
+    const fetchUserResponse = await fetchHelper(
+      `Bearer ${serviceToken}`,
+      `http://${envConfig.userService}:3001/api/users/${userId}`,
+      'GET',
+      null,
+    );
+    if (fetchUserResponse.status !== 200)
+      throw new Error(
+        'Failed to retrieve target user for email verification notification sending.',
+      );
+
+    const user = (await fetchUserResponse.json()).result.user;
+    const verificationLink = `http://${envConfig.userService}:3001/api/auth/verify-email/${verificationToken}`;
+
+    await this.sendEmail(user.email, 'Verify Your E-Wallet Email', 'verification', {
+      firstName: user.firstName,
+      verificationLink,
+    });
   }
 
   async notifyLogin(

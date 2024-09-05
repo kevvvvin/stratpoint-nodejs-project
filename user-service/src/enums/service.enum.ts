@@ -4,4 +4,5 @@ export enum ServiceEnum {
   KYC_SERVICE = 'kyc-service',
   PAYMENT_SERVICE = 'payment-service',
   TRANSACTION_SERVICE = 'transaction-service',
+  USER_SERVICE = 'user-service',
 }

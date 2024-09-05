@@ -20,6 +20,7 @@ const connectToDatabase = async (): Promise<void> => {
 
     await initializeRoles();
     await initializeAdmin();
+    await initializeService('user-service');
     await initializeService('notification-service');
     await initializeVerifiedUser('testUser1@gmail.com');
     await initializeVerifiedUser('testUser2@gmail.com');

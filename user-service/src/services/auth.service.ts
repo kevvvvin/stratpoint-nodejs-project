@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { StatusEnum, KycUserStatusEnum, RoleEnum, ServiceEnum } from '../enums';
 import { AuthResult, IUser, UserResult } from '../types';
 import { RoleRepository, UserRepository } from '../repositories';
@@ -14,7 +15,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(data: RegisterRequestDto): Promise<UserResult> {
+  async register(serviceToken: string, data: RegisterRequestDto): Promise<UserResult> {
     const { email, password, firstName, lastName } = data;
 
     const [userRole, user] = await Promise.all([
@@ -26,6 +27,9 @@ export class AuthService {
     if (user)
       throw new Error(`Registration failed. User with email ${email} already exists `);
 
+    const emailVerificationToken = crypto.randomBytes(20).toString('hex');
+    const emailVerificationExpiration = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
     const newUser: IUser = await this.userRepository.create({
       email,
       password,
@@ -34,7 +38,24 @@ export class AuthService {
       status: StatusEnum.ACTIVE,
       kycStatus: KycUserStatusEnum.UNVERIFIED,
       roles: [userRole],
+      emailVerificationToken,
+      emailVerificationExpiration,
     });
+
+    try {
+      const notificationResponse = await fetchHelper(
+        `Bearer ${serviceToken}`,
+        `http://${envConfig.notificationService}:3006/api/notif/email-verification-notification`,
+        'POST',
+        { userId: newUser._id, emailVerificationToken },
+      );
+
+      if (notificationResponse.status !== 200) {
+        logger.warn('Failed to send email verification notification');
+      }
+    } catch (err) {
+      logger.warn('Failed to send request to notification service: ', err);
+    }
 
     const registerResult: UserResult = {
       user: {
@@ -45,13 +66,43 @@ export class AuthService {
         status: newUser.status,
         kycStatus: newUser.kycStatus,
         roles: newUser.roles.map((role) => role.name),
+        isEmailVerified: newUser.isEmailVerified,
       },
     };
 
     return registerResult;
   }
 
-  async login(data: LoginRequestDto): Promise<AuthResult> {
+  async verifyEmail(emailVerificationToken: string): Promise<UserResult> {
+    const user =
+      await this.userRepository.findByEmailVerificationToken(emailVerificationToken);
+    if (!user) {
+      throw new Error('Invalid email verification token');
+    }
+
+    user.isEmailVerified = true;
+    user.emailVerificationToken = undefined;
+    user.emailVerificationExpiration = undefined;
+    await user.save();
+
+    const verificationResult: UserResult = {
+      user: {
+        _id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        status: user.status,
+        kycStatus: user.kycStatus,
+        roles: user.roles.map((role) => role.name),
+        isEmailVerified: user.isEmailVerified,
+      },
+    };
+
+    return verificationResult;
+  }
+
+  // TODO: For better practice, implement refresh token mechanisms.
+  async login(serviceToken: string, data: LoginRequestDto): Promise<AuthResult> {
     const { email, password } = data;
 
     const user = await this.userRepository.findByEmail(email);
@@ -59,6 +110,37 @@ export class AuthService {
 
     const isMatch = await user.checkPassword(password);
     if (!isMatch) throw new Error('Invalid email or password');
+
+    const isEmailVerified = user.isEmailVerified;
+    const isEmailVerificationExpired =
+      (user.emailVerificationExpiration as Date) < new Date();
+    if (!isEmailVerified && isEmailVerificationExpired) {
+      try {
+        user.emailVerificationToken = crypto.randomBytes(20).toString('hex');
+        user.emailVerificationExpiration = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        await user.save();
+
+        const notificationResponse = await fetchHelper(
+          `Bearer ${serviceToken}`,
+          `http://${envConfig.notificationService}:3006/api/notif/email-verification-notification`,
+          'POST',
+          { userId: user._id, emailVerificationToken: user.emailVerificationToken },
+        );
+
+        if (notificationResponse.status !== 200) {
+          logger.warn('Failed to send email verification notification');
+        }
+      } catch (err) {
+        logger.warn('Failed to send request to notification service: ', err);
+      }
+      throw new Error(
+        'Please verify your email before logging in. Check your inbox for the verification link.',
+      );
+    } else if (!isEmailVerified && !isEmailVerificationExpired) {
+      throw new Error(
+        'Please verify your email before logging in. Check your inbox for the verification link.',
+      );
+    }
 
     // Generate a JWT token
     const token = await this.jwtService.generateToken(user);
@@ -75,7 +157,7 @@ export class AuthService {
         logger.warn('Failed to send login notification');
       }
     } catch (err) {
-      logger.warn('Failed to send login notification: ', err);
+      logger.warn('Failed to send request to notification service: ', err);
     }
 
     const loginResult: AuthResult = {
@@ -88,6 +170,7 @@ export class AuthService {
         status: user.status,
         kycStatus: user.kycStatus,
         roles: user.roles.map((role) => role.name),
+        isEmailVerified: user.isEmailVerified,
       },
     };
 
@@ -107,6 +190,7 @@ export class AuthService {
         status: user.status,
         kycStatus: user.kycStatus,
         roles: user.roles.map((role) => role.name),
+        isEmailVerified: user.isEmailVerified,
       },
     };
 

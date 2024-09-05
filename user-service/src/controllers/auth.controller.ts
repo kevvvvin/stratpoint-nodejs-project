@@ -18,8 +18,12 @@ export class AuthController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
+      const serviceToken = req.serviceToken as string;
       const registerData: RegisterRequestDto = req.body;
-      const result: UserResult = await this.authService.register(registerData);
+      const result: UserResult = await this.authService.register(
+        serviceToken,
+        registerData,
+      );
       const message = 'User registered successfully';
       const response = new UserResponseDto(message, result);
 
@@ -30,10 +34,29 @@ export class AuthController {
     }
   }
 
+  async verifyEmail(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const emailVerificationToken = req.params.token;
+
+      const result = await this.authService.verifyEmail(emailVerificationToken);
+      const message = 'Email verified successfully';
+
+      logger.info({ message, result });
+      return res.status(200).json({ message, result });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   async login(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
     try {
+      const serviceToken = req.serviceToken as string;
       const loginData: LoginRequestDto = req.body;
-      const result: AuthResult = await this.authService.login(loginData);
+      const result: AuthResult = await this.authService.login(serviceToken, loginData);
       const message = 'User logged in successfully';
       const response = new AuthResponseDto(message, result);
 
@@ -85,8 +108,7 @@ export class AuthController {
       const { serviceName } = req.body;
 
       const result = await this.authService.generateServiceToken(serviceName);
-      const message =
-        'Generated a service token for microservices communication successfully';
+      const message = `Generated a ${serviceName} token for microservices communication successfully`;
 
       logger.info({ message, result });
       return res.status(201).json({ message, result });

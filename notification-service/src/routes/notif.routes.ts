@@ -9,6 +9,13 @@ router.post('/login-notification', authenticateJWT, fetchServiceToken, (req, res
 );
 
 router.post(
+  '/email-verification-notification',
+  authenticateJWT,
+  fetchServiceToken,
+  (req, res, next) => notificationController.notifyEmailVerification(req, res, next),
+);
+
+router.post(
   '/deposit-notification',
   authenticateJWT,
   fetchServiceToken,

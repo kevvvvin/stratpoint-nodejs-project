@@ -11,6 +11,15 @@ export class UserRepository {
     return await User.findOne({ email }).populate('roles', 'name');
   }
 
+  async findByEmailVerificationToken(
+    emailVerificationToken: string,
+  ): Promise<IUser | null> {
+    return await User.findOne({
+      emailVerificationToken: emailVerificationToken,
+      emailVerificationExpiration: { $gt: new Date() },
+    }).populate('roles', 'name');
+  }
+
   async findAll(): Promise<IUser[]> {
     return await User.find().populate('roles', 'name');
   }

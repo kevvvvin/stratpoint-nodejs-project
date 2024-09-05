@@ -17,6 +17,7 @@ export class UserService {
         status: user.status,
         kycStatus: user.kycStatus,
         roles: user.roles.map((role) => role.name),
+        isEmailVerified: user.isEmailVerified,
       },
     }));
 
@@ -47,6 +48,7 @@ export class UserService {
         status: user.status,
         kycStatus: user.kycStatus,
         roles: user.roles.map((role) => role.name),
+        isEmailVerified: user.isEmailVerified,
       },
     };
 
@@ -84,6 +86,7 @@ export class UserService {
         status: targetUser.status,
         kycStatus: targetUser.kycStatus,
         roles: targetUser.roles.map((role) => role.name),
+        isEmailVerified: targetUser.isEmailVerified,
       },
     };
 

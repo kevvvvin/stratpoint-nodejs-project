@@ -52,6 +52,7 @@ export async function initializeAdmin(): Promise<void> {
       status: StatusEnum.ACTIVE,
       kycStatus: KycUserStatusEnum.VERIFIED,
       roles: [adminRole],
+      isEmailVerified: true,
     });
 
     await adminUser.save();
@@ -86,6 +87,7 @@ export async function initializeService(serviceName: string): Promise<void> {
       status: StatusEnum.ACTIVE,
       kycStatus: KycUserStatusEnum.VERIFIED,
       roles: [serviceRole],
+      isEmailVerified: true,
     });
 
     await serviceUser.save();
@@ -120,6 +122,7 @@ export async function initializeVerifiedUser(email: string): Promise<void> {
       status: StatusEnum.ACTIVE,
       kycStatus: KycUserStatusEnum.VERIFIED,
       roles: [userRole],
+      isEmailVerified: true,
     });
 
     await user.save();
