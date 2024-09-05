@@ -6,6 +6,7 @@ import { logger } from './';
 const roles: RoleType[] = [
   { name: RoleEnum.ADMIN, description: 'Administrator with full privileges' },
   { name: RoleEnum.USER, description: 'Regular user with standard privileges' },
+  { name: RoleEnum.SERVICE, description: 'Service account with full privileges' },
 ];
 
 export async function initializeRoles(): Promise<void> {
@@ -51,12 +52,48 @@ export async function initializeAdmin(): Promise<void> {
       status: StatusEnum.ACTIVE,
       kycStatus: KycUserStatusEnum.VERIFIED,
       roles: [adminRole],
+      isEmailVerified: true,
     });
 
     await adminUser.save();
     logger.info('Admin initialized successfully');
   } catch (err) {
     logger.error(`Error initializing admin account: ${err}`);
+  }
+}
+
+export async function initializeService(serviceName: string): Promise<void> {
+  try {
+    let serviceEmail = `${serviceName}@service.com`;
+    let servicePassword = 'QWEqwe123!';
+
+    const serviceRole = await Role.findOne({ name: RoleEnum.SERVICE });
+    if (!serviceRole) {
+      logger.error('Service role not found. Roles are not initialized');
+      return;
+    }
+
+    const existingService = await User.findOne({ email: serviceEmail });
+    if (existingService) {
+      logger.info(`${serviceName} account is already initialized.`);
+      return;
+    }
+
+    const serviceUser = new User({
+      email: serviceEmail,
+      password: servicePassword,
+      firstName: 'SERVICE',
+      lastName: 'ACCOUNT',
+      status: StatusEnum.ACTIVE,
+      kycStatus: KycUserStatusEnum.VERIFIED,
+      roles: [serviceRole],
+      isEmailVerified: true,
+    });
+
+    await serviceUser.save();
+    logger.info(`${serviceName} account initialized successfully`);
+  } catch (err) {
+    logger.error(`Error initializing ${serviceName} account: ${err}`);
   }
 }
 
@@ -85,6 +122,7 @@ export async function initializeVerifiedUser(email: string): Promise<void> {
       status: StatusEnum.ACTIVE,
       kycStatus: KycUserStatusEnum.VERIFIED,
       roles: [userRole],
+      isEmailVerified: true,
     });
 
     await user.save();

@@ -17,6 +17,7 @@ export class UserService {
         status: user.status,
         kycStatus: user.kycStatus,
         roles: user.roles.map((role) => role.name),
+        isEmailVerified: user.isEmailVerified,
       },
     }));
 
@@ -28,8 +29,11 @@ export class UserService {
     const isAdmin = loggedInUser.roles.some(
       (role: IRole) => role.name === RoleEnum.ADMIN,
     );
+    const isService = loggedInUser.roles.some(
+      (role: IRole) => role.name === RoleEnum.SERVICE,
+    );
 
-    if (!isSameUser && !isAdmin)
+    if (!isSameUser && !isAdmin && !isService)
       throw new Error('Access denied. You are not authorized to view this user.');
 
     const user = await this.userRepository.findById(id);
@@ -44,6 +48,7 @@ export class UserService {
         status: user.status,
         kycStatus: user.kycStatus,
         roles: user.roles.map((role) => role.name),
+        isEmailVerified: user.isEmailVerified,
       },
     };
 
@@ -81,6 +86,7 @@ export class UserService {
         status: targetUser.status,
         kycStatus: targetUser.kycStatus,
         roles: targetUser.roles.map((role) => role.name),
+        isEmailVerified: targetUser.isEmailVerified,
       },
     };
 

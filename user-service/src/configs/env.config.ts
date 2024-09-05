@@ -12,6 +12,8 @@ const envConfig: EnvConfig = {
   jwtSecret: process.env.JWT_SECRET || '',
   logLevel: process.env.LOG_LEVEL || '',
   nodeENV: process.env.NODE_ENV || '',
+  serviceSecret: process.env.SERVICE_COMMUNICATION_SECRET || '',
+  notificationService: process.env.NOTIFICATION_SERVICE_URL || 'localhost',
 };
 
 if (!envConfig.mongoURI) {

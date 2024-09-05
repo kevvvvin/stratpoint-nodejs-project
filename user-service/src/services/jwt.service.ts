@@ -18,6 +18,18 @@ export class JwtService {
     return jwt.sign(payload, envConfig.jwtSecret, { expiresIn: '2h' });
   }
 
+  async generateServiceToken(service: IUser): Promise<string> {
+    const payload: Omit<JwtPayload, 'exp'> = {
+      sub: service._id.toString(),
+      email: service.email,
+      roles: service.roles.map((role) => role.name),
+      status: service.status,
+      kycStatus: service.kycStatus,
+    };
+
+    return jwt.sign(payload, envConfig.jwtSecret, { expiresIn: '2m' });
+  }
+
   async revokeToken(token: string): Promise<void> {
     const decodedToken = jwt.decode(token) as JwtPayload;
     const expiresAt = new Date(decodedToken.exp * 1000);

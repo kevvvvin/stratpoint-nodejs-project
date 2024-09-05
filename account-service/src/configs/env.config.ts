@@ -15,6 +15,7 @@ const envConfig: EnvConfig = {
   userService: process.env.USER_SERVICE_URL || 'localhost',
   transactionService: process.env.TRANSACTION_SERVICE_URL || 'localhost',
   paymentService: process.env.PAYMENT_SERVICE_URL || 'localhost',
+  notificationService: process.env.NOTIFICATION_SERVICE_URL || 'localhost',
 };
 
 if (!envConfig.mongoURI) {

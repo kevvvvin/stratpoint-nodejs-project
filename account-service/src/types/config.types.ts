@@ -7,4 +7,5 @@ export interface EnvConfig {
   userService: string;
   transactionService: string;
   paymentService: string;
+  notificationService: string;
 }

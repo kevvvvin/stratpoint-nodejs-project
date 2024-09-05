@@ -42,6 +42,16 @@ const userSchema = new Schema<IUser>({
       required: true,
     },
   ],
+  isEmailVerified: {
+    type: Boolean,
+    default: false,
+  },
+  emailVerificationToken: {
+    type: String,
+  },
+  emailVerificationExpiration: {
+    type: Date,
+  },
 });
 
 userSchema.pre('save', async function (next) {

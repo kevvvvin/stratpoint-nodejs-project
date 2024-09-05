@@ -32,7 +32,8 @@ export class UserController {
       const userId: string = req.params.id;
       const loggedInUser = req.user as IUser;
 
-      const result: UserResult = await this.userService.getUserById(userId, loggedInUser);
+      const result = await this.userService.getUserById(userId, loggedInUser);
+
       const message = 'Retrieved user successfully';
       const response = new UserResponseDto(message, result);
 

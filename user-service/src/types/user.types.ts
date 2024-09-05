@@ -2,7 +2,7 @@ import { IUser } from './';
 
 type UserDetails = Pick<
   IUser,
-  '_id' | 'email' | 'firstName' | 'lastName' | 'status' | 'kycStatus'
+  '_id' | 'email' | 'firstName' | 'lastName' | 'status' | 'kycStatus' | 'isEmailVerified'
 > & { roles: string[] };
 
 export interface AuthResult {

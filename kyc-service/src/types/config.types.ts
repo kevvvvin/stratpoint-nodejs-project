@@ -5,4 +5,5 @@ export interface EnvConfig {
   logLevel: string;
   nodeENV: string;
   userService: string;
+  notificationService: string;
 }

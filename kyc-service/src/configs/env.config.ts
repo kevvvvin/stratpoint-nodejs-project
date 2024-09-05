@@ -13,6 +13,7 @@ const envConfig: EnvConfig = {
   logLevel: process.env.LOG_LEVEL || '',
   nodeENV: process.env.NODE_ENV || '',
   userService: process.env.USER_SERVICE_URL || 'localhost',
+  notificationService: process.env.NOTIFICATION_SERVICE_URL || 'localhost',
 };
 
 if (!envConfig.mongoURI) {

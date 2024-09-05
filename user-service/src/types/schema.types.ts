@@ -10,6 +10,9 @@ export interface IUser extends Document {
   status: StatusEnum;
   kycStatus: KycUserStatusEnum;
   roles: IRole[];
+  isEmailVerified: boolean;
+  emailVerificationToken: string | undefined;
+  emailVerificationExpiration: Date | undefined;
   checkPassword(candidatePassword: string): Promise<boolean>;
 }
 
