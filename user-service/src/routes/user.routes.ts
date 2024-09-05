@@ -12,7 +12,7 @@ router.get('/', authenticateJWT, authorizeRoles([RoleEnum.ADMIN]), (req, res, ne
 router.get(
   '/:id',
   authenticateJWT,
-  authorizeRoles([RoleEnum.USER, RoleEnum.ADMIN]),
+  authorizeRoles([RoleEnum.USER, RoleEnum.ADMIN, RoleEnum.SERVICE]),
   (req, res, next) => userController.getUserById(req, res, next),
 );
 

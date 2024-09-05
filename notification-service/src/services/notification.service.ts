@@ -129,13 +129,13 @@ export class NotificationService {
   }
 
   async notifyLogin(
-    adminToken: string,
+    serviceToken: string,
     userId: string,
     loginTime: string,
     loginLoc: string,
   ): Promise<void> {
     const fetchUserResponse = await fetchHelper(
-      `Bearer ${adminToken}`,
+      `Bearer ${serviceToken}`,
       `http://${envConfig.userService}:3001/api/users/${userId}`,
       'GET',
       null,
@@ -154,13 +154,13 @@ export class NotificationService {
   }
 
   async notifyDeposit(
-    adminToken: string,
+    serviceToken: string,
     userId: string,
     amount: number,
     transactionId: string,
   ): Promise<void> {
     const fetchUserResponse = await fetchHelper(
-      `Bearer ${adminToken}`,
+      `Bearer ${serviceToken}`,
       `http://${envConfig.userService}:3001/api/users/${userId}`,
       'GET',
       null,
@@ -194,7 +194,7 @@ export class NotificationService {
   }
 
   async notifyTransfer(
-    adminToken: string,
+    serviceToken: string,
     fromUserId: string,
     toUserId: string,
     amount: number,
@@ -204,13 +204,13 @@ export class NotificationService {
   ): Promise<void> {
     const [fetchFromUserResponse, fetchToUserResponse] = await Promise.all([
       fetchHelper(
-        `Bearer ${adminToken}`,
+        `Bearer ${serviceToken}`,
         `http://${envConfig.userService}:3001/api/users/${fromUserId}`,
         'GET',
         null,
       ),
       fetchHelper(
-        `Bearer ${adminToken}`,
+        `Bearer ${serviceToken}`,
         `http://${envConfig.userService}:3001/api/users/${toUserId}`,
         'GET',
         null,
@@ -250,7 +250,7 @@ export class NotificationService {
   }
 
   async notifyWithdraw(
-    adminToken: string,
+    serviceToken: string,
     userId: string,
     amount: number,
     newBalance: number,
@@ -260,7 +260,7 @@ export class NotificationService {
     failureReason = null,
   ): Promise<void> {
     const fetchUserResponse = await fetchHelper(
-      `Bearer ${adminToken}`,
+      `Bearer ${serviceToken}`,
       `http://${envConfig.userService}:3001/api/users/${userId}`,
       'GET',
       null,
@@ -286,12 +286,12 @@ export class NotificationService {
   }
 
   async notifyWalletCreation(
-    adminToken: string,
+    serviceToken: string,
     userId: string,
     initialBalance: number,
   ): Promise<void> {
     const fetchUserResponse = await fetchHelper(
-      `Bearer ${adminToken}`,
+      `Bearer ${serviceToken}`,
       `http://${envConfig.userService}:3001/api/users/${userId}`,
       'GET',
       null,
@@ -311,13 +311,13 @@ export class NotificationService {
   }
 
   async notifyPaymentMethodAdded(
-    adminToken: string,
+    serviceToken: string,
     userId: string,
     last4: string,
     cardBrand: string,
   ): Promise<void> {
     const fetchUserResponse = await fetchHelper(
-      `Bearer ${adminToken}`,
+      `Bearer ${serviceToken}`,
       `http://${envConfig.userService}:3001/api/users/${userId}`,
       'GET',
       null,

@@ -12,12 +12,17 @@ export class NotificationController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const adminToken = req.adminToken as string;
+      const serviceToken = req.serviceToken as string;
       const user = req.payload as JwtPayload;
       const loginTime = new Date().toISOString();
       const loginLocation = req.ip as string;
 
-      await this.notifService.notifyLogin(adminToken, user.sub, loginTime, loginLocation);
+      await this.notifService.notifyLogin(
+        serviceToken,
+        user.sub,
+        loginTime,
+        loginLocation,
+      );
       const message = 'Login notification sent successfully';
 
       logger.info({ message });
@@ -33,11 +38,15 @@ export class NotificationController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const adminToken = req.adminToken as string;
+      const serviceToken = req.serviceToken as string;
       const user = req.payload as JwtPayload;
       const { initialBalance } = req.body;
 
-      await this.notifService.notifyWalletCreation(adminToken, user.sub, initialBalance);
+      await this.notifService.notifyWalletCreation(
+        serviceToken,
+        user.sub,
+        initialBalance,
+      );
       const message = 'Wallet creation notification sent successfully';
 
       logger.info({ message });
@@ -53,12 +62,12 @@ export class NotificationController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const adminToken = req.adminToken as string;
+      const serviceToken = req.serviceToken as string;
       const user = req.payload as JwtPayload;
       const { last4, cardBrand } = req.body;
 
       await this.notifService.notifyPaymentMethodAdded(
-        adminToken,
+        serviceToken,
         user.sub,
         last4,
         cardBrand,
@@ -78,11 +87,16 @@ export class NotificationController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const adminToken = req.adminToken as string;
+      const serviceToken = req.serviceToken as string;
       const user = req.payload as JwtPayload;
       const { amount, transactionId } = req.body;
 
-      await this.notifService.notifyDeposit(adminToken, user.sub, amount, transactionId);
+      await this.notifService.notifyDeposit(
+        serviceToken,
+        user.sub,
+        amount,
+        transactionId,
+      );
       const message = 'Deposit notification sent successfully';
 
       logger.info({ message });
@@ -98,13 +112,13 @@ export class NotificationController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const adminToken = req.adminToken as string;
+      const serviceToken = req.serviceToken as string;
       const user = req.payload as JwtPayload;
       const { amount, newBalance, transactionId, withdrawalStatus, withdrawalMethod } =
         req.body;
 
       await this.notifService.notifyWithdraw(
-        adminToken,
+        serviceToken,
         user.sub,
         amount,
         newBalance,
@@ -127,12 +141,12 @@ export class NotificationController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const adminToken = req.adminToken as string;
+      const serviceToken = req.serviceToken as string;
       const user = req.payload as JwtPayload;
       const { toUserId, amount, transactionId, fromBalance, toBalance } = req.body;
 
       await this.notifService.notifyTransfer(
-        adminToken,
+        serviceToken,
         user.sub,
         toUserId,
         amount,

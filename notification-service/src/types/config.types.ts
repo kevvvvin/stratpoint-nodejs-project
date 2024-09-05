@@ -4,6 +4,7 @@ export interface EnvConfig {
   jwtSecret: string;
   logLevel: string;
   nodeENV: string;
+  serviceSecret: string;
   mailHogUrl: string;
   userService: string;
 }

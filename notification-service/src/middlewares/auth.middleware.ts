@@ -8,7 +8,7 @@ declare global {
   namespace Express {
     interface Request {
       payload?: JwtPayload;
-      adminToken?: string;
+      serviceToken?: string;
     }
   }
 }

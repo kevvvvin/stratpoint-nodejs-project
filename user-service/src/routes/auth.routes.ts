@@ -1,6 +1,6 @@
 import express from 'express';
 import { authController } from '../container';
-import { authenticateJWT, validateRequest } from '../middlewares';
+import { authenticateJWT, validateRequest, verifyInternalService } from '../middlewares';
 import { loginSchema, registerSchema, serviceTokenSchema } from '../utils';
 
 const router = express.Router();
@@ -20,6 +20,7 @@ router.get('/validate-token', authenticateJWT, (req, res, next) =>
 
 router.post(
   '/generate-service-token',
+  verifyInternalService,
   validateRequest(serviceTokenSchema),
   (req, res, next) => authController.generateServiceToken(req, res, next),
 );

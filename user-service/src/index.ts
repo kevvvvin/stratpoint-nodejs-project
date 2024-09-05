@@ -9,6 +9,7 @@ import {
   initializeAdmin,
   logger,
   initializeVerifiedUser,
+  initializeService,
 } from './utils';
 
 const connectToDatabase = async (): Promise<void> => {
@@ -19,6 +20,7 @@ const connectToDatabase = async (): Promise<void> => {
 
     await initializeRoles();
     await initializeAdmin();
+    await initializeService('notification-service');
     await initializeVerifiedUser('testUser1@gmail.com');
     await initializeVerifiedUser('testUser2@gmail.com');
   } catch (err) {

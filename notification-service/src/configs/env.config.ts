@@ -12,6 +12,7 @@ const envConfig: EnvConfig = {
   jwtSecret: process.env.JWT_SECRET || '',
   logLevel: process.env.LOG_LEVEL || '',
   nodeENV: process.env.NODE_ENV || '',
+  serviceSecret: process.env.SERVICE_COMMUNICATION_SECRET || '',
   mailHogUrl: process.env.MAILHOG_URL || 'localhost',
   userService: process.env.USER_SERVICE_URL || 'localhost',
 };

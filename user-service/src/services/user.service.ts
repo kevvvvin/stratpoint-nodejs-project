@@ -23,16 +23,17 @@ export class UserService {
     return usersResult;
   }
 
-  async getUserById(id: string, loggedInUser?: IUser): Promise<UserResult> {
-    if (loggedInUser) {
-      const isSameUser = loggedInUser._id.toString() === id;
-      const isAdmin = loggedInUser.roles.some(
-        (role: IRole) => role.name === RoleEnum.ADMIN,
-      );
+  async getUserById(id: string, loggedInUser: IUser): Promise<UserResult> {
+    const isSameUser = loggedInUser._id.toString() === id;
+    const isAdmin = loggedInUser.roles.some(
+      (role: IRole) => role.name === RoleEnum.ADMIN,
+    );
+    const isService = loggedInUser.roles.some(
+      (role: IRole) => role.name === RoleEnum.SERVICE,
+    );
 
-      if (!isSameUser && !isAdmin)
-        throw new Error('Access denied. You are not authorized to view this user.');
-    }
+    if (!isSameUser && !isAdmin && !isService)
+      throw new Error('Access denied. You are not authorized to view this user.');
 
     const user = await this.userRepository.findById(id);
     if (!user) throw new Error('User does not exist.');

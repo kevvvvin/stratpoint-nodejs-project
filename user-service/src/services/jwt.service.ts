@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken';
 import { envConfig } from '../configs';
 import { IUser, JwtPayload } from '../types';
 import { BlacklistedTokenRepository } from '../repositories';
-import { RoleEnum, StatusEnum, KycUserStatusEnum } from '../enums';
 
 export class JwtService {
   constructor(private blacklistedTokenRepository: BlacklistedTokenRepository) {}
@@ -19,13 +18,13 @@ export class JwtService {
     return jwt.sign(payload, envConfig.jwtSecret, { expiresIn: '2h' });
   }
 
-  async generateAdminToken(service: string, role: RoleEnum): Promise<string> {
+  async generateServiceToken(service: IUser): Promise<string> {
     const payload: Omit<JwtPayload, 'exp'> = {
-      sub: service,
-      email: `${service}@service.com`,
-      roles: [role],
-      status: StatusEnum.ACTIVE,
-      kycStatus: KycUserStatusEnum.VERIFIED,
+      sub: service._id.toString(),
+      email: service.email,
+      roles: service.roles.map((role) => role.name),
+      status: service.status,
+      kycStatus: service.kycStatus,
     };
 
     return jwt.sign(payload, envConfig.jwtSecret, { expiresIn: '2m' });

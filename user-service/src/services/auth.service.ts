@@ -117,12 +117,14 @@ export class AuthService {
     if (!Object.values(ServiceEnum).includes(serviceName as ServiceEnum)) {
       throw new Error(`Invalid service name: ${serviceName}.`);
     }
-    const adminRole = await this.roleRepository.findByName(RoleEnum.ADMIN);
-    if (!adminRole) throw new Error('Admin role not found. Roles are not initialized');
 
-    const roleName = adminRole.name;
-    const adminToken = await this.jwtService.generateAdminToken(serviceName, roleName);
+    const serviceAccount = await this.userRepository.findByEmail(
+      `${serviceName}@service.com`,
+    );
+    if (!serviceAccount) throw new Error(`'${serviceName} account not found.`);
 
-    return adminToken;
+    const serviceToken = await this.jwtService.generateServiceToken(serviceAccount);
+
+    return serviceToken;
   }
 }

@@ -1,3 +1,5 @@
+import { envConfig } from '../configs';
+
 export async function fetchHelper<T>(
   authHeader: string,
   url: string,
@@ -9,7 +11,7 @@ export async function fetchHelper<T>(
     headers: {
       Authorization: authHeader,
       'Content-Type': 'application/json',
-      'x-internal-service': 'true',
+      'x-internal-service-secret': envConfig.serviceSecret,
     },
   };
 

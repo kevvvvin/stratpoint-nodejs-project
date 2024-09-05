@@ -82,15 +82,11 @@ export class AuthController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const isInternalRequest = req.headers['x-internal-service'] === 'true';
-      if (!isInternalRequest)
-        throw new Error('Forbidden. Not authorized to generate service token');
-
       const { serviceName } = req.body;
 
-      const message =
-        'Generated an admin token for microservices communication successfully';
       const result = await this.authService.generateServiceToken(serviceName);
+      const message =
+        'Generated a service token for microservices communication successfully';
 
       logger.info({ message, result });
       return res.status(201).json({ message, result });
