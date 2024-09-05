@@ -15,6 +15,10 @@ router.post(
   (req, res, next) => notificationController.notifyEmailVerification(req, res, next),
 );
 
+router.post('/kyc-update-notification', authenticateJWT, fetchServiceToken, (req, res, next) =>
+  notificationController.notifyKycUpdate(req, res, next),
+);
+
 router.post(
   '/deposit-notification',
   authenticateJWT,

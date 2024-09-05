@@ -2,13 +2,13 @@ import { KycSubmissionStatusEnum } from '../enums';
 import { IKyc, JwtPayload, KycResult } from '../types';
 import { KycRepository } from '../repositories';
 import { KycSubmitRequestDto } from '../dtos';
-import { fetchHelper } from '../utils';
+import { fetchHelper, logger } from '../utils';
 import { envConfig } from '../configs';
 
 export class KycService {
   constructor(private kycRepository: KycRepository) {}
 
-  async initiate(userDetails: JwtPayload): Promise<KycResult> {
+  async initiate(authHeader: string, userDetails: JwtPayload): Promise<KycResult> {
     const userId = userDetails.sub;
     const kyc = await this.kycRepository.findByUserId(userId);
     if (kyc) throw new Error('Could not initiate KYC. KYC is already initiated.');
@@ -21,6 +21,21 @@ export class KycService {
       userId,
       KycSubmissionStatusEnum.INITIATED,
     );
+
+    try {
+      const notificationResponse = await fetchHelper(
+        authHeader,
+        `http://${envConfig.notificationService}:3006/api/notif/kyc-update-notification`,
+        'POST',
+        { userId: userId, kycStatus: newKyc.submissionStatus, rejectionReason: null },
+      );
+
+      if (notificationResponse.status !== 200) {
+        logger.warn('Failed to send kyc update notification');
+      }
+    } catch (err) {
+      logger.warn('Failed to send request to notification service: ', err);
+    }
 
     return {
       user: {
@@ -76,6 +91,21 @@ export class KycService {
 
     const updatedUser = (await updateKycStatusResponse.json()).result.user;
 
+    try {
+      const notificationResponse = await fetchHelper(
+        authHeader,
+        `http://${envConfig.notificationService}:3006/api/notif/kyc-update-notification`,
+        'POST',
+        { userId: userId, kycStatus: updatedKyc.submissionStatus, rejectionReason: null },
+      );
+
+      if (notificationResponse.status !== 200) {
+        logger.warn('Failed to send kyc update notification');
+      }
+    } catch (err) {
+      logger.warn('Failed to send request to notification service: ', err);
+    }
+
     return {
       user: {
         id: updatedUser._id,
@@ -126,6 +156,25 @@ export class KycService {
 
     const updatedUser = (await updateKycStatusResponse.json()).result.user;
 
+    try {
+      const notificationResponse = await fetchHelper(
+        authHeader,
+        `http://${envConfig.notificationService}:3006/api/notif/kyc-update-notification`,
+        'POST',
+        {
+          userId: targetUserId,
+          kycStatus: updatedKyc.submissionStatus,
+          rejectionReason: null,
+        },
+      );
+
+      if (notificationResponse.status !== 200) {
+        logger.warn('Failed to send kyc update notification');
+      }
+    } catch (err) {
+      logger.warn('Failed to send request to notification service: ', err);
+    }
+
     return {
       user: {
         id: updatedUser._id,
@@ -175,6 +224,25 @@ export class KycService {
     if (!updatedKyc) throw new Error('Could not update KYC submission. KYC not found');
 
     const updatedUser = (await updateKycStatusResponse.json()).result.user;
+
+    try {
+      const notificationResponse = await fetchHelper(
+        authHeader,
+        `http://${envConfig.notificationService}:3006/api/notif/kyc-update-notification`,
+        'POST',
+        {
+          userId: targetUserId,
+          kycStatus: updatedKyc.submissionStatus,
+          rejectionReason: 'KYC Rejected due to ...',
+        },
+      );
+
+      if (notificationResponse.status !== 200) {
+        logger.warn('Failed to send kyc update notification');
+      }
+    } catch (err) {
+      logger.warn('Failed to send request to notification service: ', err);
+    }
 
     return {
       user: {

@@ -55,6 +55,30 @@ export class NotificationController {
     }
   }
 
+  async notifyKycUpdate(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> {
+    try {
+      const serviceToken = req.serviceToken as string;
+      const { userId, kycStatus, rejectionReason } = req.body;
+
+      await this.notifService.notifyKycUpdate(
+        serviceToken,
+        userId,
+        kycStatus,
+        rejectionReason,
+      );
+      const message = 'KYC update notification sent successfully';
+
+      logger.info({ message });
+      return res.status(200).json({ message });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   async notifyWalletCreation(
     req: Request,
     res: Response,

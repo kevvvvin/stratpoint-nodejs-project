@@ -13,7 +13,52 @@
       </p>
   </td>
 </tr>
-{{#if (eq kycStatus "approved")}}
+{{#if (eq kycStatus "INITIATED")}}
+<tr>
+  <td style="padding-bottom: 20px">
+      <p style="margin: 0; font-size: 16px; color: #34495e">
+          Congratulations on taking the first step! Your KYC verification has been initiated. 
+          Please use the link below to submit your documents.
+      </p>
+  </td>
+</tr>
+<tr>
+  <td style="padding-bottom: 20px">
+      <table
+          role="presentation"
+          cellspacing="0"
+          cellpadding="0"
+          border="0"
+          style="margin: 0 auto"
+      >
+          <tr>
+              <td
+                  style="
+                      border-radius: 4px;
+                      background-color: #27ae60;
+                      text-align: center;
+                  "
+              >
+                  <a
+                      href="{{resubmitLink}}"
+                      style="
+                          background-color: #27ae60;
+                          border: none;
+                          color: #ffffff;
+                          padding: 12px 24px;
+                          text-decoration: none;
+                          font-size: 16px;
+                          font-weight: bold;
+                          display: inline-block;
+                      "
+                      >Submit Your Documents</a
+                  >
+              </td>
+          </tr>
+      </table>
+  </td>
+</tr>
+{{else if (eq kycStatus "APPROVED")}}
 <tr>
   <td style="padding-bottom: 20px">
       <p style="margin: 0; font-size: 16px; color: #34495e">
@@ -58,7 +103,7 @@
       </table>
   </td>
 </tr>
-{{else if (eq kycStatus "rejected")}}
+{{else if (eq kycStatus "REJECTED")}}
 <tr>
   <td style="padding-bottom: 20px">
       <p style="margin: 0; font-size: 16px; color: #34495e">

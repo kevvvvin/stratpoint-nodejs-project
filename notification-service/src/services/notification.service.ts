@@ -4,7 +4,7 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import { envConfig } from '../configs';
 import { fetchHelper, logger } from '../utils';
-import { JwtPayload, EmailContext } from '../types';
+import { EmailContext } from '../types';
 
 export class NotificationService {
   private transporter: Transporter;
@@ -188,12 +188,26 @@ export class NotificationService {
   }
 
   async notifyKycUpdate(
-    user: JwtPayload,
+    serviceToken: string,
+    userId: string,
     kycStatus: string,
     rejectionReason: string | null = null,
   ): Promise<void> {
+    const fetchUserResponse = await fetchHelper(
+      `Bearer ${serviceToken}`,
+      `http://${envConfig.userService}:3001/api/users/${userId}`,
+      'GET',
+      null,
+    );
+    if (fetchUserResponse.status !== 200)
+      throw new Error(
+        'Failed to retrieve target user for kyc update notification sending.',
+      );
+
+    const user = (await fetchUserResponse.json()).result.user;
+
     await this.sendEmail(user.email, 'KYC Verification Update', 'kyc-verification', {
-      firstName: user.sub,
+      firstName: user.firstName,
       kycStatus,
       rejectionReason,
       accountLink: '',

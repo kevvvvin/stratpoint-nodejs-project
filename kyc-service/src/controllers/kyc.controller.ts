@@ -13,9 +13,10 @@ export class KycController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
+      const authHeader = req.header('Authorization') as string;
       const userDetails = req.payload as JwtPayload;
 
-      const kyc: KycResult = await this.kycService.initiate(userDetails);
+      const kyc: KycResult = await this.kycService.initiate(authHeader, userDetails);
       const message = 'Initiated KYC successfully';
       const response = new KycResponseDto(message, kyc);
 
