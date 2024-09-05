@@ -14,6 +14,7 @@ export const fetchServiceToken = async (
 ): Promise<Response | void> => {
   try {
     const currentTime = Math.floor(Date.now() / 1000);
+
     if (!serviceToken || (tokenExpiry && currentTime >= tokenExpiry)) {
       const generateTokenResponse = await fetch(
         `http://${envConfig.userService}:3001/api/auth/generate-service-token`,
@@ -34,10 +35,9 @@ export const fetchServiceToken = async (
       tokenExpiry = decoded.exp;
 
       logger.info('Generated a service token for internal service communication');
-      req.serviceToken = serviceToken;
-    } else {
-      req.serviceToken = serviceToken;
     }
+
+    req.serviceToken = serviceToken;
     next();
   } catch (error) {
     next(error);
