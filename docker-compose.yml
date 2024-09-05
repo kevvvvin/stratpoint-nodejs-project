@@ -62,26 +62,17 @@ services:
       - mynetwork
 
   kyc-service:
-  build:
-    context: ./kyc-service
-    dockerfile: Dockerfile
-  volumes:
-    - ./kyc-service:/usr/src/app  # Volume mount
-  env_file:
-    - ./kyc-service/.env
-  ports:
-    - "3005:3005"
-  depends_on:
-    - mongodb
-  networks:
-    - mynetwork
-
-  mongodb:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
+    build:
+      context: ./kyc-service
+      dockerfile: Dockerfile
     volumes:
-      - mongo-data:/data/db
+      - ./kyc-service:/usr/src/app  # Volume mount
+    env_file:
+      - ./kyc-service/.env
+    ports:
+      - "3005:3005"
+    depends_on:
+      - mongodb
     networks:
       - mynetwork
 
@@ -100,14 +91,22 @@ services:
     networks:
       - mynetwork
 
-    mongodb:
-      image: mongo:latest
-      ports:
-        - "27017:27017"
-      volumes:
-        - mongo-data:/data/db
-      networks:
-        - mynetwork
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - mynetwork
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - mynetwork
 
 networks:
  mynetwork:
