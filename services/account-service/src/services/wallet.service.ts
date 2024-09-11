@@ -1,6 +1,5 @@
 import {
   IPaymentMethod,
-  JwtPayload,
   PaymentMethodResult,
   WalletResult,
   STRIPE_TEST_PAYMENT_METHODS,
@@ -11,6 +10,7 @@ import {
   TransferResult,
   TransactionResult,
 } from '../types';
+import { JwtPayload } from 'shared-common';
 import { WalletRepository, PaymentMethodRepository } from '../repositories';
 import { Types } from 'mongoose';
 import { logger, fetchHelper } from '../utils';

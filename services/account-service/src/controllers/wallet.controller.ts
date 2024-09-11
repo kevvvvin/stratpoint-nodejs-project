@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { JwtPayload, WalletResult } from '../types';
+import { WalletResult } from '../types';
+import { JwtPayload } from 'shared-common'
 import { WalletService } from '../services';
 import {
   ConfirmPaymentIntentResponseDto,
