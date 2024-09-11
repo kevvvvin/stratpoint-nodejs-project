@@ -3,12 +3,12 @@ version: '3.8'
 services:
   user-service:
     build:
-      context: ./user-service
+      context: ./services/user-service
       dockerfile: Dockerfile
     volumes:
-      - ./user-service:/usr/src/app  # Volume mount
+      - ./services/user-service:/usr/src/app  # Volume mount
     env_file:
-      - ./user-service/.env
+      - ./services/user-service/.env
     ports:
       - "3001:3001"
     depends_on:
@@ -18,12 +18,12 @@ services:
 
   account-service:
     build:
-      context: ./account-service
+      context: ./services/account-service
       dockerfile: Dockerfile
     volumes:
-      - ./account-service:/usr/src/app  # Volume mount
+      - ./services/account-service:/usr/src/app  # Volume mount
     env_file:
-      - ./account-service/.env
+      - ./services/account-service/.env
     ports:
       - "3002:3002"
     depends_on:
@@ -33,12 +33,12 @@ services:
 
   transaction-service:
     build:
-      context: ./transaction-service
+      context: ./services/transaction-service
       dockerfile: Dockerfile
     volumes:
-      - ./transaction-service:/usr/src/app  # Volume mount
+      - ./services/transaction-service:/usr/src/app  # Volume mount
     env_file:
-      - ./transaction-service/.env
+      - ./services/transaction-service/.env
     ports:
       - "3003:3003"
     depends_on:
@@ -48,12 +48,12 @@ services:
 
   payment-service:
     build:
-      context: ./payment-service
+      context: ./services/payment-service
       dockerfile: Dockerfile
     volumes:
-      - ./payment-service:/usr/src/app  # Volume mount
+      - ./services/payment-service:/usr/src/app  # Volume mount
     env_file:
-      - ./payment-service/.env
+      - ./services/payment-service/.env
     ports:
       - "3004:3004"
     depends_on:
@@ -63,12 +63,12 @@ services:
 
   kyc-service:
     build:
-      context: ./kyc-service
+      context: ./services/kyc-service
       dockerfile: Dockerfile
     volumes:
-      - ./kyc-service:/usr/src/app  # Volume mount
+      - ./services/kyc-service:/usr/src/app  # Volume mount
     env_file:
-      - ./kyc-service/.env
+      - ./services/kyc-service/.env
     ports:
       - "3005:3005"
     depends_on:
@@ -78,12 +78,12 @@ services:
 
   notification-service:
     build:
-      context: ./notification-service
+      context: ./services/notification-service
       dockerfile: Dockerfile
     volumes:
-      - ./notification-service:/usr/src/app  # Volume mount
+      - ./services/notification-service:/usr/src/app  # Volume mount
     env_file:
-      - ./notification-service/.env
+      - ./services/notification-service/.env
     ports:
       - "3006:3006"
     depends_on:
