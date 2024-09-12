@@ -24,7 +24,6 @@
 			]
 		}
 	},
-  "postCreateCommand": "npx lerna bootstrap",
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	"forwardPorts": [3001, 3002, 3003, 3004, 3005, 3006, 27017]

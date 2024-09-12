@@ -3,100 +3,85 @@ version: '3.8'
 services:
   user-service:
     build:
-      context: ./services/user-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./services/user-service/Dockerfile
     volumes:
-      - ./services/user-service:/usr/src/app  # Volume mount
+      - ./services/user-service:/usr/src/app/services/user-service  # Volume mount
+      - ./shared:/usr/src/app/shared
     env_file:
       - ./services/user-service/.env
     ports:
       - "3001:3001"
-    depends_on:
-      - mongodb
     networks:
       - mynetwork
 
   account-service:
     build:
-      context: ./services/account-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./services/account-service/Dockerfile
     volumes:
-      - ./services/account-service:/usr/src/app  # Volume mount
+      - ./services/account-service:/usr/src/app/services/account-service  # Volume mount
+      - ./shared:/usr/src/app/shared
     env_file:
       - ./services/account-service/.env
     ports:
       - "3002:3002"
-    depends_on:
-      - mongodb
     networks:
       - mynetwork
 
   transaction-service:
     build:
-      context: ./services/transaction-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./services/transaction-service/Dockerfile
     volumes:
-      - ./services/transaction-service:/usr/src/app  # Volume mount
+      - ./services/transaction-service:/usr/src/app/services/transaction-service  # Volume mount
+      - ./shared:/usr/src/app/shared
     env_file:
       - ./services/transaction-service/.env
     ports:
       - "3003:3003"
-    depends_on:
-      - mongodb
     networks:
       - mynetwork
 
   payment-service:
     build:
-      context: ./services/payment-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./services/payment-service/Dockerfile
     volumes:
-      - ./services/payment-service:/usr/src/app  # Volume mount
+      - ./services/payment-service:/usr/src/app/services/payment-service # Volume mount
+      - ./shared:/usr/src/app/shared
     env_file:
       - ./services/payment-service/.env
     ports:
       - "3004:3004"
-    depends_on:
-      - mongodb
     networks:
       - mynetwork
 
   kyc-service:
     build:
-      context: ./services/kyc-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./services/kyc-service/Dockerfile
     volumes:
-      - ./services/kyc-service:/usr/src/app  # Volume mount
+      - ./services/kyc-service:/usr/src/app/services/kyc-service  # Volume mount
+      - ./shared:/usr/src/app/shared
     env_file:
       - ./services/kyc-service/.env
     ports:
       - "3005:3005"
-    depends_on:
-      - mongodb
     networks:
       - mynetwork
 
   notification-service:
     build:
-      context: ./services/notification-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./services/notification-service/Dockerfile
     volumes:
-      - ./services/notification-service:/usr/src/app  # Volume mount
+      - ./services/notification-service:/usr/src/app/services/notification-service  # Volume mount
+      - ./shared:/usr/src/app/shared
     env_file:
       - ./services/notification-service/.env
     ports:
       - "3006:3006"
-    depends_on:
-      - mongodb
-    networks:
-      - mynetwork
-
-  mongodb:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
     networks:
       - mynetwork
 
@@ -110,6 +95,3 @@ services:
 
 networks:
  mynetwork:
-
-volumes:
- mongo-data:
