@@ -17,6 +17,7 @@
   "description": "Microservice for notification related operations",
   "dependencies": {
     "handlebars": "^4.7.8",
-    "nodemailer": "^6.9.14"
+    "nodemailer": "^6.9.14",
+    "shared-common": "^1.0.0"
   }
 }

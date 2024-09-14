@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { envConfig } from '../configs';
 import { Request, Response, NextFunction } from 'express';
-import { JwtPayload } from '../types';
+import { JwtPayload } from 'shared-common';
 
 declare global {
   namespace Express {

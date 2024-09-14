@@ -1,5 +1,6 @@
 import { KycSubmissionStatusEnum } from '../enums';
-import { IKyc, JwtPayload, KycResult } from '../types';
+import { IKyc, KycResult } from '../types';
+import { JwtPayload } from 'shared-common';
 import { KycRepository } from '../repositories';
 import { KycSubmitRequestDto } from '../dtos';
 import { fetchHelper, logger } from '../utils';

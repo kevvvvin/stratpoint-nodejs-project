@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { IKyc, JwtPayload, KycResult } from '../types';
+import { IKyc, KycResult } from '../types';
+import { JwtPayload } from 'shared-common';
 import { KycService } from '../services';
 import { KycResponseDto } from '../dtos';
 import { logger } from '../utils';

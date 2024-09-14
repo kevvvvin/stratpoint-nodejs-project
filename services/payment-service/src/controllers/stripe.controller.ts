@@ -12,7 +12,7 @@ import {
   RetrievePaymentRequestDto,
 } from '../dtos';
 import { logger } from '../utils';
-import { JwtPayload } from '../types';
+import { JwtPayload } from 'shared-common';
 
 export class StripeController {
   constructor(private stripeService: StripeService) {}

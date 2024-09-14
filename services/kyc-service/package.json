@@ -13,5 +13,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "Microservice for KYC related operations"
+  "description": "Microservice for KYC related operations",
+  "dependencies": {
+    "shared-common": "^1.0.0"
+  }
 }

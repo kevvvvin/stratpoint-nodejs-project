@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
-import { JwtPayload, CustomerResult, MockPayoutResult } from '../types';
+import { CustomerResult, MockPayoutResult } from '../types';
+import { JwtPayload } from 'shared-common';
 import { PaymentMethodRequestDto } from '../dtos';
 import { logger } from '../utils';
 

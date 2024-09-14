@@ -13,5 +13,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "Microservice for user related operations"
+  "description": "Microservice for user related operations",
+  "dependencies": {
+    "shared-common": "^1.0.0"
+  }
 }

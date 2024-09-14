@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { envConfig } from '../configs';
 import { Request, Response, NextFunction } from 'express';
-import { JwtPayload } from '../types';
+import { JwtPayload } from 'shared-common';
 import { logger } from '../utils';
 
 /*
@@ -26,7 +26,7 @@ export const fetchServiceToken = async (
         {
           method: 'POST',
           headers: {
-            'x-internal-service-secret': envConfig.serviceSecret,
+            'x-internal-service-secret': envConfig.serviceSecret as string,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ serviceName: 'notification-service' }),

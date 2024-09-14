@@ -11,7 +11,7 @@ export async function fetchHelper<T>(
     headers: {
       Authorization: authHeader,
       'Content-Type': 'application/json',
-      'x-internal-service-secret': envConfig.serviceSecret,
+      'x-internal-service-secret': envConfig.serviceSecret as string,
     },
   };
 

@@ -1,4 +1,5 @@
-import { IKyc, JwtPayload } from './';
+import { IKyc } from './';
+import { JwtPayload } from 'shared-common';
 
 type KycDetails = Pick<
   IKyc,

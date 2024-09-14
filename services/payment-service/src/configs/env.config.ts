@@ -1,10 +1,8 @@
 import * as dotenv from 'dotenv';
 import path from 'path';
-import { EnvConfig } from '../types';
+import { EnvConfig } from 'shared-common';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
-
-// console.log("Environment Variables: ", process.env);
 
 const envConfig: EnvConfig = {
   port: parseInt(process.env.PORT || '3004', 10),

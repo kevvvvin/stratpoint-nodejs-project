@@ -26,7 +26,7 @@ export const fetchServiceToken = async (
         {
           method: 'POST',
           headers: {
-            'x-internal-service-secret': envConfig.serviceSecret,
+            'x-internal-service-secret': envConfig.serviceSecret as string,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ serviceName: 'user-service' }),
