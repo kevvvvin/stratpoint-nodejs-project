@@ -15,7 +15,7 @@ export class JwtService {
       kycStatus: user.kycStatus,
     };
 
-    return jwt.sign(payload, envConfig.jwtSecret, { expiresIn: '2h' });
+    return jwt.sign(payload, envConfig.jwtSecret as string, { expiresIn: '2h' });
   }
 
   async generateServiceToken(service: IUser): Promise<string> {
@@ -27,7 +27,7 @@ export class JwtService {
       kycStatus: service.kycStatus,
     };
 
-    return jwt.sign(payload, envConfig.jwtSecret, { expiresIn: '2m' });
+    return jwt.sign(payload, envConfig.jwtSecret as string, { expiresIn: '2m' });
   }
 
   async revokeToken(token: string): Promise<void> {

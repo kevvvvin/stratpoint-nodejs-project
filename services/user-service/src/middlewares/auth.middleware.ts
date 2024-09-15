@@ -40,10 +40,7 @@ const authenticateJWT = async (
       return next(error);
     }
 
-    const decoded = jwt.verify(token, envConfig.jwtSecret) as JwtPayload;
-
-    // if (req.headers['x-internal-service-secret'] === envConfig.serviceSecret)
-    //   return next();
+    const decoded = jwt.verify(token, envConfig.jwtSecret as string) as JwtPayload;
 
     const user = await User.findById(decoded.sub)
       .select('-password')
