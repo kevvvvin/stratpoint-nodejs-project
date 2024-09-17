@@ -20,6 +20,11 @@ export const baseLogger = createLogger({
       filename: path.join(centralizedLogDirectory, 'combined.log'),
       level: 'info',
     }),
+
+    new transports.File({
+      filename: path.join(centralizedLogDirectory, 'error.log'),
+      level: 'error',
+    }),
   ],
 });
 

@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import path from 'path';
-import { EnvConfig } from 'shared-common/types';
+import { EnvConfig } from 'shared-common';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
