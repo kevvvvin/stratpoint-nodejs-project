@@ -3,8 +3,9 @@ import { IKyc, KycResult } from '../types';
 import { JwtPayload } from 'shared-common';
 import { KycRepository } from '../repositories';
 import { KycSubmitRequestDto } from '../dtos';
-import { fetchHelper, logger } from '../utils';
+import { logger } from '../utils';
 import { envConfig } from '../configs';
+import { fetchHelper } from 'shared-common';
 
 export class KycService {
   constructor(private kycRepository: KycRepository) {}

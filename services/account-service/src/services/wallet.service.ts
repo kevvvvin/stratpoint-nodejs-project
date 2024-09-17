@@ -13,10 +13,10 @@ import {
 import { JwtPayload } from 'shared-common';
 import { WalletRepository, PaymentMethodRepository } from '../repositories';
 import { Types } from 'mongoose';
-import { logger, fetchHelper } from '../utils';
+import { logger } from '../utils';
 import { PaymentIntentRequestDto, TransactionRequestDto } from '../dtos';
 import { envConfig } from '../configs';
-// import crypto from 'crypto';
+import { fetchHelper } from 'shared-common';
 
 export class WalletService {
   constructor(
@@ -32,7 +32,6 @@ export class WalletService {
       authHeader,
       `http://${envConfig.paymentService}:3004/api/stripe/create-customer-id`,
       'POST',
-      null,
     );
     if (customerResponse.status !== 201)
       throw new Error('Wallet creation failed. Customer creation failed.');
@@ -307,7 +306,6 @@ export class WalletService {
       authHeader,
       `http://${envConfig.transactionService}:3003/api/transaction/status/${paymentIntentId}`,
       'GET',
-      null,
     );
     if (transactionResponse.status !== 200)
       throw new Error('Payment status check failed');
@@ -566,7 +564,6 @@ export class WalletService {
       authHeader,
       `http://${envConfig.transactionService}:3003/api/transaction/transactions/${wallet._id.toString()}`,
       'GET',
-      null,
     );
     if (transactionsResponse.status !== 200)
       throw new Error('Transaction retrieval failed');

@@ -4,7 +4,7 @@ import { AuthResult, IUser, UserResult } from '../types';
 import { RoleRepository, UserRepository } from '../repositories';
 import { JwtService } from './';
 import { LoginRequestDto, RegisterRequestDto } from '../dtos';
-import { fetchHelper } from '../utils/fetchHelper';
+import { fetchHelper } from 'shared-common';
 import { envConfig } from '../configs';
 import { logger } from '../utils';
 
@@ -150,7 +150,6 @@ export class AuthService {
         `Bearer ${token}`,
         `http://${envConfig.notificationService}:3006/api/notif/login-notification`,
         'POST',
-        null,
       );
 
       if (notificationResponse.status !== 200) {

@@ -3,8 +3,9 @@ import Handlebars from 'handlebars';
 import path from 'path';
 import { promises as fs } from 'fs';
 import { envConfig } from '../configs';
-import { fetchHelper, logger } from '../utils';
+import { logger } from '../utils';
 import { EmailContext } from '../types';
+import { fetchHelper } from 'shared-common';
 
 export class NotificationService {
   private transporter: Transporter;
@@ -121,6 +122,7 @@ export class NotificationService {
       `http://${envConfig.userService}:3001/api/users/${userId}`,
       'GET',
       null,
+      envConfig.serviceSecret,
     );
     if (fetchUserResponse.status !== 200)
       throw new Error(
@@ -147,6 +149,7 @@ export class NotificationService {
       `http://${envConfig.userService}:3001/api/users/${userId}`,
       'GET',
       null,
+      envConfig.serviceSecret,
     );
     if (fetchUserResponse.status !== 200)
       throw new Error('Failed to retrieve target user for login notification sending.');
@@ -172,6 +175,7 @@ export class NotificationService {
       `http://${envConfig.userService}:3001/api/users/${userId}`,
       'GET',
       null,
+      envConfig.serviceSecret,
     );
     if (fetchUserResponse.status !== 200)
       throw new Error('Failed to retrieve target user for deposit notification sending.');
@@ -198,6 +202,7 @@ export class NotificationService {
       `http://${envConfig.userService}:3001/api/users/${userId}`,
       'GET',
       null,
+      envConfig.serviceSecret,
     );
     if (fetchUserResponse.status !== 200)
       throw new Error(
@@ -230,12 +235,14 @@ export class NotificationService {
         `http://${envConfig.userService}:3001/api/users/${fromUserId}`,
         'GET',
         null,
+        envConfig.serviceSecret,
       ),
       fetchHelper(
         `Bearer ${serviceToken}`,
         `http://${envConfig.userService}:3001/api/users/${toUserId}`,
         'GET',
         null,
+        envConfig.serviceSecret,
       ),
     ]);
 
@@ -286,6 +293,7 @@ export class NotificationService {
       `http://${envConfig.userService}:3001/api/users/${userId}`,
       'GET',
       null,
+      envConfig.serviceSecret,
     );
     if (fetchUserResponse.status !== 200)
       throw new Error(
@@ -317,6 +325,7 @@ export class NotificationService {
       `http://${envConfig.userService}:3001/api/users/${userId}`,
       'GET',
       null,
+      envConfig.serviceSecret,
     );
     if (fetchUserResponse.status !== 200)
       throw new Error(
@@ -343,6 +352,7 @@ export class NotificationService {
       `http://${envConfig.userService}:3001/api/users/${userId}`,
       'GET',
       null,
+      envConfig.serviceSecret,
     );
     if (fetchUserResponse.status !== 200)
       throw new Error(
