@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
+import { logger } from '../utils';
 import {
-  logger,
   MongooseError,
   JwtError,
   NotFoundError,
   RequestValidationError,
-} from '../utils';
+} from 'shared-common';
 
 export const errorHandler = (
   err: Error,

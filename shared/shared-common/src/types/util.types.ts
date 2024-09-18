@@ -6,3 +6,8 @@ export interface JwtPayload {
   kycStatus: string;
   exp: number;
 }
+
+export interface RequestError {
+  field: string | number;
+  message: string;
+}

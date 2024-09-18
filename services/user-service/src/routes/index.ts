@@ -1,5 +1,5 @@
 import express, { NextFunction, Request, Response } from 'express';
-import { NotFoundError } from '../utils';
+import { NotFoundError } from 'shared-common';
 import authRoutes from './auth.routes';
 import userRoutes from './user.routes';
 

@@ -1,5 +1,5 @@
 import express, { NextFunction, Request, Response } from 'express';
-import { NotFoundError } from '../utils';
+import { NotFoundError } from 'shared-common';
 import transactionRoutes from './transaction.routes';
 
 const router = express.Router();

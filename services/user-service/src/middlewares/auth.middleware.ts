@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from 'express';
 import { RoleEnum } from '../enums';
 import { JwtPayload, IRole, IUser } from '../types';
 import { User, BlacklistedToken } from '../models';
-import { JwtError, UnauthorizedError } from '../utils';
+import { JwtError, AuthError } from 'shared-common';
 
 declare global {
   namespace Express {
@@ -79,8 +79,9 @@ const authorizeRoles = (allowedRoles: RoleEnum[]) => {
 
       const hasRole = allowedRoles.some((role) => userRoles.includes(role));
       if (!hasRole) {
-        const error = new UnauthorizedError(
+        const error = new AuthError(
           'Access denied. You are not authorized to do this action',
+          'AuthorizationError',
         );
         return next(error);
       }

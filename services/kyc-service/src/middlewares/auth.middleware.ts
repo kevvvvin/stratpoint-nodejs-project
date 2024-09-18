@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { envConfig } from '../configs';
 import { Request, Response, NextFunction } from 'express';
-import { JwtPayload } from 'shared-common';
+import { JwtPayload, JwtError } from 'shared-common';
 
 declare global {
   namespace Express {
@@ -19,13 +19,13 @@ export const authenticateJWT = async (
   try {
     const authHeader = req.header('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      const error = new Error('Access denied. No token provided');
+      const error = new JwtError('Access denied. No token provided');
       return next(error);
     }
 
     const token = authHeader.split(' ')[1];
     if (!token) {
-      const error = new Error('Access denied. Invalid token format');
+      const error = new JwtError('Access denied. Invalid token format');
       return next(error);
     }
 
@@ -41,7 +41,7 @@ export const authenticateJWT = async (
     );
 
     if (!validateResponse.ok) {
-      const error = new Error('Token is not valid.');
+      const error = new JwtError('Token is not valid.');
       return next(error);
     }
 

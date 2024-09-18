@@ -1,3 +1,19 @@
+import { RequestError } from '../types';
+
+export class JwtError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'JwtError';
+  }
+}
+
+export class AuthError extends Error {
+  constructor(message: string, name: string) {
+    super(message);
+    this.name = name;
+  }
+}
+
 export class MongooseError extends Error {
   public code?: number;
   public errors: {
@@ -23,20 +39,6 @@ export class MongooseError extends Error {
   }
 }
 
-export class JwtError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'JwtError';
-  }
-}
-
-export class UnauthorizedError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'UnauthorizedError';
-  }
-}
-
 export class NotFoundError extends Error {
   constructor(message: string) {
     super(message);
@@ -45,8 +47,10 @@ export class NotFoundError extends Error {
 }
 
 export class RequestValidationError extends Error {
-  constructor(message: string) {
+  errors: RequestError[];
+  constructor(message: string, errors: RequestError[]) {
     super(message);
     this.name = 'RequestValidationError';
+    this.errors = errors;
   }
 }
