@@ -2,6 +2,8 @@ import express from 'express';
 import { stripeController } from '../container';
 import { authenticateJWT } from '../middlewares';
 
+// TODO: Add validation middleware and request schemas
+
 const router = express.Router();
 
 router.post('/create-customer-id', authenticateJWT, (req, res, next) =>

@@ -2,6 +2,8 @@ import express from 'express';
 import { notificationController } from '../container';
 import { authenticateJWT, fetchServiceToken } from '../middlewares';
 
+// TODO: Add validation middleware and request schemas
+
 const router = express.Router();
 
 router.post('/login-notification', authenticateJWT, fetchServiceToken, (req, res, next) =>

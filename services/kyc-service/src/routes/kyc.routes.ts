@@ -1,6 +1,7 @@
 import express from 'express';
 import { kycController } from '../container';
-import { authenticateJWT, validateRequest } from '../middlewares';
+import { authenticateJWT } from '../middlewares';
+import { validateRequest } from 'shared-common';
 import { kycSchema } from '../utils';
 
 const router = express.Router();

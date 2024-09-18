@@ -3,6 +3,8 @@ import { RoleEnum } from '../enums';
 import { userController } from '../container';
 import { authenticateJWT, authorizeRoles } from '../middlewares';
 
+// TODO: Add validation middleware and request schemas
+
 const router = express.Router();
 
 router.get('/', authenticateJWT, authorizeRoles([RoleEnum.ADMIN]), (req, res, next) =>

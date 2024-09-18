@@ -2,6 +2,8 @@ import express from 'express';
 import { transactionController } from '../container';
 import { authenticateJWT } from '../middlewares';
 
+// TODO: add validation middleware and request schemas
+
 const router = express.Router();
 
 router.post('/create', authenticateJWT, (req, res, next) =>

@@ -3,9 +3,9 @@ import { authController } from '../container';
 import {
   authenticateJWT,
   fetchServiceToken,
-  validateRequest,
   verifyInternalService,
 } from '../middlewares';
+import { validateRequest } from 'shared-common';
 import { loginSchema, registerSchema, serviceTokenSchema } from '../utils';
 
 const router = express.Router();

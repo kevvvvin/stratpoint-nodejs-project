@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodSchema } from 'zod';
-import { RequestValidationError } from 'shared-common';
+import { RequestValidationError } from '../utils';
 
 export function validateRequest<T>(schema: ZodSchema<T>) {
   return (req: Request, _res: Response, next: NextFunction): void => {
