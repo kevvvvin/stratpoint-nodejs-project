@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { envConfig } from '../configs';
 import { Request, Response, NextFunction } from 'express';
-import { JwtPayload, JwtError, AuthError } from 'shared-common';
+import { JwtPayload, JwtError, AuthError, fetchHelper } from 'shared-common';
 
 declare global {
   namespace Express {
@@ -29,15 +29,10 @@ export const authenticateJWT = async (
       return next(error);
     }
 
-    const validateResponse = await fetch(
+    const validateResponse = await fetchHelper(
+      `Bearer ${token}`,
       `http://${envConfig.userService}:3001/api/auth/validate-token`,
-      {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      },
+      'GET',
     );
 
     if (!validateResponse.ok) {
