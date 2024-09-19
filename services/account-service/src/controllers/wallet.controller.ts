@@ -25,7 +25,7 @@ export class WalletController {
   ): Promise<Response | void> {
     try {
       const authHeader = req.header('Authorization') as string;
-      const userDetails = req.payload as JwtPayload;
+      const userDetails = res.locals.payload as JwtPayload;
 
       logger.info(authHeader);
 
@@ -44,12 +44,12 @@ export class WalletController {
   }
 
   async getWalletBalance(
-    req: Request,
+    _req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const userDetails = req.payload as JwtPayload;
+      const userDetails = res.locals.payload as JwtPayload;
 
       const result: WalletResult = await this.walletService.getWalletBalance(
         userDetails.sub,
@@ -72,7 +72,7 @@ export class WalletController {
     try {
       const authHeader = req.header('Authorization') as string;
       const paymentMethod: PaymentMethodRequestDto = req.body;
-      const userDetails = req.payload as JwtPayload;
+      const userDetails = res.locals.payload as JwtPayload;
 
       const result = await this.walletService.addPaymentMethod(
         userDetails.sub,
@@ -91,12 +91,12 @@ export class WalletController {
   }
 
   async getPaymentMethods(
-    req: Request,
+    _req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const userDetails = req.payload as JwtPayload;
+      const userDetails = res.locals.payload as JwtPayload;
 
       const paymentMethods = await this.walletService.getPaymentMethods(userDetails.sub);
 
@@ -118,7 +118,7 @@ export class WalletController {
     try {
       const { paymentMethodId } = req.params;
       const authHeader = req.header('Authorization') as string;
-      const userDetails = req.payload as JwtPayload;
+      const userDetails = res.locals.payload as JwtPayload;
 
       const deletedMethod = await this.walletService.deletePaymentMethod(
         userDetails.sub,
@@ -145,7 +145,7 @@ export class WalletController {
     try {
       const authHeader = req.header('Authorization') as string;
       const { amount } = req.body;
-      const userDetails = req.payload as JwtPayload;
+      const userDetails = res.locals.payload as JwtPayload;
 
       const paymentIntent = await this.walletService.createPaymentIntent(
         authHeader,
@@ -170,7 +170,7 @@ export class WalletController {
   ): Promise<Response | void> {
     try {
       const authHeader = req.header('Authorization') as string;
-      const userDetails = req.payload as JwtPayload;
+      const userDetails = res.locals.payload as JwtPayload;
       const { paymentIntentId, paymentMethodId } = req.body;
 
       const result = await this.walletService.confirmPaymentIntent(
@@ -220,7 +220,7 @@ export class WalletController {
   ): Promise<Response | void> {
     try {
       const authHeader = req.header('Authorization') as string;
-      const userDetails = req.payload as JwtPayload;
+      const userDetails = res.locals.payload as JwtPayload;
       const { amount, paymentMethodId } = req.body;
       const result = await this.walletService.deposit(
         authHeader,
@@ -246,7 +246,7 @@ export class WalletController {
   ): Promise<Response | void> {
     try {
       const authHeader = req.header('Authorization') as string;
-      const userDetails = req.payload as JwtPayload;
+      const userDetails = res.locals.payload as JwtPayload;
       const { amount } = req.body;
 
       const result = await this.walletService.withdraw(
@@ -273,7 +273,7 @@ export class WalletController {
     try {
       const authHeader = req.header('Authorization') as string;
       const { toUserId, amount } = req.body;
-      const userDetails = req.payload as JwtPayload;
+      const userDetails = res.locals.payload as JwtPayload;
 
       const result = await this.walletService.transfer(
         authHeader,
@@ -299,7 +299,7 @@ export class WalletController {
   ): Promise<Response | void> {
     try {
       const authHeader = req.header('Authorization') as string;
-      const userDetails = req.payload as JwtPayload;
+      const userDetails = res.locals.payload as JwtPayload;
 
       const transactions = await this.walletService.getTransactions(
         authHeader,
