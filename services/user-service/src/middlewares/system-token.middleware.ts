@@ -14,7 +14,7 @@ let tokenExpiry: number | null = null;
 
 export const fetchServiceToken = async (
   req: Request,
-  _res: Response,
+  res: Response,
   next: NextFunction,
 ): Promise<Response | void> => {
   try {
@@ -42,7 +42,7 @@ export const fetchServiceToken = async (
       logger.info(`Generated a service token for internal service communication`);
     }
 
-    req.serviceToken = serviceToken;
+    res.locals.serviceToken = serviceToken;
     next();
   } catch (error) {
     next(error);

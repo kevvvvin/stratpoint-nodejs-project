@@ -12,8 +12,8 @@ export class NotificationController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const serviceToken = req.serviceToken as string;
-      const user = req.payload as JwtPayload;
+      const serviceToken = res.locals.serviceToken as string;
+      const user = res.locals.payload as JwtPayload;
       const loginTime = new Date().toISOString();
       const loginLocation = req.ip as string;
 
@@ -38,7 +38,7 @@ export class NotificationController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const serviceToken = req.serviceToken as string;
+      const serviceToken = res.locals.serviceToken as string;
       const { userId, emailVerificationToken } = req.body;
 
       await this.notifService.notifyEmailVerification(
@@ -61,7 +61,7 @@ export class NotificationController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const serviceToken = req.serviceToken as string;
+      const serviceToken = res.locals.serviceToken as string;
       const { userId, kycStatus, rejectionReason } = req.body;
 
       await this.notifService.notifyKycUpdate(
@@ -85,8 +85,8 @@ export class NotificationController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const serviceToken = req.serviceToken as string;
-      const user = req.payload as JwtPayload;
+      const serviceToken = res.locals.serviceToken as string;
+      const user = res.locals.payload as JwtPayload;
       const { initialBalance } = req.body;
 
       await this.notifService.notifyWalletCreation(
@@ -109,8 +109,8 @@ export class NotificationController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const serviceToken = req.serviceToken as string;
-      const user = req.payload as JwtPayload;
+      const serviceToken = res.locals.serviceToken as string;
+      const user = res.locals.payload as JwtPayload;
       const { last4, cardBrand } = req.body;
 
       await this.notifService.notifyPaymentMethodAdded(
@@ -134,8 +134,8 @@ export class NotificationController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const serviceToken = req.serviceToken as string;
-      const user = req.payload as JwtPayload;
+      const serviceToken = res.locals.serviceToken as string;
+      const user = res.locals.payload as JwtPayload;
       const { amount, transactionId } = req.body;
 
       await this.notifService.notifyDeposit(
@@ -159,8 +159,8 @@ export class NotificationController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const serviceToken = req.serviceToken as string;
-      const user = req.payload as JwtPayload;
+      const serviceToken = res.locals.serviceToken as string;
+      const user = res.locals.payload as JwtPayload;
       const { amount, newBalance, transactionId, withdrawalStatus, withdrawalMethod } =
         req.body;
 
@@ -188,8 +188,8 @@ export class NotificationController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const serviceToken = req.serviceToken as string;
-      const user = req.payload as JwtPayload;
+      const serviceToken = res.locals.serviceToken as string;
+      const user = res.locals.payload as JwtPayload;
       const { toUserId, amount, transactionId, fromBalance, toBalance } = req.body;
 
       await this.notifService.notifyTransfer(

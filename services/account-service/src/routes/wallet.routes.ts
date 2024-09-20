@@ -1,6 +1,5 @@
 import express from 'express';
 import { walletController } from '../container';
-// import { authenticateJWT } from '../middlewares';
 import { validateRequest } from 'shared-common';
 import {
   addPaymentMethodSchema,

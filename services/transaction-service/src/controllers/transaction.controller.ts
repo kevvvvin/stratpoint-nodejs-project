@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-// import { JwtPayload } from '../types';
 import { TransactionService } from '../services';
 import {
   PaymentStatusResponseDto,

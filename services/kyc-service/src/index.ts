@@ -5,6 +5,7 @@ import { envConfig } from './configs';
 import router from './routes';
 import { errorHandler } from './middlewares';
 import { logger } from './utils';
+import { authenticateJWT } from 'shared-common';
 
 const connectToDatabase = async (): Promise<void> => {
   try {
@@ -22,6 +23,7 @@ const app: Application = express();
 app.use(cors());
 app.use(express.json());
 
+app.use(authenticateJWT('kyc-service', envConfig.userService as string));
 app.use('/api', router);
 
 app.use(errorHandler);

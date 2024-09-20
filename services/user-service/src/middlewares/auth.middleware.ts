@@ -6,19 +6,9 @@ import { JwtPayload, IRole, IUser } from '../types';
 import { User, BlacklistedToken } from '../models';
 import { JwtError, AuthError } from 'shared-common';
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: IUser;
-      token?: string;
-      serviceToken?: string;
-    }
-  }
-}
-
 const authenticateJWT = async (
   req: Request,
-  _res: Response,
+  res: Response,
   next: NextFunction,
 ): Promise<Response | void> => {
   try {
@@ -51,8 +41,8 @@ const authenticateJWT = async (
       return next(error);
     }
 
-    req.user = user;
-    req.token = token;
+    res.locals.user = user;
+    res.locals.token = token;
     next();
   } catch (error) {
     next(error);
@@ -61,15 +51,15 @@ const authenticateJWT = async (
 
 const authorizeRoles = (allowedRoles: RoleEnum[]) => {
   return async (
-    req: Request,
-    _res: Response,
+    _req: Request,
+    res: Response,
     next: NextFunction,
   ): Promise<Response | void> => {
     try {
       // if (req.headers['x-internal-service-secret'] === envConfig.serviceSecret)
       //   return next();
 
-      const user = req.user as IUser;
+      const user = res.locals.user as IUser;
       if (!user) {
         const error = new JwtError('Access denied. User not found');
         return next(error);

@@ -23,7 +23,7 @@ const app: Application = express();
 app.use(cors());
 app.use(express.json());
 
-app.use(authenticateJWT(envConfig.userService as string));
+app.use(authenticateJWT('account-service', envConfig.userService as string));
 app.use('/api', router);
 
 app.use(errorHandler);

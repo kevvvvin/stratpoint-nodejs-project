@@ -18,7 +18,7 @@ export class AuthController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const serviceToken = req.serviceToken as string;
+      const serviceToken = res.locals.serviceToken as string;
       const registerData: RegisterRequestDto = req.body;
       const result: UserResult = await this.authService.register(
         serviceToken,
@@ -54,7 +54,7 @@ export class AuthController {
 
   async login(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
     try {
-      const serviceToken = req.serviceToken as string;
+      const serviceToken = res.locals.serviceToken as string;
       const loginData: LoginRequestDto = req.body;
       const result: AuthResult = await this.authService.login(serviceToken, loginData);
       const message = 'User logged in successfully';
@@ -68,13 +68,13 @@ export class AuthController {
   }
 
   async logout(
-    req: Request,
+    _req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const token = req.token as string;
-      const user = req.user as IUser;
+      const token = res.locals.token as string;
+      const user = res.locals.user as IUser;
 
       const result = await this.authService.logout(token, user);
       const message = 'User logged out successfully. Token has been revoked';

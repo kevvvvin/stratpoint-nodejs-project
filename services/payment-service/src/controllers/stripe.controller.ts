@@ -18,12 +18,12 @@ export class StripeController {
   constructor(private stripeService: StripeService) {}
 
   async createCustomerId(
-    req: Request,
+    _req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const userDetails = req.payload as JwtPayload;
+      const userDetails = res.locals.payload as JwtPayload;
 
       const result = await this.stripeService.createCustomer(userDetails);
 
@@ -43,7 +43,7 @@ export class StripeController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const userDetails = req.payload as JwtPayload;
+      const userDetails = res.locals.payload as JwtPayload;
       const paymentMethodDetails: PaymentMethodRequestDto = req.body;
       if (paymentMethodDetails.type !== 'card' /*|| !paymentMethodDetails.card*/) {
         const error = new Error('Invalid payment method details');
@@ -69,12 +69,12 @@ export class StripeController {
   }
 
   async getPaymentMethods(
-    req: Request,
+    _req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const userDetails = req.payload as JwtPayload;
+      const userDetails = res.locals.payload as JwtPayload;
       const customerId = await this.stripeService.getCustomerId(userDetails.email);
 
       const paymentMethods =

@@ -30,7 +30,7 @@ export class UserController {
   ): Promise<Response | void> {
     try {
       const userId: string = req.params.id;
-      const loggedInUser = req.user as IUser;
+      const loggedInUser = res.locals.user as IUser;
 
       const result = await this.userService.getUserById(userId, loggedInUser);
 
@@ -50,7 +50,7 @@ export class UserController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const userDetails = req.user as IUser;
+      const userDetails = res.locals.user as IUser;
       const targetUserId = req.params.userId;
 
       const { updatedStatus } = req.body;

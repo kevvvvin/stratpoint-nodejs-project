@@ -15,7 +15,7 @@ export class KycController {
   ): Promise<Response | void> {
     try {
       const authHeader = req.header('Authorization') as string;
-      const userDetails = req.payload as JwtPayload;
+      const userDetails = res.locals.payload as JwtPayload;
 
       const kyc: KycResult = await this.kycService.initiate(authHeader, userDetails);
       const message = 'Initiated KYC successfully';
@@ -35,7 +35,7 @@ export class KycController {
   ): Promise<Response | void> {
     try {
       const authHeader = req.header('Authorization') as string;
-      const userDetails = req.payload as JwtPayload;
+      const userDetails = res.locals.payload as JwtPayload;
       const kycSubmission = req.body;
 
       const kyc: KycResult = await this.kycService.update(
@@ -60,7 +60,7 @@ export class KycController {
   ): Promise<Response | void> {
     try {
       const authHeader = req.header('Authorization') as string;
-      const userDetails = req.payload as JwtPayload;
+      const userDetails = res.locals.payload as JwtPayload;
       const targetUserId: string = req.params.id;
 
       const kyc: KycResult = await this.kycService.approve(
@@ -85,7 +85,7 @@ export class KycController {
   ): Promise<Response | void> {
     try {
       const authHeader = req.header('Authorization') as string;
-      const userDetails = req.payload as JwtPayload;
+      const userDetails = res.locals.payload as JwtPayload;
       const targetUserId: string = req.params.id;
 
       const kyc: KycResult = await this.kycService.reject(
@@ -104,12 +104,12 @@ export class KycController {
   }
 
   async getAllKyc(
-    req: Request,
+    _req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const userDetails = req.payload as JwtPayload;
+      const userDetails = res.locals.payload as JwtPayload;
 
       const result: IKyc[] = await this.kycService.getAllKyc(userDetails);
       const message = 'Retrieved all KYCs successfully';
@@ -128,7 +128,7 @@ export class KycController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const userDetails = req.payload as JwtPayload;
+      const userDetails = res.locals.payload as JwtPayload;
       const targetUserId: string = req.params.id;
 
       const result: IKyc = await this.kycService.getKycByUserId(
