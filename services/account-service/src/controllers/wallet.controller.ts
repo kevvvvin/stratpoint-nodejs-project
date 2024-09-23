@@ -3,15 +3,18 @@ import { WalletResult } from '../types';
 import { JwtPayload } from 'shared-common';
 import { WalletService } from '../services';
 import {
+  AddPaymentMethodRequestDto,
   ConfirmPaymentIntentResponseDto,
   CreatePaymentIntentResponseDto,
-  PaymentMethodRequestDto,
+  DepositFundsRequestDto,
   PaymentMethodResponseDto,
   PaymentStatusResponseDto,
   PayoutResponseDto,
   TransactionsResponseDto,
+  TransferFundsRequestDto,
   TransferResponseDto,
   WalletResponseDto,
+  WithdrawFundsRequestDto,
 } from '../dtos';
 import { logger } from '../utils';
 
@@ -71,7 +74,7 @@ export class WalletController {
   ): Promise<Response | void> {
     try {
       const authHeader = req.header('Authorization') as string;
-      const paymentMethod: PaymentMethodRequestDto = req.body;
+      const paymentMethod: AddPaymentMethodRequestDto = req.body;
       const userDetails = res.locals.payload as JwtPayload;
 
       const result = await this.walletService.addPaymentMethod(
@@ -221,12 +224,12 @@ export class WalletController {
     try {
       const authHeader = req.header('Authorization') as string;
       const userDetails = res.locals.payload as JwtPayload;
-      const { amount, paymentMethodId } = req.body;
+      const depositRequest: DepositFundsRequestDto = req.body;
       const result = await this.walletService.deposit(
         authHeader,
         userDetails.sub,
-        amount,
-        paymentMethodId,
+        depositRequest.amount,
+        depositRequest.paymentMethodId,
       );
 
       const message = 'Deposit successful';
@@ -247,12 +250,12 @@ export class WalletController {
     try {
       const authHeader = req.header('Authorization') as string;
       const userDetails = res.locals.payload as JwtPayload;
-      const { amount } = req.body;
+      const withdrawRequest: WithdrawFundsRequestDto = req.body;
 
       const result = await this.walletService.withdraw(
         authHeader,
         userDetails.sub,
-        amount,
+        withdrawRequest.amount,
       );
 
       const message = 'Withdrawal successful';
@@ -272,14 +275,14 @@ export class WalletController {
   ): Promise<Response | void> {
     try {
       const authHeader = req.header('Authorization') as string;
-      const { toUserId, amount } = req.body;
+      const transferRequest: TransferFundsRequestDto = req.body;
       const userDetails = res.locals.payload as JwtPayload;
 
       const result = await this.walletService.transfer(
         authHeader,
         userDetails.sub,
-        toUserId,
-        amount,
+        transferRequest.toUserId,
+        transferRequest.amount,
       );
 
       const message = 'Transfer successful';

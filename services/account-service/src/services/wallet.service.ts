@@ -14,9 +14,17 @@ import { JwtPayload } from 'shared-common';
 import { WalletRepository, PaymentMethodRepository } from '../repositories';
 import { Types } from 'mongoose';
 import { logger } from '../utils';
-import { PaymentIntentRequestDto, TransactionRequestDto } from '../dtos';
+import { TransactionRequestDto } from '../dtos';
 import { envConfig } from '../configs';
 import { fetchHelper } from 'shared-common';
+import {
+  AttachPaymentMethodRequestDto,
+  ConfirmPaymentIntentRequestDto,
+  CreatePaymentIntentRequestDto,
+  CreatePayoutRequestDto,
+  DetachPaymentMethodRequestDto,
+  RetrievePaymentMethodRequestDto,
+} from 'shared-account-payment';
 
 export class WalletService {
   constructor(
@@ -100,7 +108,7 @@ export class WalletService {
       authHeader,
       `http://${envConfig.paymentService}:3004/api/stripe/retrieve-payment-method`,
       'POST',
-      { paymentMethodId },
+      new RetrievePaymentMethodRequestDto(paymentMethodId),
     );
     if (retrieveResponse.status !== 200)
       throw new Error('Payment method retrieval failed.');
@@ -111,7 +119,7 @@ export class WalletService {
       authHeader,
       `http://${envConfig.paymentService}:3004/api/stripe/attach-payment-method`,
       'POST',
-      { paymentMethodId, customerId: wallet.stripeCustomerId },
+      new AttachPaymentMethodRequestDto(paymentMethodId, wallet.stripeCustomerId),
     );
     if (attachResponse.status !== 200)
       throw new Error('Payment method attachment to customer failed');
@@ -194,7 +202,7 @@ export class WalletService {
       authHeader,
       `http://${envConfig.paymentService}:3004/api/stripe/detach-payment-method`,
       'POST',
-      { paymentMethodId },
+      new DetachPaymentMethodRequestDto(paymentMethodId),
     );
     if (detachResponse.status !== 200) {
       logger.warn(
@@ -215,17 +223,11 @@ export class WalletService {
     const wallet = await this.walletRepository.findByUserId(userId);
     if (!wallet) throw new Error('Wallet does not exist.');
 
-    const paymentIntentRequest = new PaymentIntentRequestDto(
-      amount,
-      wallet.currency,
-      wallet.stripeCustomerId,
-    );
-
     const paymentIntentResponse = await fetchHelper(
       authHeader,
       `http://${envConfig.paymentService}:3004/api/stripe/create-payment-intent`,
       'POST',
-      paymentIntentRequest,
+      new CreatePaymentIntentRequestDto(amount, wallet.currency, wallet.stripeCustomerId),
     );
     if (paymentIntentResponse.status !== 201)
       throw new Error('Payment intent creation failed');
@@ -260,13 +262,12 @@ export class WalletService {
       authHeader,
       `http://${envConfig.paymentService}:3004/api/stripe/confirm-payment-intent`,
       'POST',
-      { paymentIntentId, paymentMethodId },
+      new ConfirmPaymentIntentRequestDto(paymentIntentId, paymentMethodId),
     );
     if (paymentIntentResponse.status !== 200)
       throw new Error('Payment intent confirmation failed');
 
     paymentIntent = (await paymentIntentResponse.json()).result;
-    // }
 
     if (paymentIntent.status === 'succeeded') {
       const amount = paymentIntent.amount / 100;
@@ -337,31 +338,23 @@ export class WalletService {
     if (!paymentMethod) throw new Error('Payment method does not exist.');
 
     let paymentIntent;
-    const createPaymentIntentRequest = new PaymentIntentRequestDto(
-      amount,
-      wallet.currency,
-      wallet.stripeCustomerId,
-    );
+
     const createPaymentIntentResponse = await fetchHelper(
       authHeader,
       `http://${envConfig.paymentService}:3004/api/stripe/create-payment-intent`,
       'POST',
-      createPaymentIntentRequest,
+      new CreatePaymentIntentRequestDto(amount, wallet.currency, wallet.stripeCustomerId),
     );
     if (createPaymentIntentResponse.status !== 201)
       throw new Error('Payment intent creation failed');
 
     paymentIntent = (await createPaymentIntentResponse.json()).result;
 
-    const confirmPaymentIntentRequest = {
-      paymentIntentId: paymentIntent.id,
-      paymentMethodId,
-    };
     const confirmPaymentIntentResponse = await fetchHelper(
       authHeader,
       `http://${envConfig.paymentService}:3004/api/stripe/confirm-payment-intent`,
       'POST',
-      confirmPaymentIntentRequest,
+      new ConfirmPaymentIntentRequestDto(paymentIntent.id, paymentMethodId),
     );
     if (confirmPaymentIntentResponse.status !== 200)
       throw new Error('Payment intent confirmation failed');
@@ -416,6 +409,7 @@ export class WalletService {
     }
   }
 
+  // TODO: YOU ARE HERE, MOVE SHARED REQUEST DTOs BETWEEN PAYMENT AND ACCOUNT TO SHARED PACKAGE!
   async withdraw(
     authHeader: string,
     userId: string,
@@ -425,15 +419,11 @@ export class WalletService {
     if (!wallet) throw new Error('Wallet does not exist.');
     if (wallet.balance < amount) throw new Error('Insufficient funds. Withdrawal failed');
 
-    const createPayoutRequest = {
-      amount: amount,
-      customerId: wallet.stripeCustomerId,
-    };
     const createPayoutResponse = await fetchHelper(
       authHeader,
       `http://${envConfig.paymentService}:3004/api/stripe/create-payout`,
       'POST',
-      createPayoutRequest,
+      new CreatePayoutRequestDto(amount, wallet.stripeCustomerId),
     );
     if (createPayoutResponse.status !== 201) throw new Error('Payout creation failed');
 

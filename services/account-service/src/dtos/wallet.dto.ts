@@ -37,24 +37,11 @@ export class PaymentMethodResponseDto {
   }
 }
 
-export class PaymentMethodRequestDto {
+export class AddPaymentMethodRequestDto {
   paymentMethodId: string;
 
   constructor(paymentMethodId: string) {
     this.paymentMethodId = paymentMethodId;
-  }
-}
-
-// TODO: shared
-export class PaymentIntentRequestDto {
-  amount: number;
-  currency: string;
-  stripeCustomerId: string;
-
-  constructor(amount: number, currency: string, stripeCustomerId: string) {
-    this.amount = amount;
-    this.currency = currency;
-    this.stripeCustomerId = stripeCustomerId;
   }
 }
 
@@ -75,6 +62,34 @@ export class ConfirmPaymentIntentResponseDto {
   constructor(message: string, result: ConfirmPaymentIntentResult) {
     this.message = message;
     this.result = result;
+  }
+}
+
+export class DepositFundsRequestDto {
+  amount: number;
+  paymentMethodId: string;
+
+  constructor(amount: number, paymentMethodId: string) {
+    this.amount = amount;
+    this.paymentMethodId = paymentMethodId;
+  }
+}
+
+export class WithdrawFundsRequestDto {
+  amount: number;
+
+  constructor(amount: number) {
+    this.amount = amount;
+  }
+}
+
+export class TransferFundsRequestDto {
+  amount: number;
+  toUserId: string;
+
+  constructor(toUserId: string, amount: number) {
+    this.toUserId = toUserId;
+    this.amount = amount;
   }
 }
 

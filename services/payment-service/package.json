@@ -16,6 +16,7 @@
   "description": "Microservice for payment related operations",
   "dependencies": {
     "stripe": "^16.8.0",
-    "shared-common": "^1.0.0"
+    "shared-common": "^1.0.0",
+    "shared-account-payment": "^1.0.0"
   }
 }

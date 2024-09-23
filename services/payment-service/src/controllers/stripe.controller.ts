@@ -1,18 +1,22 @@
 import { Request, Response, NextFunction } from 'express';
 import { StripeService } from '../services';
 import {
-  AttachPaymentRequestDto,
   CustomerResponseDto,
-  DetachPaymentRequestDto,
-  PaymentIntentRequestDto,
   PaymentIntentResponseDto,
   PaymentMethodRequestDto,
-  PaymentMethodResponseDto,
   PayoutResponseDto,
-  RetrievePaymentRequestDto,
 } from '../dtos';
 import { logger } from '../utils';
 import { JwtPayload } from 'shared-common';
+import {
+  AttachPaymentMethodRequestDto,
+  RetrievePaymentMethodRequestDto,
+  PaymentMethodResponseDto,
+  DetachPaymentMethodRequestDto,
+  CreatePaymentIntentRequestDto,
+  ConfirmPaymentIntentRequestDto,
+  CreatePayoutRequestDto,
+} from 'shared-account-payment';
 
 export class StripeController {
   constructor(private stripeService: StripeService) {}
@@ -96,7 +100,7 @@ export class StripeController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const retrieveRequest: RetrievePaymentRequestDto = req.body;
+      const retrieveRequest: RetrievePaymentMethodRequestDto = req.body;
       const result = await this.stripeService.retrievePaymentMethod(
         retrieveRequest.paymentMethodId,
       );
@@ -117,7 +121,7 @@ export class StripeController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const attachPaymentRequest: AttachPaymentRequestDto = req.body;
+      const attachPaymentRequest: AttachPaymentMethodRequestDto = req.body;
       const result = await this.stripeService.attachPaymentMethodToCustomer(
         attachPaymentRequest.paymentMethodId,
         attachPaymentRequest.customerId,
@@ -139,7 +143,7 @@ export class StripeController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const detachPaymentRequest: DetachPaymentRequestDto = req.body;
+      const detachPaymentRequest: DetachPaymentMethodRequestDto = req.body;
       const result = await this.stripeService.detachPaymentMethodFromCustomer(
         detachPaymentRequest.paymentMethodId,
       );
@@ -160,7 +164,7 @@ export class StripeController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const paymentIntentRequest: PaymentIntentRequestDto = req.body;
+      const paymentIntentRequest: CreatePaymentIntentRequestDto = req.body;
       const result = await this.stripeService.createPaymentIntent(
         paymentIntentRequest.amount,
         paymentIntentRequest.currency,
@@ -183,10 +187,10 @@ export class StripeController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const { paymentIntentId, paymentMethodId } = req.body;
+      const paymentIntentRequest: ConfirmPaymentIntentRequestDto = req.body;
       const result = await this.stripeService.confirmPaymentIntent(
-        paymentIntentId,
-        paymentMethodId,
+        paymentIntentRequest.paymentIntentId,
+        paymentIntentRequest.paymentMethodId,
       );
 
       const message = 'Payment intent confirmed successfully';
@@ -205,8 +209,11 @@ export class StripeController {
     next: NextFunction,
   ): Promise<Response | void> {
     try {
-      const { amount, customerId } = req.body;
-      const result = await this.stripeService.createPayout(amount, customerId);
+      const payoutRequest: CreatePayoutRequestDto = req.body;
+      const result = await this.stripeService.createPayout(
+        payoutRequest.amount,
+        payoutRequest.customerId,
+      );
 
       const message = 'Payout created successfully';
       const response = new PayoutResponseDto(message, result);
