@@ -1,6 +1,6 @@
 // TODO: USE COMPOSITION TO MAINTAIN DECOUPLING BETWEEN DTOS AND ALLOW REUSING COMMON PROPERTY
 // COMMON PROPERTIES ENCOUNTERED SO FAR: PAYMENTMETHODID
-import type { Stripe } from 'stripe';
+import { CustomerResult, PaymentIntentDetails, PaymentMethodDetails } from '../types';
 
 export class RetrievePaymentMethodRequestDto {
   paymentMethodId: string;
@@ -59,14 +59,41 @@ export class CreatePayoutRequestDto {
   }
 }
 
+export class CustomerResponseDto {
+  message: string;
+  result: CustomerResult;
+
+  constructor(message: string, result: CustomerResult) {
+    this.message = message;
+    this.result = result;
+  }
+}
+
 export class PaymentMethodResponseDto {
   message: string;
-  result: Stripe.PaymentMethod | Stripe.ApiList<Stripe.PaymentMethod>;
+  result: PaymentMethodDetails;
 
-  constructor(
-    message: string,
-    result: Stripe.PaymentMethod | Stripe.ApiList<Stripe.PaymentMethod>,
-  ) {
+  constructor(message: string, result: PaymentMethodDetails) {
+    this.message = message;
+    this.result = result;
+  }
+}
+
+export class PaymentMethodListResponseDto {
+  message: string;
+  result: PaymentMethodDetails[];
+
+  constructor(message: string, result: PaymentMethodDetails[]) {
+    this.message = message;
+    this.result = result;
+  }
+}
+
+export class PaymentIntentResponseDto {
+  message: string;
+  result: PaymentIntentDetails;
+
+  constructor(message: string, result: PaymentIntentDetails) {
     this.message = message;
     this.result = result;
   }

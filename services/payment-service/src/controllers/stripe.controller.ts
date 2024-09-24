@@ -1,11 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { StripeService } from '../services';
-import {
-  CustomerResponseDto,
-  PaymentIntentResponseDto,
-  PaymentMethodRequestDto,
-  PayoutResponseDto,
-} from '../dtos';
+import { PayoutResponseDto } from '../dtos';
 import { logger } from '../utils';
 import { JwtPayload } from 'shared-common';
 import {
@@ -16,6 +11,9 @@ import {
   CreatePaymentIntentRequestDto,
   ConfirmPaymentIntentRequestDto,
   CreatePayoutRequestDto,
+  CustomerResponseDto,
+  PaymentIntentResponseDto,
+  PaymentMethodListResponseDto,
 } from 'shared-account-payment';
 
 export class StripeController {
@@ -41,36 +39,37 @@ export class StripeController {
     }
   }
 
-  async createPaymentMethod(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<Response | void> {
-    try {
-      const userDetails = res.locals.payload as JwtPayload;
-      const paymentMethodDetails: PaymentMethodRequestDto = req.body;
-      if (paymentMethodDetails.type !== 'card' /*|| !paymentMethodDetails.card*/) {
-        const error = new Error('Invalid payment method details');
-        return next(error);
-      }
+  // not being used
+  // async createPaymentMethod(
+  //   req: Request,
+  //   res: Response,
+  //   next: NextFunction,
+  // ): Promise<Response | void> {
+  //   try {
+  //     const userDetails = res.locals.payload as JwtPayload;
+  //     const paymentMethodDetails: CreatePaymentMethodRequestDto = req.body;
+  //     if (paymentMethodDetails.type !== 'card' /*|| !paymentMethodDetails.card*/) {
+  //       const error = new Error('Invalid payment method details');
+  //       return next(error);
+  //     }
 
-      const paymentMethod =
-        await this.stripeService.createPaymentMethod(paymentMethodDetails);
-      const customerId = await this.stripeService.getCustomerId(userDetails.email);
-      await this.stripeService.attachPaymentMethodToCustomer(
-        paymentMethod.id,
-        customerId,
-      );
+  //     const paymentMethod =
+  //       await this.stripeService.createPaymentMethod(paymentMethodDetails);
+  //     const customerId = await this.stripeService.getCustomerId(userDetails.email);
+  //     await this.stripeService.attachPaymentMethodToCustomer(
+  //       paymentMethod.id,
+  //       customerId,
+  //     );
 
-      const message = 'Payment method created successfully';
-      const response = new PaymentMethodResponseDto(message, paymentMethod);
+  //     const message = 'Payment method created successfully';
+  //     const response = new PaymentMethodResponseDto(message, paymentMethod);
 
-      logger.info(response);
-      return res.status(201).json(response);
-    } catch (err) {
-      next(err);
-    }
-  }
+  //     logger.info(response);
+  //     return res.status(201).json(response);
+  //   } catch (err) {
+  //     next(err);
+  //   }
+  // }
 
   async getPaymentMethods(
     _req: Request,
@@ -85,7 +84,7 @@ export class StripeController {
         await this.stripeService.listCustomerPaymentMethods(customerId);
 
       const message = 'Retrieved payment methods successfully';
-      const response = new PaymentMethodResponseDto(message, paymentMethods);
+      const response = new PaymentMethodListResponseDto(message, paymentMethods);
 
       logger.info(response);
       return res.status(200).json(response);
@@ -203,6 +202,7 @@ export class StripeController {
     }
   }
 
+  // TODO: YOU ARE HERE! MOVE PAYOUT RESPONSE DTO TO SHARED AND USE IT!
   async createPayout(
     req: Request,
     res: Response,

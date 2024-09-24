@@ -1,6 +1,5 @@
 import {
   ConfirmPaymentIntentResult,
-  CreatePaymentIntentResult,
   IPaymentMethod,
   PaymentMethodResult,
   PaymentStatusResult,
@@ -37,21 +36,12 @@ export class PaymentMethodResponseDto {
   }
 }
 
+// ok
 export class AddPaymentMethodRequestDto {
   paymentMethodId: string;
 
   constructor(paymentMethodId: string) {
     this.paymentMethodId = paymentMethodId;
-  }
-}
-
-export class CreatePaymentIntentResponseDto {
-  message: string;
-  result: CreatePaymentIntentResult;
-
-  constructor(message: string, result: CreatePaymentIntentResult) {
-    this.message = message;
-    this.result = result;
   }
 }
 
@@ -65,6 +55,7 @@ export class ConfirmPaymentIntentResponseDto {
   }
 }
 
+// ok
 export class DepositFundsRequestDto {
   amount: number;
   paymentMethodId: string;
@@ -75,6 +66,7 @@ export class DepositFundsRequestDto {
   }
 }
 
+// ok
 export class WithdrawFundsRequestDto {
   amount: number;
 
@@ -83,6 +75,7 @@ export class WithdrawFundsRequestDto {
   }
 }
 
+// ok
 export class TransferFundsRequestDto {
   amount: number;
   toUserId: string;

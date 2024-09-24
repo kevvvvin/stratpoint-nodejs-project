@@ -9,9 +9,9 @@ router.post('/create-customer-id', (req, res, next) =>
   stripeController.createCustomerId(req, res, next),
 );
 
-router.post('/create-payment-method', (req, res, next) =>
-  stripeController.createPaymentMethod(req, res, next),
-);
+// router.post('/create-payment-method', (req, res, next) =>
+//   stripeController.createPaymentMethod(req, res, next),
+// );
 
 router.get('/payment-methods', (req, res, next) =>
   stripeController.getPaymentMethods(req, res, next),

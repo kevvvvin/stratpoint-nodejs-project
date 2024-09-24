@@ -1,3 +1,4 @@
+import { PaymentIntentDetails } from 'shared-account-payment';
 import { IPaymentMethod } from './';
 
 export interface cardDetails {
@@ -16,17 +17,7 @@ export interface PaymentMethodResult {
   paymentMethod: PaymentMethodDetails | PaymentMethodDetails[];
 }
 
-export interface CreatePaymentIntentResult {
-  paymentIntent: {
-    clientSecret: string;
-    paymentIntentId: string;
-  };
-}
-
-export interface ConfirmPaymentIntentResult {
-  balance: number;
-  transactionId: string;
-}
+export type ConfirmPaymentIntentResult = PaymentIntentDetails & { newBalance: number };
 
 export interface PaymentStatusResult {
   stripePaymentIntentId: string;

@@ -1,8 +1,12 @@
 import Stripe from 'stripe';
-import { CustomerResult, MockPayoutResult } from '../types';
+import { MockPayoutResult } from '../types';
 import { JwtPayload } from 'shared-common';
-import { PaymentMethodRequestDto } from '../dtos';
 import { logger } from '../utils';
+import {
+  CustomerResult,
+  PaymentIntentDetails,
+  PaymentMethodDetails,
+} from 'shared-account-payment';
 
 export class StripeService {
   constructor(private stripe: Stripe) {}
@@ -16,24 +20,23 @@ export class StripeService {
       throw new Error('Customer creation failed. Customer already exists.');
 
     const customer = await this.stripe.customers.create({ email: userDetails.email });
-    const createResult: CustomerResult = {
+
+    return {
       id: customer.id,
     };
-
-    return createResult;
   }
 
-  async createPaymentMethod(
-    paymentMethodDetails: PaymentMethodRequestDto,
-  ): Promise<Stripe.PaymentMethod> {
-    const paymentMethodData: Stripe.PaymentMethodCreateParams = {
-      type: 'card',
-      card: {
-        token: paymentMethodDetails.token,
-      },
-    };
-    return await this.stripe.paymentMethods.create(paymentMethodData);
-  }
+  // async createPaymentMethod(
+  //   paymentMethodDetails: CreatePaymentMethodRequestDto,
+  // ): Promise<Stripe.PaymentMethod> {
+  //   const paymentMethodData: Stripe.PaymentMethodCreateParams = {
+  //     type: 'card',
+  //     card: {
+  //       token: paymentMethodDetails.token,
+  //     },
+  //   };
+  //   return await this.stripe.paymentMethods.create(paymentMethodData);
+  // }
 
   async getCustomerId(email: string): Promise<string> {
     const customer = await this.stripe.customers.list({
@@ -46,7 +49,7 @@ export class StripeService {
   async attachPaymentMethodToCustomer(
     paymentMethodId: string,
     customerId: string,
-  ): Promise<Stripe.PaymentMethod> {
+  ): Promise<PaymentMethodDetails> {
     const paymentMethod = await this.stripe.paymentMethods.retrieve(paymentMethodId);
     if (paymentMethod.customer === customerId)
       throw new Error('Payment method already attached to customer');
@@ -59,53 +62,138 @@ export class StripeService {
     const attachedMethod = await this.stripe.paymentMethods.attach(paymentMethodId, {
       customer: customerId,
     });
+    if (attachedMethod.type == undefined || attachedMethod.card == undefined) {
+      throw new Error(
+        'Expected a card and type in payment method retrieval response, but was undefined',
+      );
+    }
 
-    return attachedMethod;
+    return {
+      id: attachedMethod.id,
+      type: attachedMethod.type,
+      card: {
+        brand: attachedMethod.card.brand,
+        last4: attachedMethod.card.last4,
+        exp_month: attachedMethod.card.exp_month,
+        exp_year: attachedMethod.card.exp_year,
+      },
+    };
   }
 
   async detachPaymentMethodFromCustomer(
     paymentMethodId: string,
-  ): Promise<Stripe.PaymentMethod> {
-    const detachedPaymentMethod = this.stripe.paymentMethods.detach(paymentMethodId);
-    return detachedPaymentMethod;
+  ): Promise<PaymentMethodDetails> {
+    const detachedPaymentMethod =
+      await this.stripe.paymentMethods.detach(paymentMethodId);
+
+    if (
+      detachedPaymentMethod.type == undefined ||
+      detachedPaymentMethod.card == undefined
+    ) {
+      throw new Error('Expected a card and type in payment method detachment response');
+    }
+
+    return {
+      id: detachedPaymentMethod.id,
+      type: detachedPaymentMethod.type,
+      card: {
+        brand: detachedPaymentMethod.card.brand,
+        last4: detachedPaymentMethod.card.last4,
+        exp_month: detachedPaymentMethod.card.exp_month,
+        exp_year: detachedPaymentMethod.card.exp_year,
+      },
+    };
   }
 
-  async listCustomerPaymentMethods(
-    customerId: string,
-  ): Promise<Stripe.Response<Stripe.ApiList<Stripe.PaymentMethod>>> {
-    const paymentMethods = this.stripe.customers.listPaymentMethods(customerId, {
+  async listCustomerPaymentMethods(customerId: string): Promise<PaymentMethodDetails[]> {
+    const customerPaymentMethods = this.stripe.customers.listPaymentMethods(customerId, {
       type: 'card',
+    });
+
+    const paymentMethods: PaymentMethodDetails[] = (
+      await customerPaymentMethods
+    ).data.map((paymentMethod: Stripe.PaymentMethod) => {
+      if (paymentMethod.type == undefined || paymentMethod.card == undefined) {
+        throw new Error(
+          'Expected a card and type in payment method retrieval response, but was undefined',
+        );
+      }
+      return {
+        id: paymentMethod.id,
+        type: paymentMethod.type,
+        card: {
+          brand: paymentMethod.card.brand,
+          last4: paymentMethod.card.last4,
+          exp_month: paymentMethod.card.exp_month,
+          exp_year: paymentMethod.card.exp_year,
+        },
+      };
     });
 
     return paymentMethods;
   }
 
-  async retrievePaymentMethod(paymentMethodId: string): Promise<Stripe.PaymentMethod> {
-    return await this.stripe.paymentMethods.retrieve(paymentMethodId);
+  async retrievePaymentMethod(paymentMethodId: string): Promise<PaymentMethodDetails> {
+    const retrieved = await this.stripe.paymentMethods.retrieve(paymentMethodId);
+    if (retrieved.type == undefined || retrieved.card == undefined) {
+      throw new Error(
+        'Expected a card and type in payment method retrieval response, but was undefined',
+      );
+    }
+
+    return {
+      id: retrieved.id,
+      type: retrieved.type,
+      card: {
+        brand: retrieved.card.brand,
+        last4: retrieved.card.last4,
+        exp_month: retrieved.card.exp_month,
+        exp_year: retrieved.card.exp_year,
+      },
+    };
   }
 
   async createPaymentIntent(
     amount: number,
     currency: string,
     customerId: string,
-  ): Promise<Stripe.PaymentIntent> {
-    return await this.stripe.paymentIntents.create({
+  ): Promise<PaymentIntentDetails> {
+    const paymentIntent = await this.stripe.paymentIntents.create({
       amount: amount * 100,
       currency,
       customer: customerId,
       payment_method_types: ['card'],
     });
+
+    return {
+      id: paymentIntent.id,
+      amount: paymentIntent.amount,
+      currency: paymentIntent.currency,
+      status: paymentIntent.status,
+      clientSecret: paymentIntent.client_secret,
+      paymentMethod: paymentIntent.payment_method_types,
+    };
   }
 
   async confirmPaymentIntent(
     paymentIntentId: string,
     paymentMethodId: string,
-  ): Promise<Stripe.PaymentIntent> {
-    return await this.stripe.paymentIntents.confirm(paymentIntentId, {
+  ): Promise<PaymentIntentDetails> {
+    const paymentIntent = await this.stripe.paymentIntents.confirm(paymentIntentId, {
       payment_method: paymentMethodId,
     });
+
+    return {
+      id: paymentIntent.id,
+      amount: paymentIntent.amount,
+      currency: paymentIntent.currency,
+      status: paymentIntent.status,
+      clientSecret: paymentIntent.client_secret,
+      paymentMethod: paymentIntent.payment_method_types,
+    };
   }
 
+  // TODO: test create payouts without mock
   async createPayout(amount: number, customerId: string): Promise<MockPayoutResult> {
     // const payout = await this.stripe.payouts.create(
     //   {

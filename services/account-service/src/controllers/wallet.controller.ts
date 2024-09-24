@@ -5,7 +5,6 @@ import { WalletService } from '../services';
 import {
   AddPaymentMethodRequestDto,
   ConfirmPaymentIntentResponseDto,
-  CreatePaymentIntentResponseDto,
   DepositFundsRequestDto,
   PaymentMethodResponseDto,
   PaymentStatusResponseDto,
@@ -17,6 +16,7 @@ import {
   WithdrawFundsRequestDto,
 } from '../dtos';
 import { logger } from '../utils';
+import { PaymentIntentResponseDto } from 'shared-account-payment';
 
 export class WalletController {
   constructor(private walletService: WalletService) {}
@@ -157,7 +157,7 @@ export class WalletController {
       );
 
       const message = 'Payment intent created successfully';
-      const response = new CreatePaymentIntentResponseDto(message, paymentIntent);
+      const response = new PaymentIntentResponseDto(message, paymentIntent);
 
       logger.info(response);
       return res.status(201).json(response);
@@ -184,7 +184,7 @@ export class WalletController {
       );
 
       const message = 'Payment intent confirmed successfully';
-      const response = new ConfirmPaymentIntentResponseDto(message, result);
+      const response = new PaymentIntentResponseDto(message, result);
 
       logger.info(response);
       return res.status(200).json(response);

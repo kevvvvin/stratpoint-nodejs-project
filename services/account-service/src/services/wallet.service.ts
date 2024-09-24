@@ -3,7 +3,6 @@ import {
   PaymentMethodResult,
   WalletResult,
   STRIPE_TEST_PAYMENT_METHODS,
-  CreatePaymentIntentResult,
   ConfirmPaymentIntentResult,
   PaymentStatusResult,
   PayoutResult,
@@ -22,7 +21,11 @@ import {
   ConfirmPaymentIntentRequestDto,
   CreatePaymentIntentRequestDto,
   CreatePayoutRequestDto,
+  CustomerResponseDto,
   DetachPaymentMethodRequestDto,
+  PaymentIntentDetails,
+  PaymentIntentResponseDto,
+  PaymentMethodResponseDto,
   RetrievePaymentMethodRequestDto,
 } from 'shared-account-payment';
 
@@ -36,18 +39,18 @@ export class WalletService {
     const wallet = await this.walletRepository.findByUserId(userDetails.sub);
     if (wallet) throw new Error('Wallet creation failed. Wallet already exists.');
 
-    const customerResponse = await fetchHelper(
+    const fetchCreateCustomer = await fetchHelper(
       authHeader,
       `http://${envConfig.paymentService}:3004/api/stripe/create-customer-id`,
       'POST',
     );
-    if (customerResponse.status !== 201)
+    if (fetchCreateCustomer.status !== 201)
       throw new Error('Wallet creation failed. Customer creation failed.');
 
-    const customer = (await customerResponse.json()).result;
+    const customerResponse: CustomerResponseDto = await fetchCreateCustomer.json();
     const newWallet = await this.walletRepository.create(
       userDetails.sub,
-      customer.id as string,
+      customerResponse.result.id,
     );
 
     try {
@@ -104,16 +107,16 @@ export class WalletService {
     if (existingPaymentMethod)
       throw new Error(`Payment method ${paymentMethodId} already exists for ${userId}`);
 
-    const retrieveResponse = await fetchHelper(
+    const fetchRetrievePM = await fetchHelper(
       authHeader,
       `http://${envConfig.paymentService}:3004/api/stripe/retrieve-payment-method`,
       'POST',
       new RetrievePaymentMethodRequestDto(paymentMethodId),
     );
-    if (retrieveResponse.status !== 200)
+    if (fetchRetrievePM.status !== 200)
       throw new Error('Payment method retrieval failed.');
 
-    const retrievedPaymentMethod = (await retrieveResponse.json()).result;
+    const retrievedPaymentMethod: PaymentMethodResponseDto = await fetchRetrievePM.json();
 
     const attachResponse = await fetchHelper(
       authHeader,
@@ -127,12 +130,12 @@ export class WalletService {
     const newPaymentMethod = this.paymentMethodRepository.create({
       user: new Types.ObjectId(userId),
       stripePaymentMethodId: paymentMethodId,
-      type: retrievedPaymentMethod.type as string,
+      type: retrievedPaymentMethod.result.type,
       card: {
-        brand: retrievedPaymentMethod.card.brand as string,
-        last4: retrievedPaymentMethod.card.last4 as string,
-        expMonth: retrievedPaymentMethod.card.exp_month as number,
-        expYear: retrievedPaymentMethod.card.exp_year as number,
+        brand: retrievedPaymentMethod.result.card.brand,
+        last4: retrievedPaymentMethod.result.card.last4,
+        expMonth: retrievedPaymentMethod.result.card.exp_month,
+        expYear: retrievedPaymentMethod.result.card.exp_year,
       },
       isDefault: false,
     });
@@ -143,8 +146,8 @@ export class WalletService {
         `http://${envConfig.notificationService}:3006/api/notif/add-payment-method-notification`,
         'POST',
         {
-          last4: retrievedPaymentMethod.card.last4,
-          cardBrand: retrievedPaymentMethod.card.brand,
+          last4: retrievedPaymentMethod.result.card.last4,
+          cardBrand: retrievedPaymentMethod.result.card.brand,
         },
       );
 
@@ -198,13 +201,13 @@ export class WalletService {
       return paymentMethod;
     }
 
-    const detachResponse = await fetchHelper(
+    const fetchDetach = await fetchHelper(
       authHeader,
       `http://${envConfig.paymentService}:3004/api/stripe/detach-payment-method`,
       'POST',
       new DetachPaymentMethodRequestDto(paymentMethodId),
     );
-    if (detachResponse.status !== 200) {
+    if (fetchDetach.status !== 200) {
       logger.warn(
         'Payment method detachment to customer failed. Proceeding with local deletion',
       );
@@ -219,7 +222,7 @@ export class WalletService {
     authHeader: string,
     amount: number,
     userId: string,
-  ): Promise<CreatePaymentIntentResult> {
+  ): Promise<PaymentIntentDetails> {
     const wallet = await this.walletRepository.findByUserId(userId);
     if (!wallet) throw new Error('Wallet does not exist.');
 
@@ -232,13 +235,15 @@ export class WalletService {
     if (paymentIntentResponse.status !== 201)
       throw new Error('Payment intent creation failed');
 
-    const paymentIntent = (await paymentIntentResponse.json()).result;
+    const paymentIntent: PaymentIntentResponseDto = await paymentIntentResponse.json();
 
     return {
-      paymentIntent: {
-        clientSecret: paymentIntent.client_secret,
-        paymentIntentId: paymentIntent.id,
-      },
+      id: paymentIntent.result.id,
+      amount: paymentIntent.result.amount,
+      currency: paymentIntent.result.currency,
+      status: paymentIntent.result.status,
+      clientSecret: paymentIntent.result.clientSecret,
+      paymentMethod: paymentIntent.result.paymentMethod,
     };
   }
 
@@ -257,7 +262,6 @@ export class WalletService {
     );
     if (!paymentMethod) throw new Error('Payment method does not exist.');
 
-    let paymentIntent;
     const paymentIntentResponse = await fetchHelper(
       authHeader,
       `http://${envConfig.paymentService}:3004/api/stripe/confirm-payment-intent`,
@@ -267,17 +271,17 @@ export class WalletService {
     if (paymentIntentResponse.status !== 200)
       throw new Error('Payment intent confirmation failed');
 
-    paymentIntent = (await paymentIntentResponse.json()).result;
+    const paymentIntent: PaymentIntentResponseDto = await paymentIntentResponse.json();
 
-    if (paymentIntent.status === 'succeeded') {
-      const amount = paymentIntent.amount / 100;
+    if (paymentIntent.result.status === 'succeeded') {
+      const amount = paymentIntent.result.amount / 100;
 
       const transactionRequestDto = new TransactionRequestDto(
         'deposit',
         amount,
         null,
         wallet._id.toString(),
-        paymentIntent.id,
+        paymentIntent.result.id,
       );
       const transactionResponse = await fetchHelper(
         authHeader,
@@ -293,7 +297,15 @@ export class WalletService {
       wallet.balance += amount;
       await wallet.save();
 
-      return { balance: wallet.balance, transactionId: transactionId };
+      return {
+        id: transactionId, // this is equal to the payment intent's id
+        amount: paymentIntent.result.amount,
+        currency: paymentIntent.result.currency,
+        status: paymentIntent.result.status,
+        clientSecret: paymentIntent.result.clientSecret,
+        paymentMethod: paymentIntent.result.paymentMethod,
+        newBalance: wallet.balance,
+      };
     } else {
       throw new Error('Payment failed');
     }
@@ -337,8 +349,6 @@ export class WalletService {
     );
     if (!paymentMethod) throw new Error('Payment method does not exist.');
 
-    let paymentIntent;
-
     const createPaymentIntentResponse = await fetchHelper(
       authHeader,
       `http://${envConfig.paymentService}:3004/api/stripe/create-payment-intent`,
@@ -348,28 +358,30 @@ export class WalletService {
     if (createPaymentIntentResponse.status !== 201)
       throw new Error('Payment intent creation failed');
 
-    paymentIntent = (await createPaymentIntentResponse.json()).result;
+    const createdPaymentIntent: PaymentIntentResponseDto =
+      await createPaymentIntentResponse.json();
 
     const confirmPaymentIntentResponse = await fetchHelper(
       authHeader,
       `http://${envConfig.paymentService}:3004/api/stripe/confirm-payment-intent`,
       'POST',
-      new ConfirmPaymentIntentRequestDto(paymentIntent.id, paymentMethodId),
+      new ConfirmPaymentIntentRequestDto(createdPaymentIntent.result.id, paymentMethodId),
     );
     if (confirmPaymentIntentResponse.status !== 200)
       throw new Error('Payment intent confirmation failed');
 
-    paymentIntent = (await confirmPaymentIntentResponse.json()).result;
+    const confirmedPaymentIntent: PaymentIntentResponseDto =
+      await confirmPaymentIntentResponse.json();
 
-    if (paymentIntent.status === 'succeeded') {
-      const depositAmount = paymentIntent.amount / 100;
+    if (confirmedPaymentIntent.result.status === 'succeeded') {
+      const depositAmount = confirmedPaymentIntent.result.amount / 100;
 
       const transactionRequestDto = new TransactionRequestDto(
         'deposit',
         depositAmount,
         null,
         wallet._id.toString(),
-        paymentIntent.id,
+        confirmedPaymentIntent.result.id,
       );
       const transactionResponse = await fetchHelper(
         authHeader,
@@ -401,15 +413,20 @@ export class WalletService {
       }
 
       return {
-        balance: wallet.balance,
-        transactionId: transactionId,
+        id: transactionId, // this is equal to the payment intent's id
+        amount: confirmedPaymentIntent.result.amount,
+        currency: confirmedPaymentIntent.result.currency,
+        status: confirmedPaymentIntent.result.status,
+        clientSecret: confirmedPaymentIntent.result.clientSecret,
+        paymentMethod: confirmedPaymentIntent.result.paymentMethod,
+        newBalance: wallet.balance,
       };
     } else {
       throw new Error('Deposit failed');
     }
   }
 
-  // TODO: YOU ARE HERE, MOVE SHARED REQUEST DTOs BETWEEN PAYMENT AND ACCOUNT TO SHARED PACKAGE!
+  // TODO: YOU ARE HERE, MOVE PAYOUT RESPONSE DTO TO SHARED PACKAGE AND USE IT!
   async withdraw(
     authHeader: string,
     userId: string,
