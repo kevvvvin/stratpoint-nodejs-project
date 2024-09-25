@@ -1,4 +1,8 @@
-import { PaymentIntentDetails, PayoutDetails } from 'shared-account-payment';
+import {
+  PaymentIntentDetails,
+  PaymentMethodDetails,
+  PayoutDetails,
+} from 'shared-account-payment';
 import { IPaymentMethod } from './';
 
 export interface cardDetails {
@@ -8,14 +12,12 @@ export interface cardDetails {
   expYear: number;
 }
 
-export type PaymentMethodDetails = Pick<
+export type CreatePaymentMethodDetails = Pick<
   IPaymentMethod,
   'user' | 'stripePaymentMethodId' | 'type' | 'card' | 'isDefault'
 >;
 
-export interface PaymentMethodResult {
-  paymentMethod: PaymentMethodDetails | PaymentMethodDetails[];
-}
+export type PaymentMethodResult = PaymentMethodDetails & { isDefault: boolean };
 
 export type ConfirmPaymentIntentResult = PaymentIntentDetails & { newBalance: number };
 
@@ -27,7 +29,7 @@ export interface PaymentStatusResult {
   updatedAt: Date;
 }
 
-export type PayoutResult = PayoutDetails & { balance: number };
+export type PayoutResult = PayoutDetails & { newBalance: number };
 
 export interface TransferResult {
   fromBalance: number;

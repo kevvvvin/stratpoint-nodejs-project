@@ -74,8 +74,8 @@ export class StripeService {
       card: {
         brand: attachedMethod.card.brand,
         last4: attachedMethod.card.last4,
-        exp_month: attachedMethod.card.exp_month,
-        exp_year: attachedMethod.card.exp_year,
+        expMonth: attachedMethod.card.exp_month,
+        expYear: attachedMethod.card.exp_year,
       },
     };
   }
@@ -99,8 +99,8 @@ export class StripeService {
       card: {
         brand: detachedPaymentMethod.card.brand,
         last4: detachedPaymentMethod.card.last4,
-        exp_month: detachedPaymentMethod.card.exp_month,
-        exp_year: detachedPaymentMethod.card.exp_year,
+        expMonth: detachedPaymentMethod.card.exp_month,
+        expYear: detachedPaymentMethod.card.exp_year,
       },
     };
   }
@@ -124,8 +124,8 @@ export class StripeService {
         card: {
           brand: paymentMethod.card.brand,
           last4: paymentMethod.card.last4,
-          exp_month: paymentMethod.card.exp_month,
-          exp_year: paymentMethod.card.exp_year,
+          expMonth: paymentMethod.card.exp_month,
+          expYear: paymentMethod.card.exp_year,
         },
       };
     });
@@ -147,8 +147,8 @@ export class StripeService {
       card: {
         brand: retrieved.card.brand,
         last4: retrieved.card.last4,
-        exp_month: retrieved.card.exp_month,
-        exp_year: retrieved.card.exp_year,
+        expMonth: retrieved.card.exp_month,
+        expYear: retrieved.card.exp_year,
       },
     };
   }

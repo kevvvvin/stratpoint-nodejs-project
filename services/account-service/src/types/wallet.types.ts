@@ -1,15 +1,12 @@
 import { Schema } from 'mongoose';
 import { IWallet } from './';
 
-type WalletDetails = Pick<
+export type WalletDetails = Pick<
   IWallet,
   '_id' | 'user' | 'balance' | 'currency' | 'stripeCustomerId'
 >;
 
-export interface WalletResult {
-  wallet: WalletDetails;
-}
-
+// TODO: shared
 export interface TransactionResult {
   _id: Schema.Types.ObjectId;
   type: 'deposit' | 'withdrawal' | 'transfer';

@@ -6,37 +6,11 @@ import {
   PayoutResult,
   TransactionResult,
   TransferResult,
-  WalletResult,
+  WalletDetails,
 } from '../types';
 
-export class WalletResponseDto {
-  message: string;
-  result: WalletResult;
+// REQUEST DTOs
 
-  constructor(message: string, result: WalletResult) {
-    this.message = message;
-    this.result = result;
-  }
-}
-
-export class PaymentMethodResponseDto {
-  message: string;
-  result: IPaymentMethod | PaymentMethodResult | IPaymentMethod[] | PaymentMethodResult[];
-
-  constructor(
-    message: string,
-    result:
-      | IPaymentMethod
-      | PaymentMethodResult
-      | IPaymentMethod[]
-      | PaymentMethodResult[],
-  ) {
-    this.message = message;
-    this.result = result;
-  }
-}
-
-// ok
 export class AddPaymentMethodRequestDto {
   paymentMethodId: string;
 
@@ -45,17 +19,6 @@ export class AddPaymentMethodRequestDto {
   }
 }
 
-export class ConfirmPaymentIntentResponseDto {
-  message: string;
-  result: ConfirmPaymentIntentResult;
-
-  constructor(message: string, result: ConfirmPaymentIntentResult) {
-    this.message = message;
-    this.result = result;
-  }
-}
-
-// ok
 export class DepositFundsRequestDto {
   amount: number;
   paymentMethodId: string;
@@ -66,7 +29,6 @@ export class DepositFundsRequestDto {
   }
 }
 
-// ok
 export class WithdrawFundsRequestDto {
   amount: number;
 
@@ -75,7 +37,6 @@ export class WithdrawFundsRequestDto {
   }
 }
 
-// ok
 export class TransferFundsRequestDto {
   amount: number;
   toUserId: string;
@@ -111,6 +72,41 @@ export class TransactionRequestDto {
   }
 }
 
+// RESPONSE DTOs
+
+export class WalletResponseDto {
+  message: string;
+  result: WalletDetails;
+
+  constructor(message: string, result: WalletDetails) {
+    this.message = message;
+    this.result = result;
+  }
+}
+
+export class PaymentMethodResponseDto {
+  message: string;
+  result: IPaymentMethod | PaymentMethodResult | PaymentMethodResult[];
+
+  constructor(
+    message: string,
+    result: IPaymentMethod | PaymentMethodResult | PaymentMethodResult[],
+  ) {
+    this.message = message;
+    this.result = result;
+  }
+}
+
+export class DepositFundsResponseDto {
+  message: string;
+  result: ConfirmPaymentIntentResult;
+
+  constructor(message: string, result: ConfirmPaymentIntentResult) {
+    this.message = message;
+    this.result = result;
+  }
+}
+
 export class PaymentStatusResponseDto {
   message: string;
   result: PaymentStatusResult;
@@ -121,7 +117,7 @@ export class PaymentStatusResponseDto {
   }
 }
 
-export class PayoutResponseDto {
+export class WithdrawFundsResponseDto {
   message: string;
   result: PayoutResult;
 

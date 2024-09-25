@@ -1,13 +1,14 @@
 import {
   IPaymentMethod,
-  PaymentMethodResult,
-  WalletResult,
+  // PaymentMethodResult,
   STRIPE_TEST_PAYMENT_METHODS,
   ConfirmPaymentIntentResult,
   PaymentStatusResult,
   PayoutResult,
   TransferResult,
   TransactionResult,
+  WalletDetails,
+  PaymentMethodResult,
 } from '../types';
 import { JwtPayload } from 'shared-common';
 import { WalletRepository, PaymentMethodRepository } from '../repositories';
@@ -36,7 +37,7 @@ export class WalletService {
     private paymentMethodRepository: PaymentMethodRepository,
   ) {}
 
-  async create(userDetails: JwtPayload, authHeader: string): Promise<WalletResult> {
+  async create(userDetails: JwtPayload, authHeader: string): Promise<WalletDetails> {
     const wallet = await this.walletRepository.findByUserId(userDetails.sub);
     if (wallet) throw new Error('Wallet creation failed. Wallet already exists.');
 
@@ -70,28 +71,24 @@ export class WalletService {
     }
 
     return {
-      wallet: {
-        _id: newWallet._id,
-        user: newWallet.user,
-        balance: newWallet.balance,
-        currency: newWallet.currency,
-        stripeCustomerId: newWallet.stripeCustomerId,
-      },
+      _id: newWallet._id,
+      user: newWallet.user,
+      balance: newWallet.balance,
+      currency: newWallet.currency,
+      stripeCustomerId: newWallet.stripeCustomerId,
     };
   }
 
-  async getWalletBalance(userId: string): Promise<WalletResult> {
+  async getWalletBalance(userId: string): Promise<WalletDetails> {
     const wallet = await this.walletRepository.findByUserId(userId);
     if (!wallet) throw new Error('Wallet does not exist.');
 
     return {
-      wallet: {
-        _id: wallet._id,
-        user: wallet.user,
-        balance: wallet.balance,
-        currency: wallet.currency,
-        stripeCustomerId: wallet.stripeCustomerId,
-      },
+      _id: wallet._id,
+      user: wallet.user,
+      balance: wallet.balance,
+      currency: wallet.currency,
+      stripeCustomerId: wallet.stripeCustomerId,
     };
   }
 
@@ -135,8 +132,8 @@ export class WalletService {
       card: {
         brand: retrievedPaymentMethod.result.card.brand,
         last4: retrievedPaymentMethod.result.card.last4,
-        expMonth: retrievedPaymentMethod.result.card.exp_month,
-        expYear: retrievedPaymentMethod.result.card.exp_year,
+        expMonth: retrievedPaymentMethod.result.card.expMonth,
+        expYear: retrievedPaymentMethod.result.card.expYear,
       },
       isDefault: false,
     });
@@ -166,18 +163,15 @@ export class WalletService {
     const paymentMethods =
       await this.paymentMethodRepository.findUserPaymentMethods(userId);
     const methodResults: PaymentMethodResult[] = paymentMethods.map((paymentMethod) => ({
-      paymentMethod: {
-        user: paymentMethod.user,
-        stripePaymentMethodId: paymentMethod.stripePaymentMethodId,
-        type: paymentMethod.type,
-        card: {
-          brand: paymentMethod.card.brand,
-          last4: paymentMethod.card.last4,
-          expMonth: paymentMethod.card.expMonth,
-          expYear: paymentMethod.card.expYear,
-        },
-        isDefault: paymentMethod.isDefault,
+      id: paymentMethod.stripePaymentMethodId,
+      type: paymentMethod.type,
+      card: {
+        brand: paymentMethod.card.brand,
+        last4: paymentMethod.card.last4,
+        expMonth: paymentMethod.card.expMonth,
+        expYear: paymentMethod.card.expYear,
       },
+      isDefault: paymentMethod.isDefault,
     }));
     return methodResults;
   }
@@ -497,11 +491,11 @@ export class WalletService {
     return {
       id: payout.result.id,
       object: payout.result.object,
-      amount: payout.result.amount,
+      amount: amount, // use payment intent amount / 100 to get amount in dollars
       currency: payout.result.currency,
       method: payout.result.method,
       status: payout.result.status,
-      balance: wallet.balance,
+      newBalance: wallet.balance,
     };
   }
 

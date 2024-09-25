@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
 import { PaymentMethod } from '../models';
-import { IPaymentMethod, PaymentMethodDetails } from '../types';
+import { CreatePaymentMethodDetails, IPaymentMethod } from '../types';
 
 export class PaymentMethodRepository {
   async findByUserId(userId: string): Promise<IPaymentMethod | null> {
@@ -27,7 +27,9 @@ export class PaymentMethodRepository {
     });
   }
 
-  async create(paymentMethodDetails: PaymentMethodDetails): Promise<IPaymentMethod> {
+  async create(
+    paymentMethodDetails: CreatePaymentMethodDetails,
+  ): Promise<IPaymentMethod> {
     const paymentMethod = new PaymentMethod(paymentMethodDetails);
     await paymentMethod.save();
     return paymentMethod;

@@ -1,19 +1,18 @@
 import { Request, Response, NextFunction } from 'express';
-import { WalletResult } from '../types';
 import { JwtPayload } from 'shared-common';
 import { WalletService } from '../services';
 import {
   AddPaymentMethodRequestDto,
-  ConfirmPaymentIntentResponseDto,
   DepositFundsRequestDto,
+  DepositFundsResponseDto,
   PaymentMethodResponseDto,
   PaymentStatusResponseDto,
-  PayoutResponseDto,
   TransactionsResponseDto,
   TransferFundsRequestDto,
   TransferResponseDto,
   WalletResponseDto,
   WithdrawFundsRequestDto,
+  WithdrawFundsResponseDto,
 } from '../dtos';
 import { logger } from '../utils';
 import { PaymentIntentResponseDto } from 'shared-account-payment';
@@ -30,14 +29,8 @@ export class WalletController {
       const authHeader = req.header('Authorization') as string;
       const userDetails = res.locals.payload as JwtPayload;
 
-      logger.info(authHeader);
-
-      const result: WalletResult = await this.walletService.create(
-        userDetails,
-        authHeader,
-      );
-      const message = 'Wallet created successfully';
-      const response = new WalletResponseDto(message, result);
+      const result = await this.walletService.create(userDetails, authHeader);
+      const response = new WalletResponseDto('Wallet created successfully', result);
 
       logger.info(response);
       return res.status(201).json(response);
@@ -54,11 +47,8 @@ export class WalletController {
     try {
       const userDetails = res.locals.payload as JwtPayload;
 
-      const result: WalletResult = await this.walletService.getWalletBalance(
-        userDetails.sub,
-      );
-      const message = 'Retrieved wallet successfully';
-      const response = new WalletResponseDto(message, result);
+      const result = await this.walletService.getWalletBalance(userDetails.sub);
+      const response = new WalletResponseDto('Retrieved wallet successfully', result);
 
       logger.info(response);
       return res.status(200).json(response);
@@ -83,8 +73,10 @@ export class WalletController {
         authHeader,
       );
 
-      const message = 'Payment method added successfully';
-      const response = new PaymentMethodResponseDto(message, result);
+      const response = new PaymentMethodResponseDto(
+        'Payment method added successfully',
+        result,
+      );
 
       logger.info(response);
       return res.status(200).json(response);
@@ -103,8 +95,10 @@ export class WalletController {
 
       const paymentMethods = await this.walletService.getPaymentMethods(userDetails.sub);
 
-      const message = 'Retrieved payment methods successfully';
-      const response = new PaymentMethodResponseDto(message, paymentMethods);
+      const response = new PaymentMethodResponseDto(
+        'Retrieved payment methods successfully',
+        paymentMethods,
+      );
 
       logger.info(response);
       return res.status(200).json(response);
@@ -156,8 +150,10 @@ export class WalletController {
         userDetails.sub,
       );
 
-      const message = 'Payment intent created successfully';
-      const response = new PaymentIntentResponseDto(message, paymentIntent);
+      const response = new PaymentIntentResponseDto(
+        'Payment intent created successfully',
+        paymentIntent,
+      );
 
       logger.info(response);
       return res.status(201).json(response);
@@ -183,8 +179,10 @@ export class WalletController {
         paymentMethodId,
       );
 
-      const message = 'Payment intent confirmed successfully';
-      const response = new PaymentIntentResponseDto(message, result);
+      const response = new DepositFundsResponseDto(
+        'Payment intent confirmed successfully',
+        result,
+      );
 
       logger.info(response);
       return res.status(200).json(response);
@@ -206,8 +204,10 @@ export class WalletController {
         paymentIntentId,
       );
 
-      const message = 'Payment status retrieved successfully';
-      const response = new PaymentStatusResponseDto(message, result);
+      const response = new PaymentStatusResponseDto(
+        'Payment status retrieved successfully',
+        result,
+      );
 
       logger.info(response);
       return res.status(200).json(response);
@@ -225,6 +225,7 @@ export class WalletController {
       const authHeader = req.header('Authorization') as string;
       const userDetails = res.locals.payload as JwtPayload;
       const depositRequest: DepositFundsRequestDto = req.body;
+
       const result = await this.walletService.deposit(
         authHeader,
         userDetails.sub,
@@ -232,8 +233,7 @@ export class WalletController {
         depositRequest.paymentMethodId,
       );
 
-      const message = 'Deposit successful';
-      const response = new ConfirmPaymentIntentResponseDto(message, result);
+      const response = new DepositFundsResponseDto('Deposit successful', result);
 
       logger.info(response);
       return res.status(200).json(response);
@@ -258,8 +258,7 @@ export class WalletController {
         withdrawRequest.amount,
       );
 
-      const message = 'Withdrawal successful';
-      const response = new PayoutResponseDto(message, result);
+      const response = new WithdrawFundsResponseDto('Withdrawal successful', result);
 
       logger.info(response);
       return res.status(200).json(response);
@@ -285,8 +284,7 @@ export class WalletController {
         transferRequest.amount,
       );
 
-      const message = 'Transfer successful';
-      const response = new TransferResponseDto(message, result);
+      const response = new TransferResponseDto('Transfer successful', result);
 
       logger.info(response);
       return res.status(200).json(response);
