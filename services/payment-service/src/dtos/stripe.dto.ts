@@ -1,6 +1,3 @@
-import Stripe from 'stripe';
-import { MockPayoutResult } from '../types';
-
 // export class CreatePaymentMethodRequestDto {
 //   type: string;
 //   token: string;
@@ -9,13 +6,3 @@ import { MockPayoutResult } from '../types';
 //     this.token = token;
 //   }
 // }
-
-export class PayoutResponseDto {
-  message: string;
-  result: Stripe.Payout | MockPayoutResult;
-
-  constructor(message: string, result: Stripe.Payout | MockPayoutResult) {
-    this.message = message;
-    this.result = result;
-  }
-}

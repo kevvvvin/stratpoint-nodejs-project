@@ -1,11 +1,11 @@
 import Stripe from 'stripe';
-import { MockPayoutResult } from '../types';
 import { JwtPayload } from 'shared-common';
 import { logger } from '../utils';
 import {
   CustomerResult,
   PaymentIntentDetails,
   PaymentMethodDetails,
+  PayoutDetails,
 } from 'shared-account-payment';
 
 export class StripeService {
@@ -194,7 +194,7 @@ export class StripeService {
   }
 
   // TODO: test create payouts without mock
-  async createPayout(amount: number, customerId: string): Promise<MockPayoutResult> {
+  async createPayout(amount: number, customerId: string): Promise<PayoutDetails> {
     // const payout = await this.stripe.payouts.create(
     //   {
     //     amount: amount * 100,

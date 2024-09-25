@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { StripeService } from '../services';
-import { PayoutResponseDto } from '../dtos';
 import { logger } from '../utils';
 import { JwtPayload } from 'shared-common';
 import {
@@ -14,6 +13,7 @@ import {
   CustomerResponseDto,
   PaymentIntentResponseDto,
   PaymentMethodListResponseDto,
+  PayoutResponseDto,
 } from 'shared-account-payment';
 
 export class StripeController {

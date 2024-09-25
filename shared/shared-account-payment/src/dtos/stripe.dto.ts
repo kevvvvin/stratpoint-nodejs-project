@@ -1,6 +1,11 @@
 // TODO: USE COMPOSITION TO MAINTAIN DECOUPLING BETWEEN DTOS AND ALLOW REUSING COMMON PROPERTY
 // COMMON PROPERTIES ENCOUNTERED SO FAR: PAYMENTMETHODID
-import { CustomerResult, PaymentIntentDetails, PaymentMethodDetails } from '../types';
+import {
+  CustomerResult,
+  PaymentIntentDetails,
+  PaymentMethodDetails,
+  PayoutDetails,
+} from '../types';
 
 export class RetrievePaymentMethodRequestDto {
   paymentMethodId: string;
@@ -94,6 +99,16 @@ export class PaymentIntentResponseDto {
   result: PaymentIntentDetails;
 
   constructor(message: string, result: PaymentIntentDetails) {
+    this.message = message;
+    this.result = result;
+  }
+}
+
+export class PayoutResponseDto {
+  message: string;
+  result: PayoutDetails;
+
+  constructor(message: string, result: PayoutDetails) {
     this.message = message;
     this.result = result;
   }

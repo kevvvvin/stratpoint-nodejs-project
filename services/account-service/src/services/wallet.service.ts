@@ -26,6 +26,7 @@ import {
   PaymentIntentDetails,
   PaymentIntentResponseDto,
   PaymentMethodResponseDto,
+  PayoutResponseDto,
   RetrievePaymentMethodRequestDto,
 } from 'shared-account-payment';
 
@@ -239,7 +240,7 @@ export class WalletService {
 
     return {
       id: paymentIntent.result.id,
-      amount: paymentIntent.result.amount,
+      amount: amount,
       currency: paymentIntent.result.currency,
       status: paymentIntent.result.status,
       clientSecret: paymentIntent.result.clientSecret,
@@ -299,7 +300,7 @@ export class WalletService {
 
       return {
         id: transactionId, // this is equal to the payment intent's id
-        amount: paymentIntent.result.amount,
+        amount: amount, // use payment intent amount / 100 to get amount in dollars
         currency: paymentIntent.result.currency,
         status: paymentIntent.result.status,
         clientSecret: paymentIntent.result.clientSecret,
@@ -414,7 +415,7 @@ export class WalletService {
 
       return {
         id: transactionId, // this is equal to the payment intent's id
-        amount: confirmedPaymentIntent.result.amount,
+        amount: depositAmount, // use payment intent amount / 100 to get amount in dollars,
         currency: confirmedPaymentIntent.result.currency,
         status: confirmedPaymentIntent.result.status,
         clientSecret: confirmedPaymentIntent.result.clientSecret,
@@ -426,7 +427,6 @@ export class WalletService {
     }
   }
 
-  // TODO: YOU ARE HERE, MOVE PAYOUT RESPONSE DTO TO SHARED PACKAGE AND USE IT!
   async withdraw(
     authHeader: string,
     userId: string,
@@ -444,14 +444,14 @@ export class WalletService {
     );
     if (createPayoutResponse.status !== 201) throw new Error('Payout creation failed');
 
-    const payout = (await createPayoutResponse.json()).result;
+    const payout: PayoutResponseDto = await createPayoutResponse.json();
 
     const transactionRequestDto = new TransactionRequestDto(
       'withdrawal',
       amount,
       wallet._id.toString(),
       null,
-      payout.id,
+      payout.result.id,
     );
     const transactionResponse = await fetch(
       `http://${envConfig.transactionService}:3003/api/transaction/create`,
@@ -495,8 +495,13 @@ export class WalletService {
     }
 
     return {
+      id: payout.result.id,
+      object: payout.result.object,
+      amount: payout.result.amount,
+      currency: payout.result.currency,
+      method: payout.result.method,
+      status: payout.result.status,
       balance: wallet.balance,
-      payoutId: payout.id,
     };
   }
 

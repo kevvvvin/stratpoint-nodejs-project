@@ -17,3 +17,12 @@ export interface PaymentIntentDetails {
   clientSecret: string | null;
   paymentMethod: string[];
 }
+
+export interface PayoutDetails {
+  id: string;
+  object: string;
+  amount: number;
+  currency: string;
+  method: string;
+  status: string;
+}

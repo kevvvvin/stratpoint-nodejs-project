@@ -1,4 +1,4 @@
-import { PaymentIntentDetails } from 'shared-account-payment';
+import { PaymentIntentDetails, PayoutDetails } from 'shared-account-payment';
 import { IPaymentMethod } from './';
 
 export interface cardDetails {
@@ -27,10 +27,7 @@ export interface PaymentStatusResult {
   updatedAt: Date;
 }
 
-export interface PayoutResult {
-  balance: number;
-  payoutId: string;
-}
+export type PayoutResult = PayoutDetails & { balance: number };
 
 export interface TransferResult {
   fromBalance: number;
