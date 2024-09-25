@@ -202,7 +202,6 @@ export class StripeController {
     }
   }
 
-  // TODO: YOU ARE HERE! MOVE PAYOUT RESPONSE DTO TO SHARED AND USE IT!
   async createPayout(
     req: Request,
     res: Response,

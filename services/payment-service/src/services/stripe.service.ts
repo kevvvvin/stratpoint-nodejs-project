@@ -193,7 +193,6 @@ export class StripeService {
     };
   }
 
-  // TODO: test create payouts without mock
   async createPayout(amount: number, customerId: string): Promise<PayoutDetails> {
     // const payout = await this.stripe.payouts.create(
     //   {
