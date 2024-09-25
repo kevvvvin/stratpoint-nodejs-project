@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { TransactionService } from '../services';
+import { PaymentStatusResponseDto } from '../dtos';
 import {
-  PaymentStatusResponseDto,
   TransactionRequestDto,
   TransactionResponseDto,
-} from '../dtos';
+} from 'shared-account-transaction';
 import { logger } from '../utils';
 
 export class TransactionController {

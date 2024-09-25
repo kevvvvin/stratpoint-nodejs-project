@@ -4,7 +4,6 @@ import {
   PaymentMethodResult,
   PaymentStatusResult,
   PayoutResult,
-  TransactionResult,
   TransferResult,
   WalletDetails,
 } from '../types';
@@ -44,31 +43,6 @@ export class TransferFundsRequestDto {
   constructor(toUserId: string, amount: number) {
     this.toUserId = toUserId;
     this.amount = amount;
-  }
-}
-
-// TODO: shared
-export class TransactionRequestDto {
-  type: string;
-  amount: number;
-  fromWalletId: string | null;
-  toWalletId: string | null;
-  stripePaymentIntentId: string | null;
-  status = 'completed';
-  metadata = {};
-
-  constructor(
-    type: string,
-    amount: number,
-    fromWalletId: string | null,
-    toWalletId: string | null,
-    stripePaymentIntentId: string | null,
-  ) {
-    this.type = type;
-    this.amount = amount;
-    this.fromWalletId = fromWalletId;
-    this.toWalletId = toWalletId;
-    this.stripePaymentIntentId = stripePaymentIntentId;
   }
 }
 
@@ -132,17 +106,6 @@ export class TransferResponseDto {
   result: TransferResult;
 
   constructor(message: string, result: TransferResult) {
-    this.message = message;
-    this.result = result;
-  }
-}
-
-// TODO: shared
-export class TransactionsResponseDto {
-  message: string;
-  result: TransactionResult[];
-
-  constructor(message: string, result: TransactionResult[]) {
     this.message = message;
     this.result = result;
   }

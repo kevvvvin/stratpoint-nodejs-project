@@ -15,6 +15,7 @@
   "license": "ISC",
   "description": "Microservice for transaction related operations",
   "dependencies": {
-    "shared-common": "^1.0.0"
+    "shared-common": "^1.0.0",
+    "shared-account-transaction": "^1.0.0"
   }
 }

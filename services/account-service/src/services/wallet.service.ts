@@ -1,12 +1,10 @@
 import {
   IPaymentMethod,
-  // PaymentMethodResult,
   STRIPE_TEST_PAYMENT_METHODS,
   ConfirmPaymentIntentResult,
   PaymentStatusResult,
   PayoutResult,
   TransferResult,
-  TransactionResult,
   WalletDetails,
   PaymentMethodResult,
 } from '../types';
@@ -14,9 +12,13 @@ import { JwtPayload } from 'shared-common';
 import { WalletRepository, PaymentMethodRepository } from '../repositories';
 import { Types } from 'mongoose';
 import { logger } from '../utils';
-import { TransactionRequestDto } from '../dtos';
 import { envConfig } from '../configs';
 import { fetchHelper } from 'shared-common';
+import {
+  TransactionDetails,
+  TransactionRequestDto,
+  TransactionResponseDto,
+} from 'shared-account-transaction';
 import {
   AttachPaymentMethodRequestDto,
   ConfirmPaymentIntentRequestDto,
@@ -271,18 +273,17 @@ export class WalletService {
     if (paymentIntent.result.status === 'succeeded') {
       const amount = paymentIntent.result.amount / 100;
 
-      const transactionRequestDto = new TransactionRequestDto(
-        'deposit',
-        amount,
-        null,
-        wallet._id.toString(),
-        paymentIntent.result.id,
-      );
       const transactionResponse = await fetchHelper(
         authHeader,
         `http://${envConfig.transactionService}:3003/api/transaction/create`,
         'POST',
-        transactionRequestDto,
+        new TransactionRequestDto(
+          'deposit',
+          amount,
+          null,
+          wallet._id.toString(),
+          paymentIntent.result.id,
+        ),
       );
       if (transactionResponse.status !== 201)
         throw new Error('Transaction creation on payment intent confirm failed');
@@ -371,18 +372,17 @@ export class WalletService {
     if (confirmedPaymentIntent.result.status === 'succeeded') {
       const depositAmount = confirmedPaymentIntent.result.amount / 100;
 
-      const transactionRequestDto = new TransactionRequestDto(
-        'deposit',
-        depositAmount,
-        null,
-        wallet._id.toString(),
-        confirmedPaymentIntent.result.id,
-      );
       const transactionResponse = await fetchHelper(
         authHeader,
         `http://${envConfig.transactionService}:3003/api/transaction/create`,
         'POST',
-        transactionRequestDto,
+        new TransactionRequestDto(
+          'deposit',
+          depositAmount,
+          null,
+          wallet._id.toString(),
+          confirmedPaymentIntent.result.id,
+        ),
       );
       if (transactionResponse.status !== 201)
         throw new Error('Transaction creation on deposit failed');
@@ -440,24 +440,19 @@ export class WalletService {
 
     const payout: PayoutResponseDto = await createPayoutResponse.json();
 
-    const transactionRequestDto = new TransactionRequestDto(
-      'withdrawal',
-      amount,
-      wallet._id.toString(),
-      null,
-      payout.result.id,
-    );
-    const transactionResponse = await fetch(
+    const transactionResponse = await fetchHelper(
+      authHeader,
       `http://${envConfig.transactionService}:3003/api/transaction/create`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: authHeader,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(transactionRequestDto),
-      },
+      'POST',
+      new TransactionRequestDto(
+        'withdrawal',
+        amount,
+        wallet._id.toString(),
+        null,
+        payout.result.id,
+      ),
     );
+
     if (transactionResponse.status !== 201) {
       throw new Error('Transaction creation on withdraw failed');
     }
@@ -509,18 +504,17 @@ export class WalletService {
     const toWallet = await this.walletRepository.findByUserId(toUserId);
     if (!fromWallet || !toWallet) throw new Error('One or both wallets do not exist.');
 
-    const transactionRequestDto = new TransactionRequestDto(
-      'transfer',
-      amount,
-      fromWallet._id.toString(),
-      toWallet._id.toString(),
-      null,
-    );
     const transactionResponse = await fetchHelper(
       authHeader,
       `http://${envConfig.transactionService}:3003/api/transaction/create`,
       'POST',
-      transactionRequestDto,
+      new TransactionRequestDto(
+        'transfer',
+        amount,
+        fromWallet._id.toString(),
+        toWallet._id.toString(),
+        null,
+      ),
     );
     if (transactionResponse.status !== 201)
       throw new Error('Transaction creation on withdraw failed');
@@ -562,7 +556,7 @@ export class WalletService {
   async getTransactions(
     authHeader: string,
     userId: string,
-  ): Promise<TransactionResult[]> {
+  ): Promise<TransactionDetails[]> {
     const wallet = await this.walletRepository.findByUserId(userId);
     if (!wallet) throw new Error('Wallet does not exist.');
 
@@ -574,7 +568,11 @@ export class WalletService {
     if (transactionsResponse.status !== 200)
       throw new Error('Transaction retrieval failed');
 
-    const transactions = (await transactionsResponse.json()).result;
-    return transactions;
+    const transactions: TransactionResponseDto = await transactionsResponse.json();
+
+    if (!Array.isArray(transactions.result))
+      throw new Error('Expected a list of transactions. Did not receive a list.');
+
+    return transactions.result;
   }
 }

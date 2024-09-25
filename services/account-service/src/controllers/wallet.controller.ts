@@ -7,7 +7,6 @@ import {
   DepositFundsResponseDto,
   PaymentMethodResponseDto,
   PaymentStatusResponseDto,
-  TransactionsResponseDto,
   TransferFundsRequestDto,
   TransferResponseDto,
   WalletResponseDto,
@@ -16,6 +15,7 @@ import {
 } from '../dtos';
 import { logger } from '../utils';
 import { PaymentIntentResponseDto } from 'shared-account-payment';
+import { TransactionResponseDto } from 'shared-account-transaction';
 
 export class WalletController {
   constructor(private walletService: WalletService) {}
@@ -308,7 +308,7 @@ export class WalletController {
       );
 
       const message = 'Retrieved transactions successfully';
-      const response = new TransactionsResponseDto(message, transactions);
+      const response = new TransactionResponseDto(message, transactions);
 
       logger.info(response);
       return res.status(200).json(response);

@@ -1,15 +1,14 @@
 import { Types } from 'mongoose';
-import { TransactionRequestDto } from '../dtos';
 import { TransactionRepository } from '../repositories';
-import { ITransaction } from '../types';
-import { PaymentStatusResult } from '../types/transaction.types';
+import { PaymentStatusResult } from '../types';
+import { TransactionRequestDto, TransactionDetails } from 'shared-account-transaction';
 
 export class TransactionService {
   constructor(private transactionRepository: TransactionRepository) {}
 
   async createTransaction(
     transactionDetails: TransactionRequestDto,
-  ): Promise<ITransaction> {
+  ): Promise<TransactionDetails> {
     const type = transactionDetails.type;
     const amount = transactionDetails.amount;
     const fromWalletId =
@@ -24,13 +23,6 @@ export class TransactionService {
     const status = transactionDetails.status;
     const metadata = transactionDetails.metadata;
 
-    // if (stripePaymentIntentId) {
-    //   const transaction =
-    //     await this.transactionRepository.getTransactionByPaymentId(stripePaymentIntentId);
-    //   if (transaction)
-    //     throw new Error(`Transaction with ID ${stripePaymentIntentId} already exists`);
-    // }
-
     const newTransaction = await this.transactionRepository.createTransaction(
       type,
       amount,
@@ -41,7 +33,14 @@ export class TransactionService {
       metadata,
     );
 
-    return newTransaction;
+    return {
+      id: newTransaction._id.toString(),
+      type: type,
+      amount: amount,
+      fromWalletId: fromWalletId?.toString(),
+      toWalletId: toWalletId?.toString(),
+      status: status,
+    };
   }
 
   async getPaymentStatus(paymentIntentId: string): Promise<PaymentStatusResult> {
@@ -58,9 +57,21 @@ export class TransactionService {
     };
   }
 
-  async getTransactions(walletId: string): Promise<ITransaction[]> {
-    const result = await this.transactionRepository.getUserTransactions(walletId);
+  async getTransactions(walletId: string): Promise<TransactionDetails[]> {
+    const retrievedTransactions =
+      await this.transactionRepository.getUserTransactions(walletId);
 
-    return result;
+    const transactions = retrievedTransactions.map((transaction) => {
+      return {
+        id: transaction._id.toString(),
+        type: transaction.type,
+        amount: transaction.amount,
+        fromWalletId: transaction.fromWallet?.toString(),
+        toWalletId: transaction.toWallet?.toString(),
+        status: transaction.status,
+      };
+    });
+
+    return transactions;
   }
 }
