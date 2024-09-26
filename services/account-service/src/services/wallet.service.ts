@@ -33,6 +33,13 @@ import {
   PayoutResponseDto,
   RetrievePaymentMethodRequestDto,
 } from 'shared-account-payment';
+import {
+  AddPaymentMethodNotificationRequestDto,
+  CreateWalletNotificationRequestDto,
+  DepositNotificationRequestDto,
+  TransferNotificationRequestDto,
+  WithdrawNotificationRequestDto,
+} from 'shared-notification';
 
 export class WalletService {
   constructor(
@@ -63,7 +70,7 @@ export class WalletService {
         authHeader,
         `http://${envConfig.notificationService}:3006/api/notif/wallet-creation-notification`,
         'POST',
-        { initialBalance: newWallet.balance },
+        new CreateWalletNotificationRequestDto(newWallet.balance),
       );
 
       if (notificationResponse.status !== 200) {
@@ -146,10 +153,10 @@ export class WalletService {
         authHeader,
         `http://${envConfig.notificationService}:3006/api/notif/add-payment-method-notification`,
         'POST',
-        {
-          last4: retrievedPaymentMethod.result.card.last4,
-          cardBrand: retrievedPaymentMethod.result.card.brand,
-        },
+        new AddPaymentMethodNotificationRequestDto(
+          retrievedPaymentMethod.result.card.last4,
+          retrievedPaymentMethod.result.card.brand,
+        ),
       );
 
       if (notificationResponse.status !== 200) {
@@ -247,7 +254,7 @@ export class WalletService {
     };
   }
 
-  // TODO: refactor to update a transaction here with status 'completed'
+  // TODO: refactor to update a transaction here to status 'completed'
   async confirmPaymentIntent(
     authHeader: string,
     userId: string,
@@ -390,7 +397,11 @@ export class WalletService {
       if (transactionResponse.status !== 201)
         throw new Error('Transaction creation on deposit failed');
 
-      const transactionId = (await transactionResponse.json()).result._id;
+      const transaction: TransactionResponseDto = await transactionResponse.json();
+      if (Array.isArray(transaction.result))
+        throw new Error(
+          'Expected a single transaction. Received a list of transactions.',
+        );
 
       wallet.balance += depositAmount;
       await wallet.save();
@@ -400,7 +411,7 @@ export class WalletService {
           authHeader,
           `http://${envConfig.notificationService}:3006/api/notif/deposit-notification`,
           'POST',
-          { amount: depositAmount, transactionId: transactionId },
+          new DepositNotificationRequestDto(depositAmount, transaction.result.id),
         );
 
         if (notificationResponse.status !== 200) {
@@ -411,7 +422,7 @@ export class WalletService {
       }
 
       return {
-        id: transactionId, // this is equal to the payment intent's id
+        id: transaction.result.id,
         amount: depositAmount, // use payment intent amount / 100 to get amount in dollars,
         currency: confirmedPaymentIntent.result.currency,
         status: confirmedPaymentIntent.result.status,
@@ -460,7 +471,9 @@ export class WalletService {
       throw new Error('Transaction creation on withdraw failed');
     }
 
-    const transactionId = (await transactionResponse.json()).result._id;
+    const transaction: TransactionResponseDto = await transactionResponse.json();
+    if (Array.isArray(transaction.result))
+      throw new Error('Expected a single transaction. Received a list of transactions.');
 
     wallet.balance -= amount;
     await wallet.save();
@@ -470,13 +483,13 @@ export class WalletService {
         authHeader,
         `http://${envConfig.notificationService}:3006/api/notif/withdraw-notification`,
         'POST',
-        {
-          amount: amount,
-          newBalance: wallet.balance,
-          transactionId: transactionId,
-          withdrawalStatus: 'completed',
-          withdrawalMethod: 'bank_transfer',
-        },
+        new WithdrawNotificationRequestDto(
+          amount,
+          wallet.balance,
+          transaction.result.id,
+          'completed',
+          'bank_transfer',
+        ),
       );
 
       if (notificationResponse.status !== 200) {
@@ -487,7 +500,7 @@ export class WalletService {
     }
 
     return {
-      id: payout.result.id,
+      id: transaction.result.id,
       object: payout.result.object,
       amount: amount, // use payment intent amount / 100 to get amount in dollars
       currency: payout.result.currency,
@@ -522,7 +535,9 @@ export class WalletService {
     if (transactionResponse.status !== 201)
       throw new Error('Transaction creation on withdraw failed');
 
-    const transactionId = (await transactionResponse.json()).result._id;
+    const transaction: TransactionResponseDto = await transactionResponse.json();
+    if (Array.isArray(transaction.result))
+      throw new Error('Expected a single transaction. Received a list of transactions.');
 
     fromWallet.balance -= amount;
     toWallet.balance += amount;
@@ -534,13 +549,13 @@ export class WalletService {
         authHeader,
         `http://${envConfig.notificationService}:3006/api/notif/transfer-notification`,
         'POST',
-        {
-          toUserId: toUserId,
-          amount: amount,
-          transactionId: transactionId,
-          fromBalance: fromWallet.balance,
-          toBalance: toWallet.balance,
-        },
+        new TransferNotificationRequestDto(
+          toUserId,
+          amount,
+          transaction.result.id,
+          fromWallet.balance,
+          toWallet.balance,
+        ),
       );
 
       if (notificationResponse.status !== 200) {

@@ -2,6 +2,13 @@ import { Request, Response, NextFunction } from 'express';
 import { NotificationService } from '../services';
 import { logger } from '../utils';
 import { JwtPayload } from 'shared-common';
+import {
+  AddPaymentMethodNotificationRequestDto,
+  CreateWalletNotificationRequestDto,
+  DepositNotificationRequestDto,
+  TransferNotificationRequestDto,
+  WithdrawNotificationRequestDto,
+} from 'shared-notification';
 
 export class NotificationController {
   constructor(private notifService: NotificationService) {}
@@ -87,12 +94,12 @@ export class NotificationController {
     try {
       const serviceToken = res.locals.serviceToken as string;
       const user = res.locals.payload as JwtPayload;
-      const { initialBalance } = req.body;
+      const walletDetails: CreateWalletNotificationRequestDto = req.body;
 
       await this.notifService.notifyWalletCreation(
         serviceToken,
         user.sub,
-        initialBalance,
+        walletDetails.initialBalance,
       );
       const message = 'Wallet creation notification sent successfully';
 
@@ -111,13 +118,13 @@ export class NotificationController {
     try {
       const serviceToken = res.locals.serviceToken as string;
       const user = res.locals.payload as JwtPayload;
-      const { last4, cardBrand } = req.body;
+      const cardDetails: AddPaymentMethodNotificationRequestDto = req.body;
 
       await this.notifService.notifyPaymentMethodAdded(
         serviceToken,
         user.sub,
-        last4,
-        cardBrand,
+        cardDetails.last4,
+        cardDetails.brand,
       );
       const message = 'Payment method added notification sent successfully';
 
@@ -136,13 +143,13 @@ export class NotificationController {
     try {
       const serviceToken = res.locals.serviceToken as string;
       const user = res.locals.payload as JwtPayload;
-      const { amount, transactionId } = req.body;
+      const depositDetails: DepositNotificationRequestDto = req.body;
 
       await this.notifService.notifyDeposit(
         serviceToken,
         user.sub,
-        amount,
-        transactionId,
+        depositDetails.amount,
+        depositDetails.transactionId,
       );
       const message = 'Deposit notification sent successfully';
 
@@ -161,17 +168,16 @@ export class NotificationController {
     try {
       const serviceToken = res.locals.serviceToken as string;
       const user = res.locals.payload as JwtPayload;
-      const { amount, newBalance, transactionId, withdrawalStatus, withdrawalMethod } =
-        req.body;
+      const withdrawDetails: WithdrawNotificationRequestDto = req.body;
 
       await this.notifService.notifyWithdraw(
         serviceToken,
         user.sub,
-        amount,
-        newBalance,
-        transactionId,
-        withdrawalStatus,
-        withdrawalMethod,
+        withdrawDetails.amount,
+        withdrawDetails.newBalance,
+        withdrawDetails.transactionId,
+        withdrawDetails.withdrawalStatus,
+        withdrawDetails.withdrawalMethod,
       );
       const message = 'Withdraw notification sent successfully';
 
@@ -190,16 +196,16 @@ export class NotificationController {
     try {
       const serviceToken = res.locals.serviceToken as string;
       const user = res.locals.payload as JwtPayload;
-      const { toUserId, amount, transactionId, fromBalance, toBalance } = req.body;
+      const transferDetails: TransferNotificationRequestDto = req.body;
 
       await this.notifService.notifyTransfer(
         serviceToken,
         user.sub,
-        toUserId,
-        amount,
-        transactionId,
-        fromBalance,
-        toBalance,
+        transferDetails.toUserId,
+        transferDetails.amount,
+        transferDetails.transactionId,
+        transferDetails.fromBalance,
+        transferDetails.toBalance,
       );
       const message = 'Transfer notification sent successfully';
 
