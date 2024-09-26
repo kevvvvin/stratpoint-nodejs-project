@@ -21,14 +21,6 @@ export type PaymentMethodResult = PaymentMethodDetails & { isDefault: boolean };
 
 export type ConfirmPaymentIntentResult = PaymentIntentDetails & { newBalance: number };
 
-export interface PaymentStatusResult {
-  stripePaymentIntentId: string;
-  status: string;
-  amount: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export type PayoutResult = PayoutDetails & { newBalance: number };
 
 export interface TransferResult {

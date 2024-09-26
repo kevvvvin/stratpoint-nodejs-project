@@ -2,7 +2,6 @@ import {
   IPaymentMethod,
   STRIPE_TEST_PAYMENT_METHODS,
   ConfirmPaymentIntentResult,
-  PaymentStatusResult,
   PayoutResult,
   TransferResult,
   WalletDetails,
@@ -18,6 +17,8 @@ import {
   TransactionDetails,
   TransactionRequestDto,
   TransactionResponseDto,
+  TransactionStatusDetails,
+  TransactionStatusResponseDto,
 } from 'shared-account-transaction';
 import {
   AttachPaymentMethodRequestDto,
@@ -215,6 +216,8 @@ export class WalletService {
     return paymentMethod;
   }
 
+  // TODO: refactor to create a transaction here with status 'pending'
+  // TODO: refactor to use transaction ID instead of payment intent ID
   async createPaymentIntent(
     authHeader: string,
     amount: number,
@@ -244,6 +247,7 @@ export class WalletService {
     };
   }
 
+  // TODO: refactor to update a transaction here with status 'completed'
   async confirmPaymentIntent(
     authHeader: string,
     userId: string,
@@ -288,13 +292,17 @@ export class WalletService {
       if (transactionResponse.status !== 201)
         throw new Error('Transaction creation on payment intent confirm failed');
 
-      const transactionId = (await transactionResponse.json()).result._id;
+      const transaction: TransactionResponseDto = await transactionResponse.json();
+      if (Array.isArray(transaction.result))
+        throw new Error(
+          'Expected a single transaction on creation. Received a list of transactions.',
+        );
 
       wallet.balance += amount;
       await wallet.save();
 
       return {
-        id: transactionId, // this is equal to the payment intent's id
+        id: transaction.result.id, // uses the transaction id from the transaction service
         amount: amount, // use payment intent amount / 100 to get amount in dollars
         currency: paymentIntent.result.currency,
         status: paymentIntent.result.status,
@@ -307,10 +315,11 @@ export class WalletService {
     }
   }
 
+  // TODO: refactor to use transaction ID instead of paymentIntentId
   async getPaymentStatus(
     authHeader: string,
     paymentIntentId: string,
-  ): Promise<PaymentStatusResult> {
+  ): Promise<TransactionStatusDetails> {
     const transactionResponse = await fetchHelper(
       authHeader,
       `http://${envConfig.transactionService}:3003/api/transaction/status/${paymentIntentId}`,
@@ -319,15 +328,9 @@ export class WalletService {
     if (transactionResponse.status !== 200)
       throw new Error('Payment status check failed');
 
-    const transaction = (await transactionResponse.json()).result;
+    const transaction: TransactionStatusResponseDto = await transactionResponse.json();
 
-    return {
-      stripePaymentIntentId: transaction.stripePaymentIntentId,
-      status: transaction.status,
-      amount: transaction.amount,
-      createdAt: transaction.createdAt,
-      updatedAt: transaction.updatedAt,
-    };
+    return transaction.result;
   }
 
   async deposit(
@@ -562,7 +565,7 @@ export class WalletService {
 
     const transactionsResponse = await fetchHelper(
       authHeader,
-      `http://${envConfig.transactionService}:3003/api/transaction/transactions/${wallet._id.toString()}`,
+      `http://${envConfig.transactionService}:3003/api/transaction/transactions/${wallet.id}`,
       'GET',
     );
     if (transactionsResponse.status !== 200)

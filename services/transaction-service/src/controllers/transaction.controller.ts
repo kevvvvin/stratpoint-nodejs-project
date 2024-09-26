@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { TransactionService } from '../services';
-import { PaymentStatusResponseDto } from '../dtos';
 import {
   TransactionRequestDto,
   TransactionResponseDto,
+  TransactionStatusResponseDto,
 } from 'shared-account-transaction';
 import { logger } from '../utils';
 
@@ -39,8 +39,10 @@ export class TransactionController {
       const { paymentIntentId } = req.params;
       const result = await this.transactionService.getPaymentStatus(paymentIntentId);
 
-      const message = 'Payment status retrieved successfully';
-      const response = new PaymentStatusResponseDto(message, result);
+      const response = new TransactionStatusResponseDto(
+        'Payment status retrieved successfully',
+        result,
+      );
 
       logger.info(response);
       return res.status(200).json(response);

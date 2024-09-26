@@ -1,7 +1,10 @@
 import { Types } from 'mongoose';
 import { TransactionRepository } from '../repositories';
-import { PaymentStatusResult } from '../types';
-import { TransactionRequestDto, TransactionDetails } from 'shared-account-transaction';
+import {
+  TransactionRequestDto,
+  TransactionDetails,
+  TransactionStatusDetails,
+} from 'shared-account-transaction';
 
 export class TransactionService {
   constructor(private transactionRepository: TransactionRepository) {}
@@ -34,7 +37,7 @@ export class TransactionService {
     );
 
     return {
-      id: newTransaction._id.toString(),
+      id: newTransaction.id,
       type: type,
       amount: amount,
       fromWalletId: fromWalletId?.toString(),
@@ -43,17 +46,17 @@ export class TransactionService {
     };
   }
 
-  async getPaymentStatus(paymentIntentId: string): Promise<PaymentStatusResult> {
-    const result =
+  async getPaymentStatus(paymentIntentId: string): Promise<TransactionStatusDetails> {
+    const transaction =
       await this.transactionRepository.getTransactionByPaymentId(paymentIntentId);
-    if (!result) throw new Error(`Transaction with ID ${paymentIntentId} not found`);
+    if (!transaction) throw new Error(`Transaction with ID ${paymentIntentId} not found`);
 
     return {
-      stripePaymentIntentId: result.stripePaymentIntentId,
-      status: result.status,
-      amount: result.amount,
-      createdAt: result.createdAt,
-      updatedAt: result.updatedAt,
+      id: transaction.id,
+      status: transaction.status,
+      amount: transaction.amount,
+      createdAt: transaction.createdAt,
+      updatedAt: transaction.updatedAt,
     };
   }
 
@@ -63,7 +66,7 @@ export class TransactionService {
 
     const transactions = retrievedTransactions.map((transaction) => {
       return {
-        id: transaction._id.toString(),
+        id: transaction.id,
         type: transaction.type,
         amount: transaction.amount,
         fromWalletId: transaction.fromWallet?.toString(),

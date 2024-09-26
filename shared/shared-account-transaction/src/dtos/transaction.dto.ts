@@ -1,4 +1,4 @@
-import { TransactionDetails } from '../types';
+import { TransactionDetails, TransactionStatusDetails } from '../types';
 
 export class TransactionRequestDto {
   type: string;
@@ -29,6 +29,16 @@ export class TransactionResponseDto {
   result: TransactionDetails | TransactionDetails[];
 
   constructor(message: string, result: TransactionDetails | TransactionDetails[]) {
+    this.message = message;
+    this.result = result;
+  }
+}
+
+export class TransactionStatusResponseDto {
+  message: string;
+  result: TransactionStatusDetails;
+
+  constructor(message: string, result: TransactionStatusDetails) {
     this.message = message;
     this.result = result;
   }

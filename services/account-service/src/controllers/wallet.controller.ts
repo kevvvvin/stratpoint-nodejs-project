@@ -6,7 +6,6 @@ import {
   DepositFundsRequestDto,
   DepositFundsResponseDto,
   PaymentMethodResponseDto,
-  PaymentStatusResponseDto,
   TransferFundsRequestDto,
   TransferResponseDto,
   WalletResponseDto,
@@ -15,7 +14,10 @@ import {
 } from '../dtos';
 import { logger } from '../utils';
 import { PaymentIntentResponseDto } from 'shared-account-payment';
-import { TransactionResponseDto } from 'shared-account-transaction';
+import {
+  TransactionStatusResponseDto,
+  TransactionResponseDto,
+} from 'shared-account-transaction';
 
 export class WalletController {
   constructor(private walletService: WalletService) {}
@@ -199,12 +201,13 @@ export class WalletController {
     try {
       const { paymentIntentId } = req.params;
       const authHeader = req.header('Authorization') as string;
+
       const result = await this.walletService.getPaymentStatus(
         authHeader,
         paymentIntentId,
       );
 
-      const response = new PaymentStatusResponseDto(
+      const response = new TransactionStatusResponseDto(
         'Payment status retrieved successfully',
         result,
       );

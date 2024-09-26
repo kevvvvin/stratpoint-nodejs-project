@@ -2,7 +2,6 @@ import {
   ConfirmPaymentIntentResult,
   IPaymentMethod,
   PaymentMethodResult,
-  PaymentStatusResult,
   PayoutResult,
   TransferResult,
   WalletDetails,
@@ -76,16 +75,6 @@ export class DepositFundsResponseDto {
   result: ConfirmPaymentIntentResult;
 
   constructor(message: string, result: ConfirmPaymentIntentResult) {
-    this.message = message;
-    this.result = result;
-  }
-}
-
-export class PaymentStatusResponseDto {
-  message: string;
-  result: PaymentStatusResult;
-
-  constructor(message: string, result: PaymentStatusResult) {
     this.message = message;
     this.result = result;
   }
