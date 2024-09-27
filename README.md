@@ -9,7 +9,6 @@ It includes multiple services such as user management, transactions, payments, n
 - [Services](#services)
 - [Tech Stack](#tech-stack)
 - [Installation](#installation)
-- [Running the Services](#running-the-services)
 - [Docker Setup](#docker-setup)
 - [Environment Variables](#environment-variables)
 
@@ -119,7 +118,7 @@ Each service runs on a specific port and is forwarded to the local machine:
 docker-compose down
 ```
 
-## Environmment Variables
+## Environment Variables
 
 ### Core Variables
 
