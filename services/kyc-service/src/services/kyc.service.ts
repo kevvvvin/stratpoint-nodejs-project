@@ -6,6 +6,7 @@ import { KycSubmitRequestDto } from '../dtos';
 import { logger } from '../utils';
 import { envConfig } from '../configs';
 import { fetchHelper } from 'shared-common';
+import { KycUpdateNotificationRequestDto } from 'shared-notification';
 
 export class KycService {
   constructor(private kycRepository: KycRepository) {}
@@ -29,7 +30,7 @@ export class KycService {
         authHeader,
         `http://${envConfig.notificationService}:3006/api/notif/kyc-update-notification`,
         'POST',
-        { userId: userId, kycStatus: newKyc.submissionStatus, rejectionReason: null },
+        new KycUpdateNotificationRequestDto(userId, newKyc.submissionStatus, null),
       );
 
       if (notificationResponse.status !== 200) {
@@ -98,7 +99,7 @@ export class KycService {
         authHeader,
         `http://${envConfig.notificationService}:3006/api/notif/kyc-update-notification`,
         'POST',
-        { userId: userId, kycStatus: updatedKyc.submissionStatus, rejectionReason: null },
+        new KycUpdateNotificationRequestDto(userId, updatedKyc.submissionStatus, null),
       );
 
       if (notificationResponse.status !== 200) {
@@ -163,11 +164,11 @@ export class KycService {
         authHeader,
         `http://${envConfig.notificationService}:3006/api/notif/kyc-update-notification`,
         'POST',
-        {
-          userId: targetUserId,
-          kycStatus: updatedKyc.submissionStatus,
-          rejectionReason: null,
-        },
+        new KycUpdateNotificationRequestDto(
+          targetUserId,
+          updatedKyc.submissionStatus,
+          null,
+        ),
       );
 
       if (notificationResponse.status !== 200) {
@@ -232,11 +233,11 @@ export class KycService {
         authHeader,
         `http://${envConfig.notificationService}:3006/api/notif/kyc-update-notification`,
         'POST',
-        {
-          userId: targetUserId,
-          kycStatus: updatedKyc.submissionStatus,
-          rejectionReason: 'KYC Rejected due to ...',
-        },
+        new KycUpdateNotificationRequestDto(
+          targetUserId,
+          updatedKyc.submissionStatus,
+          'KYC Rejected due to ...',
+        ),
       );
 
       if (notificationResponse.status !== 200) {
