@@ -15,6 +15,7 @@
   "license": "ISC",
   "description": "Microservice for user related operations",
   "dependencies": {
-    "shared-common": "^1.0.0"
+    "shared-common": "^1.0.0",
+    "shared-notification": "^1.0.0"
   }
 }

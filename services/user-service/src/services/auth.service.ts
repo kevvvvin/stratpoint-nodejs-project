@@ -7,6 +7,7 @@ import { LoginRequestDto, RegisterRequestDto } from '../dtos';
 import { fetchHelper } from 'shared-common';
 import { envConfig } from '../configs';
 import { logger } from '../utils';
+import { EmailVerificationNotificationRequestDto } from 'shared-notification';
 
 export class AuthService {
   constructor(
@@ -47,7 +48,7 @@ export class AuthService {
         `Bearer ${serviceToken}`,
         `http://${envConfig.notificationService}:3006/api/notif/email-verification-notification`,
         'POST',
-        { userId: newUser._id, emailVerificationToken },
+        new EmailVerificationNotificationRequestDto(newUser.id, emailVerificationToken),
       );
 
       if (notificationResponse.status !== 200) {
@@ -124,7 +125,10 @@ export class AuthService {
           `Bearer ${serviceToken}`,
           `http://${envConfig.notificationService}:3006/api/notif/email-verification-notification`,
           'POST',
-          { userId: user._id, emailVerificationToken: user.emailVerificationToken },
+          new EmailVerificationNotificationRequestDto(
+            user.id,
+            user.emailVerificationToken,
+          ),
         );
 
         if (notificationResponse.status !== 200) {
