@@ -31,7 +31,11 @@ export const authenticateJWT = (requestingService: string, userService?: string)
       }
 
       const decoded = jwt.decode(token) as JwtPayload;
-      if (requestingService !== 'kyc-service' && decoded.kycStatus !== 'VERIFIED') {
+      if (
+        requestingService !== 'kyc-service' &&
+        requestingService !== 'notification-service' &&
+        decoded.kycStatus !== 'VERIFIED'
+      ) {
         const error = new AuthError(
           'User is not verified. Please verify your account.',
           'AuthenticationError',
