@@ -3,6 +3,7 @@ import { IUser, UserResult } from '../types';
 import { UserService } from '../services';
 import { UserResponseDto } from '../dtos';
 import { logger } from '../utils';
+import { KycStatusUpdateRequestDto } from 'shared-user-kyc';
 
 export class UserController {
   constructor(private userService: UserService) {}
@@ -53,12 +54,12 @@ export class UserController {
       const userDetails = res.locals.user as IUser;
       const targetUserId = req.params.userId;
 
-      const { updatedStatus } = req.body;
+      const kycDetails: KycStatusUpdateRequestDto = req.body;
 
       const result = await this.userService.updateKycStatus(
         userDetails,
         targetUserId,
-        updatedStatus,
+        kycDetails.updatedStatus,
       );
       const message = "User's KYC status updated successfully";
       const response = new UserResponseDto(message, result);

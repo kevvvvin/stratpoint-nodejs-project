@@ -6,6 +6,8 @@ import {
   AddPaymentMethodNotificationRequestDto,
   CreateWalletNotificationRequestDto,
   DepositNotificationRequestDto,
+  EmailVerificationNotificationRequestDto,
+  KycUpdateNotificationRequestDto,
   TransferNotificationRequestDto,
   WithdrawNotificationRequestDto,
 } from 'shared-notification';
@@ -46,12 +48,12 @@ export class NotificationController {
   ): Promise<Response | void> {
     try {
       const serviceToken = res.locals.serviceToken as string;
-      const { userId, emailVerificationToken } = req.body;
+      const verificationDetails: EmailVerificationNotificationRequestDto = req.body;
 
       await this.notifService.notifyEmailVerification(
         serviceToken,
-        userId,
-        emailVerificationToken,
+        verificationDetails.userId,
+        verificationDetails.emailVerificationToken,
       );
       const message = 'Email verification notification sent successfully';
 
@@ -69,13 +71,14 @@ export class NotificationController {
   ): Promise<Response | void> {
     try {
       const serviceToken = res.locals.serviceToken as string;
-      const { userId, kycStatus, rejectionReason } = req.body;
+      // const { userId, kycStatus, rejectionReason } = req.body;
+      const kycDetails: KycUpdateNotificationRequestDto = req.body;
 
       await this.notifService.notifyKycUpdate(
         serviceToken,
-        userId,
-        kycStatus,
-        rejectionReason,
+        kycDetails.userId,
+        kycDetails.kycStatus,
+        kycDetails.rejectionReason,
       );
       const message = 'KYC update notification sent successfully';
 

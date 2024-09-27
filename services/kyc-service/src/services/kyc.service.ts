@@ -7,6 +7,7 @@ import { logger } from '../utils';
 import { envConfig } from '../configs';
 import { fetchHelper } from 'shared-common';
 import { KycUpdateNotificationRequestDto } from 'shared-notification';
+import { KycStatusUpdateRequestDto } from 'shared-user-kyc';
 
 export class KycService {
   constructor(private kycRepository: KycRepository) {}
@@ -83,7 +84,7 @@ export class KycService {
       authHeader,
       `http://${envConfig.userService}:3001/api/users/update-kyc-status/${userId}`,
       'PUT',
-      { updatedStatus: 'PENDING' },
+      new KycStatusUpdateRequestDto('PENDING'),
     );
 
     if (updateKycStatusResponse.status !== 200)
@@ -148,7 +149,7 @@ export class KycService {
       authHeader,
       `http://${envConfig.userService}:3001/api/users/update-kyc-status/${targetUserId}`,
       'PUT',
-      { updatedStatus: 'VERIFIED' },
+      new KycStatusUpdateRequestDto('VERIFIED'),
     );
 
     if (updateKycStatusResponse.status !== 200)
@@ -217,7 +218,7 @@ export class KycService {
       authHeader,
       `http://${envConfig.userService}:3001/api/users/update-kyc-status/${targetUserId}`,
       'PUT',
-      { updatedStatus: 'TO_REVISE' },
+      new KycStatusUpdateRequestDto('TO_REVISE'),
     );
 
     if (updateKycStatusResponse.status !== 200)

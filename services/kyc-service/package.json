@@ -16,6 +16,7 @@
   "description": "Microservice for KYC related operations",
   "dependencies": {
     "shared-common": "^1.0.0",
+    "shared-user-kyc": "^1.0.0",
     "shared-notification": "^1.0.0"
   }
 }

@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",                    // Use modern JavaScript features
+    "module": "commonjs",                  // Keep module system as CommonJS for compatibility with your services
+    "moduleResolution": "node",            // Ensure modules are resolved like Node.js
+    "rootDir": "./src",
+    "outDir": "./dist",                    // Output compiled files to the dist folder
+    "declaration": true,                   // Generate .d.ts files for types
+    "esModuleInterop": true,               // Ensure compatibility between CommonJS and ES modules
+    "strict": true,                        // Enable strict type-checking options
+    "composite": true,
+    "declarationMap": true,
+    "sourceMap": true
+  },
+  "include": ["src/**/*.ts"],                // Include all TypeScript files in the current directory
+  "exclude": ["node_modules", "dist"]      // Exclude the node_modules and dist folders
+}
